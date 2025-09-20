@@ -1,0 +1,423 @@
+{% extends 'donor/donorbase.html' %}
+{% block content %}
+{% load widget_tweaks %}
+{%load static%}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Theme Support */
+    body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+        margin-top: 80px; /* Account for fixed navbar */
+    }
+    
+    [data-theme="dark"] {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --card-bg: #1e293b;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    [data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --card-bg: #ffffff;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Modern Donor Request History Styles */
+    .donor-request-history-wrapper {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary, linear-gradient(135deg, #fef2f2 0%, #f1f5f9 30%, #e2e8f0 70%, #f8fafc 100%));
+        min-height: 100vh;
+        padding: 2rem 0;
+        transition: background-color 0.3s ease;
+    }
+    
+    .donor-request-history-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-primary, var(--primary-700));
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #ff6b6b 0%, var(--primary-600) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: color 0.3s ease;
+    }
+    
+    .page-subtitle {
+        font-size: 1.1rem;
+        color: var(--text-secondary, var(--medium-gray));
+        margin: 0;
+        transition: color 0.3s ease;
+    }
+    
+    .request-history-card {
+        background: var(--card-bg, white);
+        border-radius: 20px;
+        box-shadow: var(--shadow-dark, 0 10px 40px rgba(220, 38, 38, 0.1));
+        border: 1px solid var(--border-color, rgba(254, 242, 242, 0.8));
+        overflow: hidden;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .request-history-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #ff6b6b 0%, var(--primary-500) 50%, var(--primary-600) 100%);
+    }
+    
+    .request-history-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+    
+    .request-history-table thead {
+        background: linear-gradient(135deg, #ff6b6b 0%, var(--primary-500) 50%, var(--primary-600) 100%);
+    }
+    
+    .request-history-table th {
+        padding: 1.5rem 1rem;
+        color: white;
+        font-weight: 600;
+        text-align: left;
+        border: none;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .request-history-table td {
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid var(--border-color, #e2e8f0);
+        color: var(--text-primary, var(--dark-gray));
+        font-weight: 500;
+        vertical-align: middle;
+        transition: color 0.3s ease;
+    }
+    
+    .request-history-table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .request-history-table tbody tr:hover {
+        background: var(--bg-tertiary, linear-gradient(135deg, #fef2f2 0%, #f8fafc 100%));
+        transform: translateX(5px);
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+    }
+    
+    .status-approved {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+    }
+    
+    .status-rejected {
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 0, 43, 0.3);
+    }
+    
+    .status-pending {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+    
+    .blood-type {
+        background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%);
+        color: var(--primary-700);
+        padding: 0.5rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-block;
+        min-width: 45px;
+        text-align: center;
+    }
+    
+    .request-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+        background: var(--card-bg, white);
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: var(--shadow-dark, 0 4px 20px rgba(220, 38, 38, 0.1));
+        border: 1px solid var(--border-color, rgba(254, 242, 242, 0.8));
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(220, 38, 38, 0.15);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        color: var(--primary-500);
+        margin-bottom: 0.75rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-primary, var(--primary-700));
+        margin-bottom: 0.25rem;
+        transition: color 0.3s ease;
+    }
+    
+    .stat-label {
+        color: var(--text-secondary, var(--medium-gray));
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    
+    .donor-compassion {
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 3rem;
+        color: #dc2626;
+        text-align: center;
+    }
+    
+    .donor-compassion h4 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .donor-compassion p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-secondary, var(--medium-gray));
+        transition: color 0.3s ease;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--primary-300);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary, var(--dark-gray));
+        transition: color 0.3s ease;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .request-history-table {
+            font-size: 0.85rem;
+        }
+        
+        .request-history-table th,
+        .request-history-table td {
+            padding: 0.75rem 0.5rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .request-history-card {
+            margin: 0 -1rem;
+            border-radius: 0;
+        }
+        
+        .request-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .request-history-table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .request-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+    </style>
+</head>
+
+<div class="donor-request-history-wrapper">
+    <div class="donor-request-history-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-clipboard-list" style="margin-right: 0.75rem;"></i>
+                My Blood Requests
+            </h1>
+            <p class="page-subtitle">Track blood requests you've made for patients in need</p>
+        </div>
+        
+        {% if blood_request %}
+            <div class="donor-compassion">
+                <h4>
+                    <i class="fas fa-hands-helping"></i>
+                    Donor Compassion Program
+                </h4>
+                <p>As a donor, your ability to request blood for others shows the true spirit of community care and compassion.</p>
+            </div>
+            
+            <div class="request-stats">
+                <div class="stat-card">
+                    <i class="fas fa-heart stat-icon"></i>
+                    <div class="stat-number">{{ blood_request|length }}</div>
+                    <div class="stat-label">Total Requests</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users-cog stat-icon"></i>
+                    <div class="stat-number">Hero</div>
+                    <div class="stat-label">Community Helper</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-hands-helping stat-icon"></i>
+                    <div class="stat-number">Active</div>
+                    <div class="stat-label">Compassion Status</div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="request-history-card">
+            {% if blood_request %}
+                <table class="request-history-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-user"></i> Patient Name</th>
+                            <th><i class="fas fa-birthday-cake"></i> Age</th>
+                            <th><i class="fas fa-stethoscope"></i> Reason</th>
+                            <th><i class="fas fa-tint"></i> Blood Group</th>
+                            <th><i class="fas fa-flask"></i> Unit (ml)</th>
+                            <th><i class="fas fa-calendar"></i> Date</th>
+                            <th><i class="fas fa-info-circle"></i> Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in blood_request %}
+                        <tr>
+                            <td><strong>{{t.patient_name}}</strong></td>
+                            <td>{{t.patient_age}} years</td>
+                            <td>{{t.reason}}</td>
+                            <td><span class="blood-type">{{t.bloodgroup}}</span></td>
+                            <td>{{t.unit}} ml</td>
+                            <td>{{t.date|date:"M d, Y"}}</td>
+                            <td>
+                                {% if t.status == 'Approved' %}
+                                    <span class="status-badge status-approved">
+                                        <i class="fas fa-check-circle"></i>
+                                        Approved
+                                    </span>
+                                {% elif t.status == 'Rejected' %}
+                                    <span class="status-badge status-rejected">
+                                        <i class="fas fa-times-circle"></i>
+                                        Rejected
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock"></i>
+                                        Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-hands-helping"></i>
+                    <h3>No Requests Made</h3>
+                    <p>You haven't requested blood for any patients yet. Your compassion can help save lives.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Theme initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved theme or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    
+    // Apply theme to body background
+    if (savedTheme === 'dark') {
+        document.body.style.backgroundColor = '#0f172a';
+        document.body.style.color = '#f8fafc';
+    } else {
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#1e293b';
+    }
+});
+</script>
+
+{% endblock content %}

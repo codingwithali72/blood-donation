@@ -1,0 +1,299 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout - Blood Bank Management</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Modern Logout Page Styles */
+    .logout-body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 20%, #fef2f2 40%, #f1f5f9 60%, #e2e8f0 80%, #f8fafc 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .logout-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+    }
+    
+    .logout-container {
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+    }
+    
+    .logout-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(240, 249, 255, 0.8);
+        overflow: hidden;
+        position: relative;
+        padding: 4rem 3rem;
+    }
+    
+    .logout-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 30%, var(--primary-500) 60%, var(--primary-600) 100%);
+    }
+    
+    .logout-icon-container {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .logout-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 15px 40px rgba(255, 0, 43, 0.3);
+        animation: logoutPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes logoutPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .logout-icon i {
+        font-size: 3rem;
+        color: white;
+        /* Removed rotation animation - icon now stays static */
+    }
+    
+    /* Removed iconRotate keyframes - no longer needed */
+    
+    .logout-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary-600) 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInUp 1s ease;
+    }
+    
+    .logout-subtitle {
+        font-size: 1.2rem;
+        color: var(--medium-gray);
+        margin-bottom: 2rem;
+        animation: fadeInUp 1s ease 0.2s both;
+    }
+    
+    .logout-message {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 3rem;
+        color: #1d4ed8;
+        animation: fadeInUp 1s ease 0.4s both;
+    }
+    
+    .logout-message p {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    
+    .logout-actions {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        animation: fadeInUp 1s ease 0.6s both;
+    }
+    
+    .logout-btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .logout-btn-primary {
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(255, 0, 43, 0.3);
+    }
+    
+    .logout-btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(255, 0, 43, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .logout-btn-secondary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+    
+    .logout-btn-secondary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .logout-footer {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+        animation: fadeInUp 1s ease 0.8s both;
+    }
+    
+    .logout-footer i {
+        color: var(--primary-500);
+        margin: 0 0.25rem;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Floating particles animation */
+    .logout-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255, 0, 43, 0.1) 0%, transparent 50%);
+        background-size: 200px 200px, 150px 150px;
+        animation: floatingParticles 20s ease-in-out infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes floatingParticles {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(10px, -10px) rotate(90deg); }
+        50% { transform: translate(-5px, 5px) rotate(180deg); }
+        75% { transform: translate(5px, -5px) rotate(270deg); }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .logout-content {
+            padding: 2rem 1rem;
+        }
+        
+        .logout-card {
+            padding: 3rem 2rem;
+        }
+        
+        .logout-title {
+            font-size: 2rem;
+        }
+        
+        .logout-subtitle {
+            font-size: 1rem;
+        }
+        
+        .logout-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .logout-btn {
+            width: 100%;
+            max-width: 250px;
+            justify-content: center;
+        }
+    }
+    </style>
+</head>
+
+<body class="logout-body">
+    {% include "blood/navbar.html" %}
+    
+    <div class="logout-content">
+        <div class="logout-container">
+            <div class="logout-card">
+                <div class="logout-icon-container">
+                    <div class="logout-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                </div>
+                
+                <h1 class="logout-title">Successfully Logged Out</h1>
+                <p class="logout-subtitle">Thank you for using our Blood Bank Management System</p>
+                
+                <div class="logout-message">
+                    <p>
+                        <i class="fas fa-heart" style="color: var(--primary-500);"></i>
+                        Your session has been securely ended. We appreciate your contribution to saving lives through our platform.
+                    </p>
+                </div>
+                
+                <div class="logout-actions">
+                    <a href="/" class="logout-btn logout-btn-primary">
+                        <i class="fas fa-home"></i>
+                        Return to Homepage
+                    </a>
+                    <a href="/adminlogin" class="logout-btn logout-btn-secondary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login Again
+                    </a>
+                </div>
+                
+                <div class="logout-footer">
+                    <p>
+                        Made with <i class="fas fa-heart"></i> for humanity
+                        <br>
+                        Every donation counts, every life matters
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% include "blood/footer.html" %}
+</body>
+</html>

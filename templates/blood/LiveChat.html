@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blood Donation Assistant</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      text-align: center;
+    }
+    header {
+      background: #d32f2f;
+      color: white;
+      padding: 1rem;
+    }
+    main {
+      padding: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Blood Donation Virtual Assistant</h1>
+    <p>Ask questions by voice or text — the avatar will guide you</p>
+  </header>
+
+  <main>
+    <h2>Why Donate Blood?</h2>
+    <p>Every donation saves up to 3 lives. You can donate if you’re healthy, aged 18–65, and meet eligibility criteria.</p>
+  </main>
+
+  <!-- HeyGen Interactive Avatar Embed -->
+  <script>
+    !function(window){
+      const host = "https://labs.heygen.com",
+            url = host + "/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJBbm5fRG9jdG9yX1N0YW5kaW5nMl9wdWJs%0D%0AaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My82OTlh%0D%0ANGMyOTk1OTE0ZDM5YjJjYjMxMWE5MzBkNzcyMF80NTU3MC9wcmV2aWV3X3RhbGtfMy53ZWJwIiwi%0D%0AbmVlZFJlbW92ZUJhY2tncm91bmQiOmZhbHNlLCJrbm93bGVkZ2VCYXNlSWQiOiJkZW1vLTEiLCJ1%0D%0Ac2VybmFtZSI6IjFmMjY0ZTk1ZTY3MDQyNzNhNzM2ZjlhZjgzYjJkY2NhIn0%3D&inIFrame=1",
+            clientWidth = document.body.clientWidth,
+            wrapDiv = document.createElement("div");
+
+      wrapDiv.id = "heygen-streaming-embed";
+
+      const container = document.createElement("div");
+      container.id = "heygen-streaming-container";
+
+      const stylesheet = document.createElement("style");
+      stylesheet.innerHTML = `
+        #heygen-streaming-embed {
+          z-index: 9999;
+          position: fixed;
+          left: 40px;
+          bottom: 40px;
+          width: 200px;
+          height: 200px;
+          border-radius: 50%;
+          border: 2px solid #fff;
+          box-shadow: 0px 8px 24px rgba(0,0,0,0.12);
+          transition: all linear 0.1s;
+          overflow: hidden;
+          opacity: 0;
+          visibility: hidden;
+        }
+        #heygen-streaming-embed.show {
+          opacity: 1;
+          visibility: visible;
+        }
+        #heygen-streaming-embed.expand {
+          ${clientWidth < 540 ? "height: 266px; width: 96%; left: 50%; transform: translateX(-50%);" : "height: 366px; width: calc(366px * 16 / 9);"}
+          border: 0;
+          border-radius: 8px;
+        }
+        #heygen-streaming-container {
+          width: 100%;
+          height: 100%;
+        }
+        #heygen-streaming-container iframe {
+          width: 100%;
+          height: 100%;
+          border: 0;
+        }
+      `;
+
+      const iframe = document.createElement("iframe");
+      iframe.allowFullscreen = false;
+      iframe.title = "Streaming Embed";
+      iframe.role = "dialog";
+      iframe.allow = "microphone";
+      iframe.src = url;
+
+      let visible = false, initial = false;
+      window.addEventListener("message", (e => {
+        if (e.origin === host && e.data && e.data.type === "streaming-embed") {
+          if (e.data.action === "init") {
+            initial = true;
+            wrapDiv.classList.toggle("show", initial);
+          }
+          if (e.data.action === "show") {
+            visible = true;
+            wrapDiv.classList.toggle("expand", visible);
+          }
+          if (e.data.action === "hide") {
+            visible = false;
+            wrapDiv.classList.toggle("expand", visible);
+          }
+        }
+      }));
+
+      container.appendChild(iframe);
+      wrapDiv.appendChild(stylesheet);
+      wrapDiv.appendChild(container);
+      document.body.appendChild(wrapDiv);
+    }(globalThis);
+  </script>
+</body>
+</html>

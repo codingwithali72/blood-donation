@@ -1,0 +1,348 @@
+{%load static%}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Login - Blood Bank Management</title>
+      
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Modern CSS -->
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Patient Login Page Styles */
+    .patient-login-body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #f1f5f9 70%, #e2e8f0 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .patient-login-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        margin-top: 80px;
+    }
+    
+    .patient-login-container {
+        width: 100%;
+        max-width: 450px;
+    }
+    
+    .patient-login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(240, 249, 255, 0.8);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .patient-login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 50%, var(--primary-red) 100%);
+    }
+    
+    .patient-login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(59, 130, 246, 0.15);
+    }
+    
+    .patient-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, var(--primary-red) 100%);
+        color: white;
+        text-align: center;
+        padding: 2.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .patient-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        animation: patientPulse 7s ease-in-out infinite;
+    }
+    
+    @keyframes patientPulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+    
+    .patient-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        animation: healingPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes healingPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .patient-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .patient-subtitle {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .patient-body {
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+    }
+    
+    .patient-form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .patient-label {
+        font-weight: 600;
+        color: var(--dark-gray);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .patient-label i {
+        color: #3b82f6;
+        font-size: 1rem;
+    }
+    
+    .patient-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #bfdbfe;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.05);
+    }
+    
+    .patient-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        transform: translateY(-1px);
+        background: white;
+    }
+    
+    .patient-input::placeholder {
+        color: #93c5fd;
+        font-weight: 400;
+    }
+    
+    .patient-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, var(--primary-red) 100%);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .patient-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .patient-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+    
+    .patient-btn:hover::before {
+        left: 100%;
+    }
+    
+    .patient-register-link {
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 12px;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    .patient-register-link p {
+        margin: 0;
+        color: var(--medium-gray);
+        font-size: 0.95rem;
+    }
+    
+    .patient-register-link a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .patient-register-link a:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+    
+    /* Patient Care Badge */
+    .patient-care {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 8px;
+        color: #1d4ed8;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .patient-care i {
+        font-size: 1rem;
+        animation: careGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes careGlow {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .patient-login-content {
+            padding: 1rem;
+            margin-top: 70px;
+        }
+        
+        .patient-login-container {
+            max-width: 100%;
+        }
+        
+        .patient-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .patient-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .patient-icon {
+            font-size: 2.5rem;
+        }
+        
+        .patient-title {
+            font-size: 1.5rem;
+        }
+    }
+    </style>
+  </head>
+  <body class="patient-login-body">
+    {% include "blood/navbar.html" %}
+    
+    <div class="patient-login-content">
+        <div class="patient-login-container">
+            <div class="patient-login-card">
+                <div class="patient-header">
+                    <i class="fas fa-user-injured patient-icon"></i>
+                    <h2 class="patient-title">Patient Login</h2>
+                    <p class="patient-subtitle">Your health is our priority</p>
+                </div>
+                
+                <div class="patient-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="patient-form-group">
+                            <label class="patient-label">
+                                <i class="fas fa-user"></i>
+                                Username
+                            </label>
+                            {% render_field form.username class="patient-input" placeholder="Enter your username" %}
+                        </div>
+                        
+                        <div class="patient-form-group">
+                            <label class="patient-label">
+                                <i class="fas fa-lock"></i>
+                                Password
+                            </label>
+                            {% render_field form.password class="patient-input" placeholder="Enter your password" %}
+                        </div>
+                        
+                        <button class="patient-btn" type="submit">
+                            <i class="fas fa-heartbeat" style="margin-right: 0.5rem;"></i>
+                            Access Patient Portal
+                        </button>
+                        
+                        <div class="patient-care">
+                            <i class="fas fa-shield-heart"></i>
+                            24/7 Emergency Support Available
+                        </div>
+                    </form>
+                    
+                    <div class="patient-register-link">
+                        <p>Need medical assistance? <a href="/patient/patientsignup">Register as a patient</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include "blood/footer.html" %}
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -1,0 +1,400 @@
+{% extends 'donor/donorbase.html' %}
+{% block content %}
+{% load widget_tweaks %}
+{%load static%}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Modern Donor Blood Donation Styles */
+    .donor-donation-wrapper {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #fef2f2 0%, #f1f5f9 30%, #e2e8f0 70%, #f8fafc 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .donor-donation-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .donation-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 15px 50px rgba(220, 38, 38, 0.1);
+        border: 1px solid rgba(254, 242, 242, 0.8);
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .donation-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #ff6b6b 0%, var(--primary-500) 30%, #f87171 70%, var(--primary-600) 100%);
+    }
+    
+    .donation-header {
+        background: linear-gradient(135deg, #ff6b6b 0%, var(--primary-500) 40%, var(--primary-600) 100%);
+        color: white;
+        text-align: center;
+        padding: 3rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .donation-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        animation: donorDonationPulse 10s ease-in-out infinite;
+    }
+    
+    @keyframes donorDonationPulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.2) rotate(360deg); }
+    }
+    
+    .donation-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        animation: donationHeartBeat 2.5s ease-in-out infinite;
+    }
+    
+    @keyframes donationHeartBeat {
+        0%, 100% { transform: scale(1); }
+        25% { transform: scale(1.1); }
+        50% { transform: scale(1.3); }
+        75% { transform: scale(1.1); }
+    }
+    
+    .donation-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .donation-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .donation-body {
+        padding: 3rem;
+        background: linear-gradient(135deg, #fef2f2 0%, #f8fafc 100%);
+    }
+    
+    .form-group {
+        margin-bottom: 2rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-gray);
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-label i {
+        color: #ff6b6b;
+        font-size: 1.1rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #fecaca;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 3px 10px rgba(220, 38, 38, 0.05);
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        transform: translateY(-2px);
+        background: white;
+    }
+    
+    .form-input::placeholder {
+        color: #f87171;
+        font-weight: 400;
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #fecaca;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: white;
+        box-shadow: 0 3px 10px rgba(220, 38, 38, 0.05);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ff6b6b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+    
+    .form-select:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .form-textarea {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #fecaca;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 3px 10px rgba(220, 38, 38, 0.05);
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .form-textarea:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        transform: translateY(-2px);
+        background: white;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #ff6b6b 0%, var(--primary-500) 30%, var(--primary-600) 100%);
+        border: none;
+        color: white;
+        padding: 1.25rem 2rem;
+        border-radius: 14px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 2rem;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
+        color: white;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+    
+    .hero-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 2rem;
+        padding: 1.25rem;
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 12px;
+        color: #dc2626;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .hero-message i {
+        font-size: 1.2rem;
+        animation: heroSparkle 3s ease-in-out infinite;
+    }
+    
+    @keyframes heroSparkle {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.3) rotate(360deg); }
+    }
+    
+    .donation-info {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        color: #15803d;
+    }
+    
+    .donation-info h4 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .donation-info p {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .donor-donation-container {
+            padding: 0 1rem;
+        }
+        
+        .donation-header {
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .donation-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .donation-icon {
+            font-size: 3rem;
+        }
+        
+        .donation-title {
+            font-size: 1.6rem;
+        }
+    }
+    </style>
+</head>
+
+<div class="donor-donation-wrapper">
+    <div class="donor-donation-container">
+        <div class="donation-card">
+            <div class="donation-header">
+                <i class="fas fa-hand-holding-heart donation-icon"></i>
+                <h2 class="donation-title">Donate Blood</h2>
+                <p class="donation-subtitle">Be a hero today, save lives through blood donation</p>
+            </div>
+            
+            <div class="donation-body">
+                <div class="donation-info">
+                    <h4>
+                        <i class="fas fa-info-circle"></i>
+                        Donation Guidelines
+                    </h4>
+                    <p>You must be 18-65 years old, weigh at least 50kg, and be in good health. Avoid alcohol 24 hours before donation.</p>
+                </div>
+                
+                <form method="POST" autocomplete="off" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-tint"></i>
+                                Your Blood Group
+                            </label>
+                            <select name="bloodgroup" class="form-select" required>
+                                <option disabled selected>Select your blood group</option>
+                                <option value="O+">O+ (O Positive)</option>
+                                <option value="O-">O- (O Negative)</option>
+                                <option value="A+">A+ (A Positive)</option>
+                                <option value="A-">A- (A Negative)</option>
+                                <option value="B+">B+ (B Positive)</option>
+                                <option value="B-">B- (B Negative)</option>
+                                <option value="AB+">AB+ (AB Positive)</option>
+                                <option value="AB-">AB- (AB Negative)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-flask"></i>
+                                Donation Unit (ml)
+                            </label>
+                            {% render_field donation_form.unit|attr:'required:true' class="form-input" placeholder="Standard: 450ml" %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-birthday-cake"></i>
+                                Your Age
+                            </label>
+                            {% render_field donation_form.age|attr:'required:true' class="form-input" placeholder="Enter your age" %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-stethoscope"></i>
+                                Health Conditions
+                            </label>
+                            {% render_field donation_form.disease|attr:'required:true' class="form-input" placeholder="None or specify any condition" %}
+                        </div>
+                    </div>
+                    
+                    <div class="hero-message">
+                        <i class="fas fa-star"></i>
+                        Your donation can save up to 3 lives. Thank you for being a hero!
+                    </div>
+                    
+                    <button class="submit-btn" type="submit">
+                        <i class="fas fa-heart" style="margin-right: 0.5rem;"></i>
+                        Donate Blood Now
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

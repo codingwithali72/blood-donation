@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Public Transparency Dashboard | Emergency Blood Bank</title>
+    <meta name="description" content="Public transparency dashboard showing equal access to blood for all - rich and poor alike">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 25%, #581c87 50%, #7c2d12 75%, #dc2626 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .main-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, #a5f3fc, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+        
+        .transparency-note {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2);
+        }
+        
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #a5f3fc;
+        }
+        
+        .blood-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .blood-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .blood-item.available {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+        }
+        
+        .blood-item.low {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.2);
+        }
+        
+        .blood-item.critical {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        .blood-type {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .blood-count {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #10b981;
+        }
+        
+        .blood-hospitals {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+        
+        .success-stories {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        
+        .story-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #10b981;
+        }
+        
+        .story-header {
+            font-weight: 600;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+        
+        .story-details {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .equality-section {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .equality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .equality-stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+        
+        .equality-number {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #3b82f6;
+        }
+        
+        .update-time {
+            text-align: center;
+            margin-top: 2rem;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        .verification-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0.5rem;
+        }
+        
+        .alert-banner {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .blood-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="main-title">🌍 Public Transparency Dashboard</h1>
+            <p class="subtitle">Equal Access to Emergency Blood - Rich and Poor Alike</p>
+            <div class="transparency-note">
+                <strong>🔒 Complete Transparency:</strong> All data is public and real-time. 
+                Every blood request is treated equally regardless of economic status. 
+                <strong>{{ verification_rate }}%</strong> of hospitals are government-verified.
+            </div>
+        </div>
+
+        <!-- System Overview Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🏥</div>
+                <div class="stat-number">{{ total_hospitals }}</div>
+                <div class="stat-label">Partner Hospitals</div>
+                <div class="verification-badge">
+                    ✅ {{ verified_hospitals }} Government Verified
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🩸</div>
+                <div class="stat-number">{{ total_inventory }}</div>
+                <div class="stat-label">Blood Bags Available</div>
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
+                    Updated in real-time by hospitals
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-number">{{ success_rate }}%</div>
+                <div class="stat-label">Success Rate</div>
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">
+                    {{ successful_requests }} of {{ total_requests }} requests successful
+                </div>
+            </div>
+        </div>
+
+        <!-- Blood Availability by Type -->
+        <div class="section">
+            <h2 class="section-title">🩸 Live Blood Availability</h2>
+            <div class="blood-grid">
+                {% for blood_type, data in blood_availability.items %}
+                <div class="blood-item {% if data.available > 50 %}available{% elif data.available > 10 %}low{% else %}critical{% endif %}">
+                    <div class="blood-type">{{ blood_type }}</div>
+                    <div class="blood-count">{{ data.available }}</div>
+                    <div class="blood-hospitals">{{ data.hospitals }} hospitals</div>
+                </div>
+                {% endfor %}
+            </div>
+            <p style="text-align: center; opacity: 0.8; font-size: 0.9rem;">
+                🔄 Updated automatically every 30 seconds from hospital inventories
+            </p>
+        </div>
+
+        <!-- Social Impact & Equality -->
+        <div class="section equality-section">
+            <h2 class="section-title">⚖️ Social Impact & Equality</h2>
+            <div class="equality-grid">
+                <div class="equality-stat">
+                    <div class="equality-number">100%</div>
+                    <div>Equal Treatment</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">
+                        No discrimination based on economic status
+                    </div>
+                </div>
+                <div class="equality-stat">
+                    <div class="equality-number">{{ successful_requests }}</div>
+                    <div>Lives Impacted</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">
+                        Last 30 days
+                    </div>
+                </div>
+                <div class="equality-stat">
+                    <div class="equality-number">24/7</div>
+                    <div>Availability</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">
+                        Emergency system always active
+                    </div>
+                </div>
+                <div class="equality-stat">
+                    <div class="equality-number">0₹</div>
+                    <div>Cost to Users</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">
+                        Completely free service
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                <h3 style="color: #3b82f6; margin-bottom: 0.5rem;">🤝 Equality Commitment</h3>
+                <p style="line-height: 1.6;">
+                    This system ensures equal access to emergency blood for all citizens regardless of their economic background. 
+                    Every request is processed with the same priority and urgency. Hospitals are mandated to reserve emergency 
+                    quotas for underprivileged patients, creating a truly inclusive healthcare safety net.
+                </p>
+            </div>
+        </div>
+
+        <!-- Recent Success Stories (Anonymized) -->
+        <div class="section">
+            <h2 class="section-title">🎉 Recent Success Stories</h2>
+            <div class="success-stories">
+                {% if success_stories %}
+                    {% for story in success_stories %}
+                    <div class="story-item">
+                        <div class="story-header">✅ Emergency Request Fulfilled</div>
+                        <div class="story-details">
+                            {{ story.blood_group }} blood ({{ story.quantity_needed }} bags) successfully provided 
+                            on {{ story.created_at|date:"M d, Y" }}. Patient received immediate care.
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="story-item">
+                        <div class="story-header">🔄 Loading Success Stories</div>
+                        <div class="story-details">Recent success stories will appear here as they happen.</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Government Verification Status -->
+        <div class="section">
+            <h2 class="section-title">🏛️ Government Verification & Trust</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="background: rgba(16, 185, 129, 0.1); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    <h3 style="color: #10b981; margin-bottom: 1rem;">✅ Verified Hospitals</h3>
+                    <div style="font-size: 2rem; font-weight: bold; color: #10b981; margin-bottom: 0.5rem;">
+                        {{ verified_hospitals }}
+                    </div>
+                    <p style="opacity: 0.8;">Government-verified partner hospitals with authentic medical licenses and registration certificates.</p>
+                </div>
+                
+                <div style="background: rgba(59, 130, 246, 0.1); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                    <h3 style="color: #3b82f6; margin-bottom: 1rem;">🔒 Transparency Rate</h3>
+                    <div style="font-size: 2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.5rem;">
+                        {{ verification_rate }}%
+                    </div>
+                    <p style="opacity: 0.8;">All hospital data is publicly accessible and regularly audited by government health officials.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Update Info -->
+        <div class="update-time">
+            <p>
+                📊 Last updated: {{ last_updated|date:"F d, Y \a\t g:i A" }} | 
+                🔄 Data refreshes automatically every 30 seconds |
+                📱 <strong>Emergency Contact:</strong> 108
+            </p>
+            <p style="margin-top: 0.5rem;">
+                <strong>For Hospitals:</strong> 
+                <a href="/emergency/stakeholder-analytics/" style="color: #10b981; text-decoration: none;">Update Your Inventory →</a> | 
+                <strong>For Citizens:</strong>
+                <a href="/emergency/" style="color: #3b82f6; text-decoration: none;">Make Emergency Request →</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh every 60 seconds
+        setTimeout(() => {
+            location.reload();
+        }, 60000);
+        
+        // Add some interactive animations
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,834 @@
+{% load blood_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 Live Hospital Blood Inventory | Transparency Dashboard</title>
+    <meta name="description" content="Real-time blood availability across Mumbai hospitals. Public transparency dashboard showing live inventory.">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1f2937 0%, #374151 20%, #4b5563 40%, #6b7280 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .header {
+            padding: 2rem 0;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ef4444, #dc2626, #b91c1c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ef4444;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: white;
+            font-size: 1rem;
+            min-width: 300px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        .refresh-btn {
+            background: #059669;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: #047857;
+            transform: translateY(-2px);
+        }
+        
+        .hospitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+        
+        .hospital-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hospital-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(239, 68, 68, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hospital-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .hospital-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .hospital-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fecaca;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        
+        .hospital-info {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .hospital-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .status-24x7 {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-limited {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+        
+        .blood-inventory {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .blood-type-item {
+            text-align: center;
+            padding: 1rem 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .blood-type-item:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .blood-type {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #ef4444;
+        }
+        
+        .blood-units {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .units-available {
+            color: #10b981;
+        }
+        
+        .units-low {
+            color: #f59e0b;
+        }
+        
+        .units-critical {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        
+        .units-empty {
+            color: #ef4444;
+        }
+        
+        /* Enhanced zoom flash animation for critical A- blood type */
+        .blood-type-item.critical-alert {
+            animation: criticalFlash 2s infinite;
+            border: 3px solid #ef4444;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.15);
+            position: relative;
+            z-index: 10;
+            transform-origin: center;
+        }
+        
+        .blood-type-item.critical-alert .blood-units {
+            animation: zoomFlash 1.5s infinite;
+            font-weight: 900;
+            font-size: 1.4rem;
+            text-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444;
+        }
+        
+        .blood-type-item.critical-alert .blood-type {
+            animation: typeFlash 2s infinite;
+            font-weight: bold;
+            text-shadow: 0 0 5px #ef4444;
+        }
+        
+        .blood-type-item.critical-alert .blood-type::after {
+            content: ' 🚨';
+            animation: alertPulse 1s infinite;
+            display: inline-block;
+        }
+        
+        /* Dramatic zoom in/zoom out animation */
+        @keyframes criticalFlash {
+            0% { 
+                transform: scale(1);
+                border-color: #ef4444;
+                box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);
+                background: rgba(239, 68, 68, 0.1);
+            }
+            25% { 
+                transform: scale(1.15);
+                border-color: #dc2626;
+                box-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
+                background: rgba(239, 68, 68, 0.25);
+            }
+            50% { 
+                transform: scale(0.9);
+                border-color: #b91c1c;
+                box-shadow: 0 0 25px rgba(185, 28, 28, 1);
+                background: rgba(239, 68, 68, 0.3);
+            }
+            75% { 
+                transform: scale(1.2);
+                border-color: #991b1b;
+                box-shadow: 0 0 30px rgba(153, 27, 27, 1);
+                background: rgba(239, 68, 68, 0.2);
+            }
+            100% { 
+                transform: scale(1);
+                border-color: #ef4444;
+                box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);
+                background: rgba(239, 68, 68, 0.1);
+            }
+        }
+        
+        /* Text zoom animation */
+        @keyframes zoomFlash {
+            0% { 
+                transform: scale(1);
+                opacity: 1;
+                color: #ef4444;
+            }
+            30% { 
+                transform: scale(1.3);
+                opacity: 0.8;
+                color: #dc2626;
+            }
+            60% { 
+                transform: scale(0.8);
+                opacity: 0.9;
+                color: #b91c1c;
+            }
+            100% { 
+                transform: scale(1);
+                opacity: 1;
+                color: #ef4444;
+            }
+        }
+        
+        /* Blood type label flash */
+        @keyframes typeFlash {
+            0%, 100% { 
+                color: #ef4444;
+                transform: scale(1);
+            }
+            50% { 
+                color: #dc2626;
+                transform: scale(1.1);
+            }
+        }
+        
+        /* Alert icon pulse */
+        @keyframes alertPulse {
+            0% { 
+                transform: scale(1) rotate(0deg);
+            }
+            25% { 
+                transform: scale(1.3) rotate(-5deg);
+            }
+            50% { 
+                transform: scale(0.8) rotate(5deg);
+            }
+            75% { 
+                transform: scale(1.2) rotate(-3deg);
+            }
+            100% { 
+                transform: scale(1) rotate(0deg);
+            }
+        }
+        
+        .blood-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+        
+        .hospital-contact {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .last-updated {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-align: right;
+        }
+        
+        .total-summary {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+        
+        .summary-blood-type {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #ef4444;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-total {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ef4444;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .emergency-banner {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .emergency-banner a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+        
+        .emergency-banner a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .hospitals-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .hospital-card {
+                padding: 1.5rem;
+            }
+            
+            .blood-inventory {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .stats-bar {
+                gap: 1rem;
+            }
+            
+            .stat-item {
+                padding: 0.75rem 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .blood-inventory {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .blood-type-item {
+                padding: 0.75rem 0.25rem;
+            }
+            
+            .hospital-contact {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🏥 Live Hospital Blood Inventory</h1>
+        <p>Real-time blood availability across Mumbai hospitals</p>
+        <p style="font-size: 0.9rem; opacity: 0.7;">Last updated: {{ last_updated|date:"M d, Y H:i" }}</p>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number">{{ total_hospitals }}</div>
+                <div class="stat-label">Hospitals</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ total_units_available }}</div>
+                <div class="stat-label">Total Bags</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ a_positive_count }}+{{ o_positive_count }}</div>
+                <div class="stat-label">A+ & O+ Available</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Emergency Banner -->
+        <div class="emergency-banner">
+            🚨 Need blood urgently? Use our instant emergency request system - No login required!
+            <a href="/emergency/">Make Emergency Request</a>
+        </div>
+        
+        <!-- Total Summary -->
+        <div class="total-summary">
+            <h2 style="margin-bottom: 0.5rem; color: #fecaca;">📊 City-wide Blood Inventory Summary</h2>
+            <p style="opacity: 0.8; margin-bottom: 1rem;">Total blood bags available across all partner hospitals</p>
+            
+            <div class="summary-grid">
+                {% for blood_data in total_inventory_list %}
+                <div class="summary-item">
+                    <div class="summary-blood-type">{{ blood_data.type }}</div>
+                    <div class="summary-total">{{ blood_data.total }}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">bags</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <input type="text" class="search-box" placeholder="🔍 Search hospitals by name or area..." id="search-input">
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Hospitals</button>
+                <button class="filter-btn" data-filter="24x7">24/7 Only</button>
+                <button class="filter-btn" data-filter="high-stock">High Stock</button>
+                <button class="filter-btn" data-filter="low-stock">Low Stock</button>
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+            </div>
+        </div>
+        
+        <!-- Hospitals Grid -->
+        <div class="hospitals-grid" id="hospitals-grid">
+            {% for hospital in hospitals %}
+            <div class="hospital-card" data-name="{{ hospital.name|lower }}" data-stock="{{ hospital.total_units }}">
+                <div class="hospital-header">
+                    <div>
+                        <div class="hospital-name">{{ hospital.name }}</div>
+                        <div class="hospital-info">
+                            📍 {{ hospital.address }}<br>
+                            {{ hospital.city }}
+                        </div>
+                    </div>
+                    <div class="hospital-status {% if hospital.operates_24x7 %}status-24x7{% else %}status-limited{% endif %}">
+                        {% if hospital.operates_24x7 %}
+                            ⏰ 24/7
+                        {% else %}
+                            🕒 Limited
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="blood-inventory">
+                    {% for blood_data in hospital.blood_types %}
+                    <div class="blood-type-item{% if blood_data.type == 'A-' and blood_data.count == 0 %} critical-alert{% endif %}"{% if blood_data.type == 'A-' and blood_data.count == 0 %} title="CRITICAL ALERT: A- blood completely depleted! Urgent restocking needed."{% endif %}>
+                        <div class="blood-type">{{ blood_data.type }}</div>
+                        <div class="blood-units units-{{ blood_data.status }}">
+                            {{ blood_data.display }}
+                        </div>
+                        <div class="blood-label">{% if blood_data.display == "less" %}units{% else %}bags{% endif %}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="hospital-contact">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            📞 <strong>{{ hospital.phone }}</strong>
+                        </div>
+                        <div class="contact-item">
+                            🚨 Emergency: <strong style="color: #ef4444;">{{ hospital.emergency_phone|default:hospital.phone }}</strong>
+                        </div>
+                    </div>
+                    <div class="last-updated">
+                        {% if hospital.last_updated %}
+                            Updated: {{ hospital.last_updated|timesince }} ago
+                        {% else %}
+                            <span style="color: #f59e0b;">No recent updates</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading hospital data...</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Auto-refresh indicator -->
+        <div style="text-align: center; margin-top: 2rem; opacity: 0.7;">
+            <p>🔄 Data refreshes automatically every 30 seconds</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">For emergency requests, use our <a href="/emergency/" style="color: #ef4444; font-weight: bold;">instant emergency system</a></p>
+        </div>
+    </div>
+
+    <script>
+        let refreshInterval;
+        let allHospitals = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            startAutoRefresh();
+            loadHospitalData();
+        });
+        
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', function() {
+                filterHospitals();
+            });
+            
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterHospitals();
+                });
+            });
+        }
+        
+        function loadHospitalData() {
+            // Store initial hospital data for filtering
+            allHospitals = Array.from(document.querySelectorAll('.hospital-card')).map(card => ({
+                element: card,
+                name: card.dataset.name,
+                stock: parseInt(card.dataset.stock) || 0,
+                is24x7: card.querySelector('.status-24x7') !== null
+            }));
+        }
+        
+        function filterHospitals() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            
+            allHospitals.forEach(hospital => {
+                let show = true;
+                
+                // Apply search filter
+                if (searchTerm && !hospital.name.includes(searchTerm)) {
+                    show = false;
+                }
+                
+                // Apply category filter
+                switch(activeFilter) {
+                    case '24x7':
+                        if (!hospital.is24x7) show = false;
+                        break;
+                    case 'high-stock':
+                        if (hospital.stock < 20) show = false;
+                        break;
+                    case 'low-stock':
+                        if (hospital.stock > 10) show = false;
+                        break;
+                }
+                
+                hospital.element.style.display = show ? 'block' : 'none';
+            });
+        }
+        
+        function refreshData() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.innerHTML = '<div class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px;"></div> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            // Fetch latest data
+            fetch('/emergency/api/hospitals/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateHospitalCards(data.hospitals);
+                }
+            })
+            .catch(error => {
+                console.error('Refresh error:', error);
+            })
+            .finally(() => {
+                refreshBtn.innerHTML = '🔄 Refresh';
+                refreshBtn.disabled = false;
+            });
+        }
+        
+        function updateHospitalCards(hospitals) {
+            hospitals.forEach(hospital => {
+                const card = document.querySelector(`[data-name*="${hospital.name.toLowerCase().substring(0, 10)}"]`);
+                if (card) {
+                    // Update blood inventory
+                    Object.entries(hospital.inventory).forEach(([bloodType, data]) => {
+                        const bloodItem = card.querySelector(`.blood-type:contains("${bloodType}")`);
+                        if (bloodItem) {
+                            const unitsElement = bloodItem.nextElementSibling;
+                            unitsElement.textContent = data.units || 0;
+                            
+                            // Update color based on stock level
+                            unitsElement.className = 'blood-units ' + 
+                                (data.units > 5 ? 'units-available' : 
+                                 data.units > 0 ? 'units-low' : 'units-empty');
+                        }
+                    });
+                    
+                    // Update last updated time
+                    const lastUpdated = card.querySelector('.last-updated');
+                    if (lastUpdated && hospital.last_updated) {
+                        lastUpdated.innerHTML = `Updated: Just now`;
+                    }
+                }
+            });
+            
+            // Update page timestamp
+            document.querySelector('.header p:last-child').innerHTML = 
+                `Last updated: ${new Date().toLocaleString()}`;
+        }
+        
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                refreshData();
+            }, 30000); // Refresh every 30 seconds
+        }
+        
+        // Add custom filter for Django template
+        String.prototype.contains = function(substring) {
+            return this.indexOf(substring) !== -1;
+        };
+        
+        // Utility function for template
+        function getItem(obj, key) {
+            return obj[key];
+        }
+        
+        // Page visibility API to pause refresh when tab is not active
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(refreshInterval);
+            } else {
+                startAutoRefresh();
+                refreshData(); // Immediate refresh when coming back
+            }
+        });
+    </script>
+</body>
+</html>

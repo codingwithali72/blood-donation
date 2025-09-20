@@ -1,0 +1,469 @@
+{% extends 'blood/adminbase.html' %}
+{% block content %}
+{% load widget_tweaks %}
+{% load static %}
+
+<style>
+/* Theme Support */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --card-bg: #1e293b;
+    --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --card-bg: #ffffff;
+    --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Blood Unit Management Styles */
+.blood-management-wrapper {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-secondary, linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #e2e8f0 70%, #f8fafc 100%));
+    min-height: 100vh;
+    padding: 2rem 0;
+    transition: background-color 0.3s ease;
+}
+
+.blood-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.blood-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary, var(--primary-700));
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-600) 0%, #dc2626 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: color 0.3s ease;
+}
+
+.blood-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary, var(--medium-gray));
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+/* Blood Group Cards */
+.blood-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.blood-card {
+    background: var(--card-bg, white);
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    box-shadow: var(--shadow-dark, 0 8px 32px rgba(0, 0, 0, 0.1));
+    border: 1px solid var(--border-color, #e2e8f0);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.blood-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-500) 0%, #dc2626 100%);
+}
+
+.blood-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-dark, 0 20px 50px rgba(0, 0, 0, 0.15));
+}
+
+.blood-type {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary, var(--primary-600));
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    transition: color 0.3s ease;
+}
+
+.blood-type i {
+    color: #dc2626;
+    font-size: 2rem;
+    animation: bloodPulse 2s ease-in-out infinite;
+}
+
+@keyframes bloodPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.blood-unit {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-secondary, #374151);
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.blood-unit-label {
+    font-size: 0.9rem;
+    color: var(--text-muted, var(--medium-gray));
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+/* Update Form Section */
+.update-section {
+    background: var(--card-bg, white);
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: var(--shadow-dark, 0 15px 50px rgba(0, 0, 0, 0.1));
+    border: 1px solid var(--border-color, #e2e8f0);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.update-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-500) 0%, #dc2626 50%, var(--primary-600) 100%);
+}
+
+.update-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary, var(--primary-600));
+    text-align: center;
+    margin-bottom: 2rem;
+    transition: color 0.3s ease;
+}
+
+.update-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+}
+
+.form-row {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary, var(--dark-gray));
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.form-select, .form-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    background: var(--card-bg, white);
+    color: var(--text-primary, var(--dark-gray));
+    box-shadow: var(--shadow-dark, 0 3px 10px rgba(0, 0, 0, 0.05));
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23dc2626' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+.form-select:focus, .form-input:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+    transform: translateY(-2px);
+}
+
+.update-btn {
+    background: linear-gradient(135deg, var(--primary-500) 0%, #dc2626 100%);
+    border: none;
+    color: white;
+    padding: 1.25rem 3rem;
+    border-radius: 14px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.update-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+.update-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(220, 38, 38, 0.4);
+    color: white;
+}
+
+.update-btn:hover::before {
+    left: 100%;
+}
+
+/* Info Box */
+.info-box {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.info-box i {
+    color: #3b82f6;
+    font-size: 1.5rem;
+}
+
+.info-box-content {
+    color: var(--text-secondary, #1d4ed8);
+    font-weight: 500;
+    line-height: 1.5;
+    transition: color 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .blood-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .blood-title {
+        font-size: 2rem;
+    }
+    
+    .update-section {
+        padding: 2rem 1.5rem;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-group {
+        min-width: auto;
+    }
+}
+</style>
+
+<div class="blood-management-wrapper">
+    <div class="container">
+        <div class="blood-header">
+            <h1 class="blood-title">
+                <i class="fas fa-tint" style="margin-right: 1rem; color: #dc2626;"></i>
+                Blood Unit Management
+            </h1>
+            <p class="blood-subtitle">Monitor and update blood inventory levels across all blood types</p>
+        </div>
+        
+        <!-- Blood Type Grid -->
+        <div class="blood-grid">
+            <!-- Positive Blood Types -->
+            <div class="blood-card">
+                <div class="blood-type">
+                    A+ <i class="fas fa-tint"></i>
+                </div>
+                <div class="blood-unit">{{A1.unit}}</div>
+                <div class="blood-unit-label">Bags Available</div>
+            </div>
+            
+            <div class="blood-card">
+                <div class="blood-type">
+                    B+ <i class="fas fa-tint"></i>
+                </div>
+                <div class="blood-unit">{{B1.unit}}</div>
+                <div class="blood-unit-label">Bags Available</div>
+            </div>
+            
+            <div class="blood-card">
+                <div class="blood-type">
+                    AB+ <i class="fas fa-tint"></i>
+                </div>
+                <div class="blood-unit">{{AB1.unit}}</div>
+                <div class="blood-unit-label">Bags Available</div>
+            </div>
+            
+            <div class="blood-card">
+                <div class="blood-type">
+                    O+ <i class="fas fa-tint"></i>
+                </div>
+                <div class="blood-unit">{{O1.unit}}</div>
+                <div class="blood-unit-label">Bags Available</div>
+            </div>
+            
+            <!-- Negative Blood Types -->
+            <div class="blood-card">
+                <div class="blood-type">
+                    A- <i class="fas fa-tint"></i>
+                </div>
+                <div class="blood-unit">{{A2.unit}}</div>
+                <div class="blood-unit-label">Bags Available</div>
+            </div>
+            
+            <div class="blood-card">
+                <div class="blood-type">
+                    B- <i class="fas fa-tint"></i>
+                </div>
+                <div class="blood-unit">{{B2.unit}}</div>
+                <div class="blood-unit-label">Bags Available</div>
+            </div>
+            
+            <div class="blood-card">
+                <div class="blood-type">
+                    AB- <i class="fas fa-tint"></i>
+                </div>
+                <div class="blood-unit">{{AB2.unit}}</div>
+                <div class="blood-unit-label">Bags Available</div>
+            </div>
+            
+            <div class="blood-card">
+                <div class="blood-type">
+                    O- <i class="fas fa-tint"></i>
+                </div>
+                <div class="blood-unit">{{O2.unit}}</div>
+                <div class="blood-unit-label">Bags Available</div>
+            </div>
+        </div>
+        
+        <!-- Update Form Section -->
+        <div class="update-section">
+            <h2 class="update-title">
+                <i class="fas fa-edit" style="margin-right: 0.5rem;"></i>
+                Update Blood Unit Inventory
+            </h2>
+            
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <div class="info-box-content">
+                    Use this form to add or subtract blood bags from the inventory. Enter positive numbers to add bags and negative numbers to subtract bags. (1 bag = 350ml)
+                </div>
+            </div>
+            
+            <form class="update-form" method="POST">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-tint" style="margin-right: 0.5rem;"></i>
+                            Blood Group
+                        </label>
+                        <select name="bloodgroup" class="form-select" required>
+                            <option disabled="disabled" selected="selected">Choose Blood Group</option>
+                            <option value="O+">O+ (Universal Donor for Rh+)</option>
+                            <option value="O-">O- (Universal Donor)</option>
+                            <option value="A+">A+ (A Positive)</option>
+                            <option value="A-">A- (A Negative)</option>
+                            <option value="B+">B+ (B Positive)</option>
+                            <option value="B-">B- (B Negative)</option>
+                            <option value="AB+">AB+ (Universal Recipient)</option>
+                            <option value="AB-">AB- (AB Negative)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-calculator" style="margin-right: 0.5rem;"></i>
+                            Bags to Add/Subtract
+                        </label>
+                        <input type="number" class="form-input" name="unit" placeholder="Enter bags (e.g., 5 or -3)" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="update-btn">
+                    <i class="fas fa-sync-alt" style="margin-right: 0.5rem;"></i>
+                    Update Inventory
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Theme initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved theme or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    
+    // Apply theme to body background
+    if (savedTheme === 'dark') {
+        document.body.style.backgroundColor = '#0f172a';
+        document.body.style.color = '#f8fafc';
+    } else {
+        document.body.style.backgroundColor = '#f8fafc';
+        document.body.style.color = '#1e293b';
+    }
+});
+</script>
+
+
+{% endblock content %}

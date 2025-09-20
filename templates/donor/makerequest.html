@@ -1,0 +1,462 @@
+{% extends 'donor/donorbase.html' %}
+{% block content %}
+{% load widget_tweaks %}
+{%load static%}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Theme Support */
+    body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+        margin-top: 80px; /* Account for fixed navbar */
+    }
+    
+    [data-theme="dark"] {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --card-bg: #1e293b;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    [data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --card-bg: #ffffff;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Modern Donor Request Styles */
+    .donor-request-wrapper {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary, linear-gradient(135deg, #fef2f2 0%, #f1f5f9 30%, #e2e8f0 70%, #f8fafc 100%));
+        min-height: 100vh;
+        padding: 2rem 0;
+        transition: background-color 0.3s ease;
+    }
+    
+    .donor-request-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .request-card {
+        background: var(--card-bg, white);
+        border-radius: 24px;
+        box-shadow: var(--shadow-dark, 0 15px 50px rgba(220, 38, 38, 0.1));
+        border: 1px solid var(--border-color, rgba(254, 242, 242, 0.8));
+        overflow: hidden;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .request-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #ff6b6b 0%, var(--primary-500) 30%, #f87171 70%, var(--primary-600) 100%);
+    }
+    
+    .request-header {
+        background: linear-gradient(135deg, #ff6b6b 0%, var(--primary-500) 40%, var(--primary-600) 100%);
+        color: white;
+        text-align: center;
+        padding: 3rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .request-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        animation: donorRequestPulse 12s ease-in-out infinite;
+    }
+    
+    @keyframes donorRequestPulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.2) rotate(270deg); }
+    }
+    
+    .request-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        animation: requestPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes requestPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+    }
+    
+    .request-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .request-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .request-body {
+        padding: 3rem;
+        background: var(--bg-tertiary, linear-gradient(135deg, #fef2f2 0%, #f8fafc 100%));
+        transition: background-color 0.3s ease;
+    }
+    
+    .form-group {
+        margin-bottom: 2rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--text-primary, var(--dark-gray));
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.3s ease;
+    }
+    
+    .form-label i {
+        color: #ff6b6b;
+        font-size: 1.1rem;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--border-color, #fecaca);
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: var(--card-bg, rgba(255, 255, 255, 0.9));
+        color: var(--text-primary, var(--dark-gray));
+        box-shadow: var(--shadow-dark, 0 3px 10px rgba(220, 38, 38, 0.05));
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        transform: translateY(-2px);
+        background: white;
+    }
+    
+    .form-input::placeholder {
+        color: #f87171;
+        font-weight: 400;
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--border-color, #fecaca);
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: var(--card-bg, white);
+        color: var(--text-primary, var(--dark-gray));
+        box-shadow: var(--shadow-dark, 0 3px 10px rgba(220, 38, 38, 0.05));
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ff6b6b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+    
+    .form-select:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .form-textarea {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--border-color, #fecaca);
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: var(--card-bg, rgba(255, 255, 255, 0.9));
+        color: var(--text-primary, var(--dark-gray));
+        box-shadow: var(--shadow-dark, 0 3px 10px rgba(220, 38, 38, 0.05));
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .form-textarea:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        transform: translateY(-2px);
+        background: var(--card-bg, white);
+    }
+    
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #ff6b6b 0%, var(--primary-500) 30%, var(--primary-600) 100%);
+        border: none;
+        color: white;
+        padding: 1.25rem 2rem;
+        border-radius: 14px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 2rem;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(255, 107, 107, 0.4);
+        color: white;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+    
+    .compassion-notice {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 2rem;
+        padding: 1.25rem;
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 12px;
+        color: #dc2626;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .compassion-notice i {
+        font-size: 1.2rem;
+        animation: compassionPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes compassionPulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .donor-info {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        color: #15803d;
+    }
+    
+    .donor-info h4 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .donor-info p {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .donor-request-container {
+            padding: 0 1rem;
+        }
+        
+        .request-header {
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .request-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .request-icon {
+            font-size: 3rem;
+        }
+        
+        .request-title {
+            font-size: 1.6rem;
+        }
+    }
+    </style>
+</head>
+
+<div class="donor-request-wrapper">
+    <div class="donor-request-container">
+        <div class="request-card">
+            <div class="request-header">
+                <i class="fas fa-hands-helping request-icon"></i>
+                <h2 class="request-title">Make Blood Request</h2>
+                <p class="request-subtitle">Request blood for someone in need - Donor helping community</p>
+            </div>
+            
+            <div class="request-body">
+                <div class="donor-info">
+                    <h4>
+                        <i class="fas fa-info-circle"></i>
+                        Donor Assistance Program
+                    </h4>
+                    <p>As a registered donor, you can also request blood for family members or patients in urgent need.</p>
+                </div>
+                
+                <form method="POST" autocomplete="off" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i>
+                                Patient Name
+                            </label>
+                            {% render_field request_form.patient_name|attr:'required:true' class="form-input" placeholder="Enter patient full name" %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-birthday-cake"></i>
+                                Patient Age
+                            </label>
+                            {% render_field request_form.patient_age|attr:'required:true' class="form-input" placeholder="Enter patient age" %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-stethoscope"></i>
+                            Medical Reason
+                        </label>
+                        {% render_field request_form.reason|attr:'required:true' class="form-textarea" placeholder="Describe the medical condition or reason for blood requirement" %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-tint"></i>
+                                Blood Group Required
+                            </label>
+                            <select name="bloodgroup" class="form-select" required>
+                                <option disabled selected>Select blood group needed</option>
+                                <option value="O+">O+ (O Positive)</option>
+                                <option value="O-">O- (O Negative)</option>
+                                <option value="A+">A+ (A Positive)</option>
+                                <option value="A-">A- (A Negative)</option>
+                                <option value="B+">B+ (B Positive)</option>
+                                <option value="B-">B- (B Negative)</option>
+                                <option value="AB+">AB+ (AB Positive)</option>
+                                <option value="AB-">AB- (AB Negative)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-flask"></i>
+                                Unit Required (ml)
+                            </label>
+                            {% render_field request_form.unit|attr:'required:true' class="form-input" placeholder="Enter amount in milliliters" %}
+                        </div>
+                    </div>
+                    
+                    <div class="compassion-notice">
+                        <i class="fas fa-heart"></i>
+                        Donor-to-community requests receive priority processing. Your compassion saves lives.
+                    </div>
+                    
+                    <button class="submit-btn" type="submit">
+                        <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>
+                        Submit Request for Patient
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Theme initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved theme or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    
+    // Apply theme to body background
+    if (savedTheme === 'dark') {
+        document.body.style.backgroundColor = '#0f172a';
+        document.body.style.color = '#f8fafc';
+    } else {
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#1e293b';
+    }
+});
+</script>
+
+{% endblock content %}

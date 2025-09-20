@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 Emergency Blood Request | Life-Saving Blood Network</title>
+    <meta name="description" content="Emergency blood request system - Get blood in 2 clicks. No login required. Instant hospital notifications.">
+    
+    <!-- Leaflet Maps CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 20%, #991b1b 40%, #7f1d1d 60%, #450a0a 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-100px) rotate(180deg); opacity: 1; }
+        }
+        
+        .main-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .emergency-card {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            animation: cardPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes cardPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .emergency-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, #fecaca, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+        
+        .emergency-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .step-number {
+            background: #dc2626;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .request-form {
+            display: none;
+        }
+        
+        .request-form.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .blood-group-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .blood-group-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .blood-group-btn:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .blood-group-btn.selected {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border-color: #dc2626;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+        }
+        
+        .blood-group-btn::before {
+            content: '🩸';
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quantity-selector {
+            margin-bottom: 2rem;
+        }
+        
+        .quantity-selector label {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .quantity-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-size: 1.5rem;
+            color: white;
+            text-align: center;
+            width: 200px;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .quantity-input:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.2);
+        }
+        
+        .quantity-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .quantity-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .quantity-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .emergency-btn {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border: none;
+            border-radius: 16px;
+            padding: 1.25rem 3rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+            animation: btnPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes btnPulse {
+            0%, 100% { box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4); }
+            50% { box-shadow: 0 12px 35px rgba(220, 38, 38, 0.6); }
+        }
+        
+        .emergency-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            animation: none;
+            box-shadow: 0 15px 40px rgba(220, 38, 38, 0.7);
+        }
+        
+        .emergency-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .emergency-btn:hover::before {
+            left: 100%;
+        }
+        
+        .emergency-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            animation: none;
+        }
+        
+        .location-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .location-btn {
+            background: #059669;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 1rem;
+        }
+        
+        .location-btn:hover {
+            background: #047857;
+            transform: translateY(-2px);
+        }
+        
+        .location-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .location-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .location-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Interactive Map Styles */
+        .map-container {
+            margin-top: 1rem;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            height: 0;
+            opacity: 0;
+            transition: all 0.8s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .map-container.show {
+            height: 300px;
+            opacity: 1;
+            animation: mapSlideIn 0.8s ease;
+        }
+        
+        @keyframes mapSlideIn {
+            0% {
+                height: 0;
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                height: 300px;
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #location-map {
+            height: 100%;
+            width: 100%;
+            border-radius: 14px;
+        }
+        
+        .location-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+        
+        /* Custom map marker styles */
+        .custom-location-marker {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border: 3px solid white;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+            animation: markerBounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes markerBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        /* Map popup custom styling */
+        .leaflet-popup-content-wrapper {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .leaflet-popup-content {
+            margin: 12px;
+            font-weight: 500;
+        }
+        
+        .leaflet-popup-tip {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .search-results {
+            display: none;
+            margin-top: 2rem;
+        }
+        
+        .search-results.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hospital-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        
+        .hospital-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fecaca;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hospital-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hospital-distance {
+            background: #059669;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .hospital-phone {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fbbf24;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .emergency-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .emergency-title {
+                font-size: 2.2rem;
+            }
+            
+            .blood-group-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .blood-group-btn {
+                padding: 1rem 0.5rem;
+                font-size: 1.1rem;
+            }
+            
+            .step-indicator {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        
+        .quick-info {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
+        }
+        
+        .quick-info h3 {
+            color: #93c5fd;
+            margin-bottom: 1rem;
+        }
+        
+        .quick-info ul {
+            text-align: left;
+            padding-left: 1.5rem;
+        }
+        
+        .quick-info li {
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+        
+        /* Notification Panel Styles */
+        .notification-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 400px;
+            max-width: 90vw;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            z-index: 1000;
+            animation: slideInRight 0.5s ease;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .notification-header h3 {
+            margin: 0;
+            color: #fecaca;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .notification-content {
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+        
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+            color: #10b981;
+        }
+        
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: #f59e0b;
+            color: #f59e0b;
+        }
+        
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .status-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+            color: #93c5fd;
+        }
+        
+        .status-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .status-text {
+            flex-grow: 1;
+        }
+        
+        .status-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+        
+        .hospital-card-enhanced {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        .hospital-card-enhanced:hover {
+            transform: translateY(-2px);
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2);
+        }
+        
+        .hospital-priority {
+            display: inline-block;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .contact-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .contact-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .btn-call {
+            background: #059669;
+            color: white;
+        }
+        
+        .btn-call:hover {
+            background: #047857;
+            transform: scale(1.05);
+        }
+        
+        .btn-directions {
+            background: rgba(59, 130, 246, 0.8);
+            color: white;
+        }
+        
+        .btn-directions:hover {
+            background: rgba(59, 130, 246, 1);
+            transform: scale(1.05);
+        }
+        
+        /* Blood Inventory Styles */
+        .blood-inventory-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .blood-inventory-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .blood-inventory-item.available {
+            border-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%);
+            border-width: 2px;
+        }
+        
+        .blood-inventory-item.low-stock {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
+            border-width: 2px;
+        }
+        
+        .blood-inventory-item.critical {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.08) 100%);
+            border-width: 2px;
+        }
+        
+        .blood-inventory-item.unavailable {
+            border-color: #6b7280;
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.15) 0%, rgba(107, 114, 128, 0.08) 100%);
+            opacity: 0.6;
+            border-width: 2px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Critical Stock Flashing Animations */
+        @keyframes criticalFlash {
+            0%, 100% { 
+                background: rgba(239, 68, 68, 0.2);
+                border-color: #ef4444;
+                box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+            }
+            50% { 
+                background: rgba(239, 68, 68, 0.5);
+                border-color: #dc2626;
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            }
+        }
+        
+        @keyframes lowStockPulse {
+            0%, 100% { 
+                background: rgba(245, 158, 11, 0.2);
+                border-color: #f59e0b;
+                box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+            }
+            50% { 
+                background: rgba(245, 158, 11, 0.4);
+                border-color: #d97706;
+                box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+            }
+        }
+        
+        @keyframes availableGlow {
+            0%, 100% { 
+                box-shadow: 0 0 5px rgba(16, 185, 129, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+            }
+        }
+        
+        /* Indicator dot animations */
+        @keyframes indicatorFlash {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+        
+        .blood-type {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+        
+        .blood-count {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+        
+        .blood-status {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .blood-availability-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6b7280;
+        }
+        
+        .blood-inventory-item.critical .blood-count {
+            color: #f59e0b;
+        }
+        
+        .blood-inventory-item.unavailable .blood-count {
+            color: #ef4444;
+        }
+        
+        /* Inventory loading animation */
+        .inventory-loading {
+            animation: inventoryPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes inventoryPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated background -->
+    <div class="particles" id="particles"></div>
+    
+    <div class="main-container">
+        <div class="emergency-card">
+            <h1 class="emergency-title">🚨 Emergency Blood Request</h1>
+            <p class="emergency-subtitle">Get blood in just 2 clicks • No login required • Instant notifications</p>
+            
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step-1">
+                    <div class="step-number">1</div>
+                    <span>Select Blood Group</span>
+                </div>
+                <div class="step" id="step-2">
+                    <div class="step-number">2</div>
+                    <span>Enter Quantity</span>
+                </div>
+                <div class="step" id="step-3">
+                    <div class="step-number">✓</div>
+                    <span>Get Results</span>
+                </div>
+            </div>
+            
+            <!-- Emergency Request Form -->
+            <form id="emergency-form">
+                <!-- Step 1: Blood Group Selection -->
+                <div class="request-form active" id="form-step-1">
+                    <div class="blood-group-grid">
+                        {% for value, name in blood_groups %}
+                        <button type="button" class="blood-group-btn" data-blood-group="{{ value }}">
+                            {{ value }}
+                            <div style="font-size: 0.8rem; opacity: 0.8; margin-top: 0.25rem;">{{ name|slice:"-8:" }}</div>
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Step 2: Quantity Selection -->
+                <div class="request-form" id="form-step-2">
+                    <div class="quantity-selector">
+                        <label for="quantity">How many bags do you need?</label>
+                        <input type="number" id="quantity" class="quantity-input" min="1" max="20" value="1" required>
+                        <div class="quantity-buttons">
+                            <button type="button" class="quantity-btn" onclick="setQuantity(1)">1 bag</button>
+                            <button type="button" class="quantity-btn" onclick="setQuantity(2)">2 bags</button>
+                            <button type="button" class="quantity-btn" onclick="setQuantity(3)">3 bags</button>
+                            <button type="button" class="quantity-btn" onclick="setQuantity(5)">5 bags</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Phone Number Section -->
+                    <div class="phone-section" style="margin: 2rem 0; padding: 1.5rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 16px;">
+                        <h3 style="margin-bottom: 1rem; color: #93c5fd;">📱 Phone Number (for SMS alerts)</h3>
+                        <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 1rem;">We'll send you instant SMS updates with hospital details and locations</p>
+                        <input type="tel" id="phone" class="quantity-input" placeholder="+91 98765 43210" style="width: 100%; max-width: 300px; text-align: left; font-size: 1.1rem;" required>
+                        <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">📧 Optional: Add email for backup notifications</div>
+                        <input type="email" id="email" class="quantity-input" placeholder="your.email@example.com" style="width: 100%; max-width: 300px; text-align: left; font-size: 1rem; margin-top: 0.5rem;">
+                    </div>
+                    
+                    <!-- Location Section -->
+                    <div class="location-section">
+                        <h3 style="margin-bottom: 1rem;">📍 Your Location (for nearby hospitals)</h3>
+                        <button type="button" id="get-location-btn" class="location-btn">
+                            📱 Use My Location
+                        </button>
+                        <div id="location-status" class="location-status" style="display: none;"></div>
+                        
+                        <!-- Interactive Map Container -->
+                        <div id="map-container" class="map-container">
+                            <div id="location-map"></div>
+                        </div>
+                        
+                        <div id="location-details" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <span style="font-size: 1.2rem;">🎯</span>
+                                <strong style="color: #93c5fd;">Location Confirmed</strong>
+                            </div>
+                            <div id="location-address" style="font-size: 0.9rem; opacity: 0.9;"></div>
+                            <div id="location-coordinates" style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;"></div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="emergency-btn" id="submit-btn" disabled>
+                        🚨 Find Blood Now
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Notification Panel -->
+            <div id="notification-panel" class="notification-panel" style="display: none;">
+                <div class="notification-header">
+                    <h3>📋 Request Status</h3>
+                    <button onclick="toggleNotificationPanel()" class="close-btn">✕</button>
+                </div>
+                <div id="notification-content"></div>
+            </div>
+            
+            <!-- Search Results -->
+            <div class="search-results" id="search-results">
+                <h3 style="margin-bottom: 1rem;">🏥 Hospitals Found</h3>
+                <div id="hospitals-list"></div>
+            </div>
+            
+            <!-- Live Blood Inventory -->
+            <div id="live-inventory" class="quick-info" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: #10b981;">🩸 Live Blood Inventory</h3>
+                    <div id="last-updated" style="font-size: 0.8rem; opacity: 0.7;">Loading...</div>
+                </div>
+                
+                <!-- City Selector -->
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <label style="font-weight: 600; color: #10b981;">📍 Select Location:</label>
+                        <select id="city-selector" style="background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.5rem 1rem; color: white; font-weight: 600;">
+                            <option value="">All Cities</option>
+                        </select>
+                        <button id="detect-location" style="background: rgba(16, 185, 129, 0.8); border: none; border-radius: 8px; padding: 0.5rem 1rem; color: white; font-weight: 600; cursor: pointer;">📱 Detect My City</button>
+                    </div>
+                    <div id="city-info" style="text-align: center; font-size: 0.9rem; opacity: 0.8;">Showing inventory for all locations</div>
+                </div>
+                
+                <!-- Total Units Summary -->
+                <div id="inventory-summary" style="background: rgba(16, 185, 129, 0.1); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: bold; color: #10b981; margin-bottom: 0.5rem;" id="total-units">Loading...</div>
+                    <div style="opacity: 0.8;">Total Blood Bags Available</div>
+                    <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.7;" id="total-hospitals">Across all hospitals</div>
+                </div>
+                
+                <!-- Blood Group Grid -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1rem;">
+                    <div class="blood-inventory-item" data-blood-type="A+">
+                        <div class="blood-type">A+</div>
+                        <div class="blood-count">Loading...</div>
+                        <div class="blood-status">Checking...</div>
+                        <div class="blood-availability-indicator"></div>
+                    </div>
+                    <div class="blood-inventory-item" data-blood-type="A-">
+                        <div class="blood-type">A-</div>
+                        <div class="blood-count">Loading...</div>
+                        <div class="blood-status">Checking...</div>
+                        <div class="blood-availability-indicator"></div>
+                    </div>
+                    <div class="blood-inventory-item" data-blood-type="B+">
+                        <div class="blood-type">B+</div>
+                        <div class="blood-count">Loading...</div>
+                        <div class="blood-status">Checking...</div>
+                        <div class="blood-availability-indicator"></div>
+                    </div>
+                    <div class="blood-inventory-item" data-blood-type="B-">
+                        <div class="blood-type">B-</div>
+                        <div class="blood-count">Loading...</div>
+                        <div class="blood-status">Checking...</div>
+                        <div class="blood-availability-indicator"></div>
+                    </div>
+                    <div class="blood-inventory-item" data-blood-type="AB+">
+                        <div class="blood-type">AB+</div>
+                        <div class="blood-count">Loading...</div>
+                        <div class="blood-status">Checking...</div>
+                        <div class="blood-availability-indicator"></div>
+                    </div>
+                    <div class="blood-inventory-item" data-blood-type="AB-">
+                        <div class="blood-type">AB-</div>
+                        <div class="blood-count">Loading...</div>
+                        <div class="blood-status">Checking...</div>
+                        <div class="blood-availability-indicator"></div>
+                    </div>
+                    <div class="blood-inventory-item" data-blood-type="O+">
+                        <div class="blood-type">O+</div>
+                        <div class="blood-count">Loading...</div>
+                        <div class="blood-status">Checking...</div>
+                        <div class="blood-availability-indicator"></div>
+                    </div>
+                    <div class="blood-inventory-item" data-blood-type="O-">
+                        <div class="blood-type">O-</div>
+                        <div class="blood-count">Loading...</div>
+                        <div class="blood-status">Checking...</div>
+                        <div class="blood-availability-indicator"></div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Legend -->
+                <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; font-size: 0.9rem; font-weight: 500;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 10px; height: 10px; background: #10b981; border-radius: 50%;"></div>
+                        <span style="color: #10b981;">Available (10+ bags)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 10px; height: 10px; background: #f59e0b; border-radius: 50%;"></div>
+                        <span style="color: #f59e0b;">Low Stock (1-9 bags)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%;"></div>
+                        <span style="color: #ef4444;">Not Available</span>
+                    </div>
+                </div>
+                
+                <!-- Critical Alert -->
+                <div id="critical-alert" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem; text-align: center;">
+                    <div style="color: #ef4444; font-weight: 600; margin-bottom: 0.25rem;">⚠️ Critical Stock Alert</div>
+                    <div id="critical-types" style="font-size: 0.9rem; opacity: 0.8;"></div>
+                </div>
+                
+                <!-- Toggle Hospital Details -->
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <button id="toggle-hospital-details" style="background: rgba(59, 130, 246, 0.8); border: none; border-radius: 8px; padding: 0.75rem 1.5rem; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                        🏥 Show Hospital Details
+                    </button>
+                </div>
+                
+                <!-- Hospital-wise Inventory (Initially Hidden) -->
+                <div id="hospital-details" style="display: none; margin-bottom: 1.5rem;">
+                    <h4 style="color: #93c5fd; margin-bottom: 1rem; text-align: center;">🏥 Hospital-wise Blood Inventory</h4>
+                    <div id="hospitals-inventory-list" style="max-height: 400px; overflow-y: auto; padding-right: 0.5rem;">
+                        <!-- Hospital cards will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Auto-refresh indicator -->
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; opacity: 0.7;">
+                    <span>📊 Real-time data from <span id="hospital-count">-</span> hospitals</span>
+                    <div id="refresh-indicator" style="display: flex; align-items: center; gap: 0.25rem;">
+                        <div class="loading-spinner" style="width: 12px; height: 12px; border-width: 2px;"></div>
+                        <span>Auto-updating...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Info -->
+            <div class="quick-info">
+                <h3>ℹ️ Quick Info</h3>
+                <ul>
+                    <li><strong>Instant SMS Alerts:</strong> Get hospital details and directions via SMS</li>
+                    <li><strong>No Account Needed:</strong> Make emergency requests instantly</li>
+                    <li><strong>Real-time Results:</strong> Get live hospital availability and distances</li>
+                    <li><strong>Multiple Notifications:</strong> SMS confirmations + follow-up alerts</li>
+                    <li><strong>24/7 Available:</strong> Emergency system works round the clock</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet Maps JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+    <script>
+        // Global variables
+        let selectedBloodGroup = '';
+        let userLocation = null;
+        let currentStep = 1;
+        let inventoryUpdateInterval = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            setupEventListeners();
+            initializeLiveInventory();
+        });
+        
+        // Live Inventory Functions
+        function initializeLiveInventory() {
+            // Load initial inventory data
+            updateInventoryData();
+            
+            // Set up auto-refresh every 30 seconds
+            inventoryUpdateInterval = setInterval(updateInventoryData, 30000);
+            
+            // Add click handlers for blood inventory items
+            document.querySelectorAll('.blood-inventory-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const bloodType = this.dataset.bloodType;
+                    const count = parseInt(this.querySelector('.blood-count').textContent);
+                    
+                    if (count > 0) {
+                        // Auto-select this blood type if available
+                        document.querySelectorAll('.blood-group-btn').forEach(btn => {
+                            if (btn.dataset.bloodGroup === bloodType) {
+                                btn.click();
+                            }
+                        });
+                    } else {
+                        showInventoryAlert(bloodType, 'This blood type is currently not available. Please try another type or contact hospitals directly.');
+                    }
+                });
+            });
+            
+            // Add city selector handler
+            document.getElementById('city-selector').addEventListener('change', function() {
+                updateInventoryData();
+            });
+            
+            // Add location detection handler
+            document.getElementById('detect-location').addEventListener('click', function() {
+                detectUserCity();
+            });
+            
+            // Add hospital details toggle handler
+            document.getElementById('toggle-hospital-details').addEventListener('click', function() {
+                toggleHospitalDetails();
+            });
+        }
+        
+        function updateInventoryData() {
+            const selectedCity = document.getElementById('city-selector').value;
+            let url = '/emergency/api/live-inventory/?show_hospitals=true';
+            
+            // Add city filter if selected
+            if (selectedCity) {
+                url += `&city=${encodeURIComponent(selectedCity)}`;
+            }
+            
+            // Add user location if available
+            if (userLocation) {
+                url += `&latitude=${userLocation.latitude}&longitude=${userLocation.longitude}`;
+            }
+            
+            // Return Promise for chaining
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayInventoryData(data.data);
+                        updateCitySelector(data.data.cities);
+                        updateHospitalDetails(data.data.hospitals || []);
+                        return data.data; // Return data for further processing
+                    } else {
+                        console.error('Failed to fetch inventory data:', data.error);
+                        showInventoryError();
+                        throw new Error('Failed to fetch inventory data');
+                    }
+                })
+                .catch(error => {
+                    console.error('Inventory fetch error:', error);
+                    showInventoryError();
+                    throw error;
+                });
+        }
+        
+        function detectUserCity() {
+            const btn = document.getElementById('detect-location');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '🔍 Detecting...';
+            btn.disabled = true;
+            
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+                        
+                        // Update inventory with location data
+                        updateInventoryData().then(() => {
+                            // Auto-select nearest city after data is loaded
+                            autoSelectNearestCity(position.coords.latitude, position.coords.longitude);
+                        });
+                        
+                        btn.innerHTML = '✅ Location Detected';
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                        }, 3000);
+                    },
+                    function(error) {
+                        console.error('Location detection failed:', error);
+                        btn.innerHTML = '❌ Failed';
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                        }, 2000);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
+                    }
+                );
+            } else {
+                btn.innerHTML = '❌ Not Supported';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+        
+        function autoSelectNearestCity(lat, lng) {
+            // Define city coordinates (you can expand this based on your hospital data)
+            const cityCoordinates = {
+                'Panvel': { lat: 18.9894, lng: 73.1275 },
+                'Mumbai': { lat: 19.0760, lng: 72.8777 },
+                'Navi Mumbai': { lat: 19.0330, lng: 73.0297 },
+                'Delhi': { lat: 28.6139, lng: 77.2090 },
+                'Pune': { lat: 18.5204, lng: 73.8567 }
+            };
+            
+            let nearestCity = null;
+            let minDistance = Infinity;
+            
+            // Calculate distance to each city
+            Object.entries(cityCoordinates).forEach(([cityName, coords]) => {
+                const distance = calculateDistance(lat, lng, coords.lat, coords.lng);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestCity = cityName;
+                }
+            });
+            
+            // Auto-select the nearest city in dropdown
+            if (nearestCity && minDistance < 50) { // Within 50km
+                const selector = document.getElementById('city-selector');
+                const options = Array.from(selector.options);
+                const matchingOption = options.find(option => 
+                    option.value.toLowerCase().includes(nearestCity.toLowerCase())
+                );
+                
+                if (matchingOption) {
+                    selector.value = matchingOption.value;
+                    updateInventoryData(); // Refresh data for selected city
+                    
+                    // Show success message
+                    const cityInfo = document.getElementById('city-info');
+                    cityInfo.innerHTML = `📍 Auto-selected: ${nearestCity} (${minDistance.toFixed(1)}km away)`;
+                    cityInfo.style.color = '#10b981';
+                    cityInfo.style.fontWeight = '600';
+                }
+            }
+        }
+        
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        function updateCitySelector(cities) {
+            const selector = document.getElementById('city-selector');
+            const selectedValue = selector.value;
+            
+            // Clear existing options except "All Cities"
+            selector.innerHTML = '<option value="">All Cities</option>';
+            
+            // Check if cities data exists
+            if (!cities || Object.keys(cities).length === 0) {
+                console.log('No cities data available');
+                return;
+            }
+            
+            // Add city options
+            Object.keys(cities).sort().forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = `${city} (${cities[city].hospital_count || 0} hospitals)`;
+                selector.appendChild(option);
+            });
+            
+            // Restore selected value if it still exists
+            if (selectedValue && cities[selectedValue]) {
+                selector.value = selectedValue;
+            }
+            
+            // Update city info
+            const cityInfo = document.getElementById('city-info');
+            if (selectedValue && cities[selectedValue]) {
+                cityInfo.textContent = `Showing ${cities[selectedValue].hospital_count || 0} hospitals in ${selectedValue}`;
+            } else {
+                cityInfo.textContent = `Showing inventory for all locations (${Object.keys(cities).length} cities)`;
+            }
+        }
+        
+        function toggleHospitalDetails() {
+            const detailsDiv = document.getElementById('hospital-details');
+            const toggleBtn = document.getElementById('toggle-hospital-details');
+            
+            if (detailsDiv.style.display === 'none') {
+                detailsDiv.style.display = 'block';
+                toggleBtn.innerHTML = '🏥 Hide Hospital Details';
+                toggleBtn.style.background = 'rgba(239, 68, 68, 0.8)';
+            } else {
+                detailsDiv.style.display = 'none';
+                toggleBtn.innerHTML = '🏥 Show Hospital Details';
+                toggleBtn.style.background = 'rgba(59, 130, 246, 0.8)';
+            }
+        }
+        
+        function updateHospitalDetails(hospitals) {
+            const hospitalsList = document.getElementById('hospitals-inventory-list');
+            
+            if (!hospitals || hospitals.length === 0) {
+                hospitalsList.innerHTML = '<div style="text-align: center; padding: 2rem; opacity: 0.7;">No hospital data available</div>';
+                return;
+            }
+            
+            let hospitalsHTML = '';
+            hospitals.forEach(hospital => {
+                const totalUnits = hospital.total_units;
+                const statusColor = totalUnits > 50 ? '#10b981' : totalUnits > 20 ? '#f59e0b' : '#ef4444';
+                const statusText = totalUnits > 50 ? 'Well Stocked' : totalUnits > 20 ? 'Moderate Stock' : 'Low Stock';
+                
+                hospitalsHTML += `
+                    <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.borderColor='rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255, 255, 255, 0.2)'">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <div>
+                                <h4 style="color: #fecaca; margin-bottom: 0.25rem; font-size: 1.1rem;">${hospital.name}</h4>
+                                <div style="font-size: 0.9rem; opacity: 0.8;">${hospital.city}${hospital.distance ? ` • ${hospital.distance} km away` : ''}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="background: ${statusColor}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">${statusText}</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.25rem; font-weight: 600;">${totalUnits} bags total</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Blood Group Mini Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;">
+                            ${Object.entries(hospital.inventory).map(([bloodType, count]) => {
+                                const bgColor = count === 0 ? 'rgba(239, 68, 68, 0.2)' : count < 5 ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)';
+                                const textColor = count === 0 ? '#ef4444' : count < 5 ? '#f59e0b' : '#10b981';
+                                return `
+                                    <div style="background: ${bgColor}; border-radius: 6px; padding: 0.25rem; text-align: center; font-size: 0.8rem;">
+                                        <div style="font-weight: bold; color: white;">${bloodType}</div>
+                                        <div style="font-weight: 600; color: ${textColor};">${count}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        
+                        <!-- Contact Info -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+                            <div style="opacity: 0.8;">📍 ${hospital.address}</div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="tel:${hospital.emergency_phone}" style="background: #059669; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem;">📞 ${hospital.emergency_phone}</a>
+                                ${hospital.operates_24x7 ? '<span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">🕒 24/7</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            hospitalsList.innerHTML = hospitalsHTML;
+        }
+        
+        function displayInventoryData(inventoryData) {
+            const { 
+                total_inventory, 
+                total_units_available, 
+                total_hospitals, 
+                critical_blood_types, 
+                last_updated 
+            } = inventoryData;
+            
+            // Update summary
+            document.getElementById('total-units').textContent = total_units_available;
+            document.getElementById('total-hospitals').textContent = `Across ${total_hospitals} hospitals`;
+            document.getElementById('hospital-count').textContent = total_hospitals;
+            
+            // Update timestamp
+            const updateTime = new Date(last_updated).toLocaleTimeString();
+            document.getElementById('last-updated').textContent = `Updated: ${updateTime}`;
+            
+            // Update blood group counts and styling
+            Object.entries(total_inventory).forEach(([bloodType, count]) => {
+                const item = document.querySelector(`[data-blood-type="${bloodType}"]`);
+                if (item) {
+                    const countElement = item.querySelector('.blood-count');
+                    const statusElement = item.querySelector('.blood-status');
+                    const indicatorElement = item.querySelector('.blood-availability-indicator');
+                    
+                    countElement.textContent = count;
+                    
+                    // Remove existing status classes
+                    item.classList.remove('available', 'critical', 'unavailable', 'inventory-loading');
+                    
+                    // Apply status styling exactly like the screenshot
+                    // Reset all animations and classes first
+                    item.style.animation = 'none';
+                    indicatorElement.style.animation = 'none';
+                    item.classList.remove('available', 'low-stock', 'critical', 'unavailable', 'inventory-loading');
+                    
+                    if (count === 0) {
+                        // RED - Not Available
+                        item.classList.add('critical');
+                        countElement.textContent = '0 bags';
+                        statusElement.textContent = 'Not Available';
+                        statusElement.style.color = '#ef4444';
+                        indicatorElement.style.background = '#ef4444';
+                        // Fast red flashing for zero stock
+                        item.style.animation = 'criticalFlash 1s ease-in-out infinite';
+                        indicatorElement.style.animation = 'indicatorFlash 0.8s ease-in-out infinite';
+                    } else if (count < 10) {
+                        // YELLOW - Low Stock (1-9 bags)
+                        item.classList.add('low-stock');
+                        countElement.textContent = `${count} bags`;
+                        statusElement.textContent = 'Low Stock';
+                        statusElement.style.color = '#f59e0b';
+                        indicatorElement.style.background = '#f59e0b';
+                        // Yellow pulsing for low stock
+                        item.style.animation = 'lowStockPulse 2s ease-in-out infinite';
+                        indicatorElement.style.animation = 'indicatorFlash 1.5s ease-in-out infinite';
+                    } else {
+                        // GREEN - Available (10+ bags)
+                        item.classList.add('available');
+                        countElement.textContent = `${count} bags`;
+                        statusElement.textContent = 'Available';
+                        statusElement.style.color = '#10b981';
+                        indicatorElement.style.background = '#10b981';
+                        // Gentle green glow for good stock
+                        item.style.animation = 'availableGlow 3s ease-in-out infinite';
+                    }
+                    
+                    // Enhanced hover tooltip
+                    let hospitalsWithStock = 0;
+                    try {
+                        if (inventoryData.cities) {
+                            hospitalsWithStock = Object.values(inventoryData.cities).reduce((total, city) => {
+                                if (city.hospitals && Array.isArray(city.hospitals)) {
+                                    return total + city.hospitals.filter(h => h.inventory && h.inventory[bloodType] > 0).length;
+                                }
+                                return total;
+                            }, 0);
+                        }
+                    } catch (e) {
+                        console.log('Error calculating hospitals with stock:', e);
+                        hospitalsWithStock = 0;
+                    }
+                    
+                    item.title = `${bloodType} blood: ${count} bags available${hospitalsWithStock > 0 ? ` across ${hospitalsWithStock} hospitals` : ''}\nClick to auto-select this blood type`;
+                    
+                    // Add pulse animation for critically low stock
+                    if (count > 0 && count < 5) {
+                        item.style.animation = 'pulse 2s ease-in-out infinite';
+                    } else {
+                        item.style.animation = 'none';
+                    }
+                }
+            });
+            
+            // Handle critical stock alert
+            if (critical_blood_types.length > 0) {
+                const alertDiv = document.getElementById('critical-alert');
+                const typesDiv = document.getElementById('critical-types');
+                
+                alertDiv.style.display = 'block';
+                typesDiv.textContent = `Low stock: ${critical_blood_types.join(', ')} (Less than 10 bags each)`;
+            } else {
+                document.getElementById('critical-alert').style.display = 'none';
+            }
+            
+            // Hide refresh indicator
+            document.getElementById('refresh-indicator').style.opacity = '0.3';
+            setTimeout(() => {
+                document.getElementById('refresh-indicator').style.opacity = '0.7';
+            }, 1000);
+        }
+        
+        function showInventoryError() {
+            // Show error state with better UX
+            document.querySelectorAll('.blood-inventory-item').forEach(item => {
+                item.classList.remove('available', 'critical', 'unavailable', 'inventory-loading');
+                item.classList.add('unavailable');
+                
+                const countElement = item.querySelector('.blood-count');
+                const statusElement = item.querySelector('.blood-status');
+                const indicatorElement = item.querySelector('.blood-availability-indicator');
+                
+                countElement.textContent = 'Error';
+                if (statusElement) {
+                    statusElement.textContent = 'Connection Error';
+                    statusElement.style.color = '#ef4444';
+                }
+                if (indicatorElement) {
+                    indicatorElement.style.background = '#ef4444';
+                }
+            });
+            
+            document.getElementById('total-units').textContent = 'Connection Error';
+            document.getElementById('last-updated').textContent = 'Failed to load - Please check connection';
+            
+            // Show retry option after 3 seconds
+            setTimeout(() => {
+                if (confirm('Failed to load inventory data. Would you like to retry?')) {
+                    updateInventoryData();
+                }
+            }, 3000);
+        }
+        
+        function showInventoryAlert(bloodType, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 1.5rem;
+                border-radius: 12px;
+                border: 2px solid rgba(239, 68, 68, 0.5);
+                z-index: 10000;
+                max-width: 400px;
+                text-align: center;
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+            `;
+            
+            alertDiv.innerHTML = `
+                <h3 style="color: #ef4444; margin-bottom: 0.75rem;">⚠️ ${bloodType} Blood Alert</h3>
+                <p style="margin-bottom: 1rem; line-height: 1.4;">${message}</p>
+                <button onclick="this.parentElement.remove()" style="
+                    background: #dc2626;
+                    border: none;
+                    color: white;
+                    padding: 0.5rem 1rem;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">OK</button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+        
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        function setupEventListeners() {
+            // Blood group selection
+            document.querySelectorAll('.blood-group-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.blood-group-btn').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedBloodGroup = this.dataset.bloodGroup;
+                    
+                    setTimeout(() => {
+                        nextStep();
+                    }, 500);
+                });
+            });
+            
+            // Get location button
+            document.getElementById('get-location-btn').addEventListener('click', getCurrentLocation);
+            
+            // Form submission
+            document.getElementById('emergency-form').addEventListener('submit', handleSubmit);
+        }
+        
+        function nextStep() {
+            if (currentStep < 3) {
+                // Hide current step
+                document.getElementById(`form-step-${currentStep}`).classList.remove('active');
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                
+                currentStep++;
+                
+                // Show next step
+                document.getElementById(`form-step-${currentStep}`).classList.add('active');
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                
+                if (currentStep === 2) {
+                    // Auto-get location when reaching step 2
+                    setTimeout(getCurrentLocation, 500);
+                }
+            }
+        }
+        
+        function setQuantity(value) {
+            document.getElementById('quantity').value = value;
+            document.querySelector('.quantity-input').focus();
+        }
+        
+        let locationMap = null;
+        
+        function getCurrentLocation() {
+            const btn = document.getElementById('get-location-btn');
+            const status = document.getElementById('location-status');
+            const submitBtn = document.getElementById('submit-btn');
+            const mapContainer = document.getElementById('map-container');
+            const locationDetails = document.getElementById('location-details');
+            
+            btn.innerHTML = '<div class="loading-spinner"></div> Getting Location...';
+            btn.disabled = true;
+            status.style.display = 'block';
+            status.className = 'location-status';
+            status.innerHTML = '📍 Locating you...';
+            
+            // Show map container with animation
+            mapContainer.classList.add('show');
+            
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+                        
+                        // Create and display interactive map
+                        setTimeout(() => {
+                            initializeLocationMap(userLocation.latitude, userLocation.longitude);
+                        }, 400);
+                        
+                        // Update status
+                        status.className = 'location-status location-success';
+                        status.innerHTML = `✅ Location detected! Zooming to your position...`;
+                        
+                        // Get address from coordinates
+                        getAddressFromCoordinates(userLocation.latitude, userLocation.longitude)
+                            .then(address => {
+                                // Show location details
+                                locationDetails.style.display = 'block';
+                                document.getElementById('location-address').textContent = address;
+                                document.getElementById('location-coordinates').textContent = 
+                                    `Lat: ${userLocation.latitude.toFixed(6)}, Lng: ${userLocation.longitude.toFixed(6)}`;
+                                
+                                btn.innerHTML = '✅ Location Confirmed';
+                                btn.classList.add('location-pulse');
+                                submitBtn.disabled = false;
+                                
+                                // Update status with address
+                                status.innerHTML = `🎯 Perfect! We found you at: ${address}`;
+                            })
+                            .catch(() => {
+                                // Fallback if reverse geocoding fails
+                                locationDetails.style.display = 'block';
+                                document.getElementById('location-address').textContent = 'Location detected successfully';
+                                document.getElementById('location-coordinates').textContent = 
+                                    `Lat: ${userLocation.latitude.toFixed(6)}, Lng: ${userLocation.longitude.toFixed(6)}`;
+                                    
+                                btn.innerHTML = '✅ Location Confirmed';
+                                btn.classList.add('location-pulse');
+                                submitBtn.disabled = false;
+                            });
+                    },
+                    function(error) {
+                        status.className = 'location-status location-error';
+                        let errorMessage = '❌ Location access denied.';
+                        
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage = '❌ Location permission denied. Please allow location access and try again.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage = '❌ Location information unavailable. Please check your connection.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage = '❌ Location request timed out. Please try again.';
+                                break;
+                        }
+                        
+                        status.innerHTML = errorMessage + ' You can still proceed, but results may be limited.';
+                        
+                        // Hide map container
+                        mapContainer.classList.remove('show');
+                        
+                        btn.innerHTML = '📍 Try Again';
+                        btn.disabled = false;
+                        submitBtn.disabled = false; // Allow submission without location
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 30000
+                    }
+                );
+            } else {
+                status.className = 'location-status location-error';
+                status.innerHTML = '❌ Geolocation not supported by this browser.';
+                btn.innerHTML = '❌ Not Supported';
+                mapContainer.classList.remove('show');
+                submitBtn.disabled = false;
+            }
+        }
+        
+        function initializeLocationMap(lat, lng) {
+            // Initialize map if not already created
+            if (locationMap) {
+                locationMap.remove();
+            }
+            
+            // Create map with initial view
+            locationMap = L.map('location-map').setView([lat, lng], 13);
+            
+            // Add beautiful tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(locationMap);
+            
+            // Create custom marker icon
+            const customIcon = L.divIcon({
+                className: 'custom-location-marker',
+                html: '📍',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+            
+            // Add marker with animation
+            const marker = L.marker([lat, lng], {icon: customIcon}).addTo(locationMap);
+            marker.bindPopup('📍 Your Location<br><small>We\'ll find nearby hospitals from here</small>');
+            
+            // Zoom animation
+            setTimeout(() => {
+                locationMap.setView([lat, lng], 15, {
+                    animate: true,
+                    duration: 1.5
+                });
+            }, 500);
+            
+            // Add accuracy circle if available
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    if (position.coords.accuracy) {
+                        L.circle([lat, lng], {
+                            radius: position.coords.accuracy,
+                            color: '#3b82f6',
+                            fillColor: '#3b82f6',
+                            fillOpacity: 0.1,
+                            weight: 2
+                        }).addTo(locationMap);
+                    }
+                });
+            }
+        }
+        
+        function getAddressFromCoordinates(lat, lng) {
+            return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        // Format address nicely
+                        const parts = data.display_name.split(',');
+                        return parts.slice(0, 3).join(',').trim();
+                    }
+                    throw new Error('No address found');
+                })
+                .catch(() => {
+                    return `Coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                });
+        }
+        
+        function handleSubmit(e) {
+            e.preventDefault();
+            
+            const quantity = document.getElementById('quantity').value;
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            if (!selectedBloodGroup || !quantity) {
+                alert('Please select blood group and quantity');
+                return;
+            }
+            
+            if (!phone) {
+                alert('Please enter your phone number to receive SMS alerts');
+                return;
+            }
+            
+            // Basic phone validation
+            if (phone.length < 10) {
+                alert('Please enter a valid phone number');
+                return;
+            }
+            
+            // Show loading
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading-spinner"></div> Searching Hospitals...';
+            submitBtn.disabled = true;
+            
+            // Move to step 3
+            document.getElementById(`form-step-${currentStep}`).classList.remove('active');
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById('step-3').classList.add('active');
+            
+            // Prepare request data
+            const requestData = {
+                blood_group: selectedBloodGroup,
+                quantity: parseInt(quantity),
+                latitude: userLocation ? userLocation.latitude : null,
+                longitude: userLocation ? userLocation.longitude : null,
+                phone: phone,
+                email: email || null,
+                name: 'Web User'
+            };
+            
+            // Make API request
+            fetch('/emergency/request/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showResults(data);
+                    // Show SMS notification status
+                    if (data.immediate_sms_sent) {
+                        showSMSStatus('📱 Instant SMS confirmation sent to ' + document.getElementById('phone').value);
+                        addNotificationStatus('📧', 'SMS Update', 'Hospital details will be sent via SMS once search is complete', 'info');
+                    } else {
+                        addNotificationStatus('⚠️', 'SMS Issue', 'SMS notification may be delayed due to network issues. Results will still appear here.', 'warning');
+                    }
+                } else {
+                    showError(data.error || 'Failed to process request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Network error. Please try again.');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+        
+        function showResults(data) {
+            const resultsDiv = document.getElementById('search-results');
+            const hospitalsList = document.getElementById('hospitals-list');
+            
+            resultsDiv.classList.add('active');
+            
+            // Show immediate notification panel
+            showNotificationPanel();
+            addNotificationStatus('📋', 'Request Submitted Successfully', `Emergency blood request for ${selectedBloodGroup} (${document.getElementById('quantity').value} bags) has been submitted.\nRequest ID: ${data.request_id}`, 'success');
+            
+            // Show SMS sending status immediately
+            if (data.immediate_sms_sent) {
+                addNotificationStatus('📱', 'SMS Sent', `Instant SMS confirmation sent to ${document.getElementById('phone').value}`, 'success');
+            } else {
+                addNotificationStatus('⚠️', 'SMS Pending', 'SMS notification is being processed...', 'warning');
+            }
+            
+            // Show initial search status
+            addNotificationStatus('🔍', 'Searching Hospitals', `Looking for nearby hospitals with ${selectedBloodGroup} blood availability...`, 'info');
+            
+            // Check status after brief delay to let backend finish
+            setTimeout(() => {
+                checkRequestStatus(data.request_id);
+            }, 500);
+            
+            hospitalsList.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="loading-spinner" style="margin: 0 auto 1rem;"></div>
+                    <p>Searching nearby hospitals for ${selectedBloodGroup} blood...</p>
+                    <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">Request ID: ${data.request_id}</p>
+                    <div id="sms-status" style="margin-top: 1rem;"></div>
+                </div>
+            `;
+        }
+        
+        function showSMSStatus(message) {
+            const smsStatus = document.getElementById('sms-status');
+            if (smsStatus) {
+                smsStatus.innerHTML = `
+                    <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 1rem; color: #10b981;">
+                        <strong>${message}</strong><br>
+                        <small style="opacity: 0.8;">You'll receive detailed hospital information via SMS shortly</small>
+                    </div>
+                `;
+            }
+        }
+        
+        function checkRequestStatus(requestId) {
+            fetch(`/emergency/status/${requestId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayHospitals(data.hospitals);
+                } else {
+                    showError('Failed to get hospital information');
+                }
+            })
+            .catch(error => {
+                console.error('Status check error:', error);
+                // Retry after 2 seconds
+                setTimeout(() => checkRequestStatus(requestId), 2000);
+            });
+        }
+        
+        function displayHospitals(hospitals) {
+            const hospitalsList = document.getElementById('hospitals-list');
+            
+            if (hospitals.length === 0) {
+                hospitalsList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <h3 style="color: #f59e0b; margin-bottom: 1rem;">⚠️ No Hospitals Found</h3>
+                        <p>No nearby hospitals currently have the requested blood type in stock.</p>
+                        <p style="margin-top: 1rem;">Please try:</p>
+                        <ul style="text-align: left; margin-top: 1rem;">
+                            <li>Expanding your search radius</li>
+                            <li>Contacting hospitals directly</li>
+                            <li>Calling emergency services: <strong>108</strong></li>
+                        </ul>
+                    </div>
+                `;
+                
+                // Update notification panel
+                addNotificationStatus('❌', 'No Hospitals Found', 'No nearby hospitals with required blood type found. Consider calling emergency services (108)', 'error');
+                return;
+            }
+            
+            // Update notification panel with results
+            addNotificationStatus('✅', 'Hospitals Found!', `Found ${hospitals.length} hospital(s) with ${selectedBloodGroup} blood in stock. Contact details shown below.`, 'success');
+            
+            let hospitalsHTML = '';
+            hospitals.forEach((hospital, index) => {
+                const priority = index === 0 ? 'NEAREST' : `OPTION ${index + 1}`;
+                const priorityColor = index === 0 ? '#dc2626' : '#059669';
+                
+                hospitalsHTML += `
+                    <div class="hospital-card-enhanced">
+                        <div class="hospital-priority" style="background: ${priorityColor};">${priority}</div>
+                        <div class="hospital-name" style="font-size: 1.4rem; margin-bottom: 0.75rem;">${hospital.name}</div>
+                        
+                        <div class="hospital-info" style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="hospital-phone" style="font-size: 1.2rem;">📞 ${hospital.emergency_phone}</span>
+                                <span class="hospital-distance" style="font-size: 1rem;">🚗 ${hospital.distance} km</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem; opacity: 0.9; font-size: 0.95rem;">
+                            📍 ${hospital.address}
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.15); border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <span style="font-size: 1.2rem;">✅</span>
+                                <strong style="color: #10b981;">${selectedBloodGroup} Blood Available</strong>
+                            </div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">Confirmed availability - Contact immediately</div>
+                        </div>
+                        
+                        <div class="contact-buttons">
+                            <a href="tel:${hospital.emergency_phone}" class="contact-btn btn-call">
+                                📞 Call Now
+                            </a>
+                            <a href="https://maps.google.com/?q=${encodeURIComponent(hospital.address)}" target="_blank" class="contact-btn btn-directions">
+                                🗺 Get Directions
+                            </a>
+                        </div>
+                        
+                        ${index === 0 ? '<div style="margin-top: 0.75rem; font-size: 0.85rem; opacity: 0.7; text-align: center;"><strong>📍 Closest to your location</strong></div>' : ''}
+                    </div>
+                `;
+            });
+            
+            hospitalsList.innerHTML = `
+                <div style="margin-bottom: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%); border-radius: 16px; text-align: center; border: 2px solid rgba(16, 185, 129, 0.3);">
+                    <h3 style="color: #10b981; margin-bottom: 1rem; font-size: 1.5rem;">🎉 ${hospitals.length} Hospital(s) Found!</h3>
+                    <p style="margin-bottom: 0.5rem;">Emergency blood banks with <strong>${selectedBloodGroup}</strong> blood in stock</p>
+                    <p style="font-size: 0.9rem; opacity: 0.8;">Call the hospitals directly or use the buttons below for quick actions</p>
+                </div>
+                ${hospitalsHTML}
+                
+                <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 16px; text-align: center;">
+                    <h4 style="color: #93c5fd; margin-bottom: 1rem;">🚨 Emergency Tips</h4>
+                    <ul style="text-align: left; padding-left: 1.5rem; line-height: 1.6;">
+                        <li>Call the nearest hospital first (marked as "NEAREST")</li>
+                        <li>Mention this is an emergency blood request</li>
+                        <li>Provide your request details: ${selectedBloodGroup}, ${document.getElementById('quantity').value} bags</li>
+                        <li>Ask about availability and reservation procedures</li>
+                        <li>If first hospital can't help, try the next options immediately</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function showError(message) {
+            const resultsDiv = document.getElementById('search-results');
+            const hospitalsList = document.getElementById('hospitals-list');
+            
+            // Show notification panel if not already visible
+            showNotificationPanel();
+            addNotificationStatus('❌', 'Error Occurred', message, 'error');
+            
+            resultsDiv.classList.add('active');
+            hospitalsList.innerHTML = `
+                <div style="text-align: center; padding: 2rem; background: rgba(239, 68, 68, 0.2); border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                    <h3 style="color: #ef4444; margin-bottom: 1rem;">❌ Error</h3>
+                    <p>${message}</p>
+                    <div style="margin-top: 1.5rem;">
+                        <button onclick="location.reload()" style="margin-right: 1rem; padding: 0.75rem 1.5rem; background: #dc2626; border: none; border-radius: 8px; color: white; cursor: pointer;">
+                            🔄 Try Again
+                        </button>
+                        <button onclick="window.open('tel:108', '_self')" style="padding: 0.75rem 1.5rem; background: #059669; border: none; border-radius: 8px; color: white; cursor: pointer;">
+                            📞 Call Emergency (108)
+                        </button>
+                    </div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+                        Emergency services are available 24/7 for immediate assistance
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Notification Panel Management
+        function showNotificationPanel() {
+            const panel = document.getElementById('notification-panel');
+            panel.style.display = 'block';
+        }
+        
+        function toggleNotificationPanel() {
+            const panel = document.getElementById('notification-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function addNotificationStatus(icon, title, message, type = 'info') {
+            const content = document.getElementById('notification-content');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const statusItem = document.createElement('div');
+            statusItem.className = `status-item status-${type}`;
+            statusItem.innerHTML = `
+                <div class="status-icon">${icon}</div>
+                <div class="status-text">
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">${title}</div>
+                    <div style="font-size: 0.9rem; line-height: 1.4;">${message.replace(/\\n/g, '<br>')}</div>
+                    <div class="status-time">${timestamp}</div>
+                </div>
+            `;
+            
+            // Add to top of notification list
+            content.insertBefore(statusItem, content.firstChild);
+            
+            // Keep only last 10 notifications
+            const items = content.querySelectorAll('.status-item');
+            if (items.length > 10) {
+                content.removeChild(items[items.length - 1]);
+            }
+            
+            // Scroll to top of notifications
+            content.scrollTop = 0;
+        }
+    </script>
+</body>
+</html>

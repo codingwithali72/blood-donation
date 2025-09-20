@@ -1,0 +1,566 @@
+{% extends 'blood/adminbase.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+:root {
+    --primary-red: #FF002B;
+    --primary-600: #C9002D;
+    --chat-bg: #f8f9fa;
+    --user-msg-bg: var(--primary-red);
+    --bot-msg-bg: #ffffff;
+    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --shadow-lg: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.chatbot-container {
+    max-width: 800px;
+    margin: 0 auto;
+    height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 15px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.chatbot-header {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-red));
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.chatbot-header h3 {
+    margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.chatbot-header .subtitle {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    background: var(--chat-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.message {
+    max-width: 80%;
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    word-wrap: break-word;
+    position: relative;
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.user {
+    background: var(--user-msg-bg);
+    color: white;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.message.bot {
+    background: var(--bot-msg-bg);
+    color: #333;
+    align-self: flex-start;
+    box-shadow: var(--shadow);
+    border: 1px solid #e9ecef;
+}
+
+.message.bot::before {
+    content: '🤖';
+    position: absolute;
+    left: -2.5rem;
+    top: 0.5rem;
+    background: var(--primary-red);
+    color: white;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.message-time {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+}
+
+.chat-input {
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid #e9ecef;
+}
+
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: var(--primary-red);
+}
+
+.send-btn, .clear-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.send-btn {
+    background: var(--primary-red);
+    color: white;
+}
+
+.send-btn:hover {
+    background: var(--primary-600);
+    transform: translateY(-1px);
+}
+
+.send-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.clear-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.clear-btn:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.typing-indicator {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--bot-msg-bg);
+    border-radius: 18px;
+    max-width: 80px;
+    box-shadow: var(--shadow);
+}
+
+.typing-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary-red);
+    animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-10px);
+    }
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.welcome-message h4 {
+    color: var(--primary-red);
+    margin-bottom: 1rem;
+}
+
+.quick-questions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.quick-question {
+    background: var(--primary-red);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.quick-question:hover {
+    background: var(--primary-600);
+    transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .chatbot-container {
+        height: calc(100vh - 150px);
+        margin: 0.5rem;
+        border-radius: 10px;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+    
+    .input-group {
+        flex-direction: column;
+    }
+    
+    .quick-questions {
+        flex-direction: column;
+    }
+}
+
+/* Scrollbar Styling */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--primary-red);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-600);
+}
+</style>
+
+<div class="container-fluid py-4">
+    <div class="chatbot-container">
+        <!-- Header -->
+        <div class="chatbot-header">
+            <h3>
+                <i class="fas fa-robot"></i>
+                Blood Bank Assistant
+            </h3>
+            <p class="subtitle">Get instant help with blood donation queries</p>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <h4><i class="fas fa-heart text-danger"></i> Welcome!</h4>
+                <p>I'm your Blood Bank Assistant. I can help you with information about blood donation, eligibility, blood types, and our services.</p>
+                
+                <div class="quick-questions">
+                    <button class="quick-question" onclick="sendQuickQuestion('How can I donate blood?')">
+                        How can I donate blood?
+                    </button>
+                    <button class="quick-question" onclick="sendQuickQuestion('What are blood types?')">
+                        What are blood types?
+                    </button>
+                    <button class="quick-question" onclick="sendQuickQuestion('How to register as donor?')">
+                        How to register?
+                    </button>
+                    <button class="quick-question" onclick="sendQuickQuestion('Blood donation benefits')">
+                        Donation benefits
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input">
+            <div class="input-group">
+                <input type="text" id="messageInput" placeholder="Type your message here..." maxlength="1000" autocomplete="off">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+                <button class="clear-btn" onclick="clearChat()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let sessionId = localStorage.getItem('chatSessionId') || '';
+let isWaitingForResponse = false;
+
+// Initialize chat
+document.addEventListener('DOMContentLoaded', function() {
+    // Load chat history if session exists
+    if (sessionId) {
+        loadChatHistory();
+    }
+    
+    // Add enter key listener
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+});
+
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message || isWaitingForResponse) return;
+    
+    // Clear input and add user message
+    input.value = '';
+    addMessage(message, 'user');
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Send to API
+    sendToAPI(message);
+}
+
+function sendQuickQuestion(question) {
+    document.getElementById('messageInput').value = question;
+    sendMessage();
+}
+
+function addMessage(content, type) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    
+    // Format content for bot messages (simple markdown-like formatting)
+    if (type === 'bot') {
+        content = formatBotResponse(content);
+    }
+    
+    messageDiv.innerHTML = `
+        ${content}
+        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+    `;
+    
+    // Remove welcome message if it exists
+    const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+    if (welcomeMsg) {
+        welcomeMsg.remove();
+    }
+    
+    messagesContainer.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+function formatBotResponse(content) {
+    // Simple formatting for bot responses
+    return content
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+        .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+        .replace(/🩸/g, '<span style="color: var(--primary-red);">🩸</span>') // Blood emoji
+        .replace(/\n/g, '<br>'); // Line breaks
+}
+
+function showTypingIndicator() {
+    const indicator = document.getElementById('typingIndicator');
+    indicator.style.display = 'flex';
+    scrollToBottom();
+}
+
+function hideTypingIndicator() {
+    const indicator = document.getElementById('typingIndicator');
+    indicator.style.display = 'none';
+}
+
+function sendToAPI(message) {
+    isWaitingForResponse = true;
+    document.getElementById('sendBtn').disabled = true;
+    
+    fetch('/chatbot/api/chat/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: message,
+            session_id: sessionId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        
+        if (data.status === 'success') {
+            addMessage(data.response, 'bot');
+            sessionId = data.session_id;
+            localStorage.setItem('chatSessionId', sessionId);
+        } else {
+            addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        hideTypingIndicator();
+        addMessage('Sorry, I couldn\'t connect to the server. Please check your connection and try again.', 'bot');
+    })
+    .finally(() => {
+        isWaitingForResponse = false;
+        document.getElementById('sendBtn').disabled = false;
+    });
+}
+
+function loadChatHistory() {
+    fetch(`/chatbot/api/history/${sessionId}/`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success' && data.history.length > 0) {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Remove welcome message
+            const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+            
+            // Add messages from history
+            data.history.forEach(msg => {
+                addMessage(msg.content, msg.type);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error loading chat history:', error);
+    });
+}
+
+function clearChat() {
+    if (confirm('Are you sure you want to clear the chat history?')) {
+        fetch('/chatbot/api/clear/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_id: sessionId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Clear messages and show welcome
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = `
+                    <div class="welcome-message">
+                        <h4><i class="fas fa-heart text-danger"></i> Welcome!</h4>
+                        <p>I'm your Blood Bank Assistant. I can help you with information about blood donation, eligibility, blood types, and our services.</p>
+                        
+                        <div class="quick-questions">
+                            <button class="quick-question" onclick="sendQuickQuestion('How can I donate blood?')">
+                                How can I donate blood?
+                            </button>
+                            <button class="quick-question" onclick="sendQuickQuestion('What are blood types?')">
+                                What are blood types?
+                            </button>
+                            <button class="quick-question" onclick="sendQuickQuestion('How to register as donor?')">
+                                How to register?
+                            </button>
+                            <button class="quick-question" onclick="sendQuickQuestion('Blood donation benefits')">
+                                Donation benefits
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                `;
+                
+                // Clear session
+                sessionId = '';
+                localStorage.removeItem('chatSessionId');
+            }
+        })
+        .catch(error => {
+            console.error('Error clearing chat:', error);
+        });
+    }
+}
+
+function scrollToBottom() {
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,261 @@
+{% extends 'donor/donorbase.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+:root {
+    --primary-red: #FF002B;
+    --primary-600: #C9002D;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modern-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.modern-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+.stat-card.primary { background: linear-gradient(135deg, var(--primary-red), var(--primary-600)); }
+.stat-card.warning { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+.stat-card.success { background: linear-gradient(135deg, #10b981, #059669); }
+.stat-card.danger { background: linear-gradient(135deg, #f87171, #ef4444); }
+
+.action-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+    margin-bottom: 1rem;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    text-decoration: none;
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-red));
+    color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.section-title {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, #fef2f2, #fecaca);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: none;
+}
+
+.pulse-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.enhanced-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.enhanced-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.enhanced-card:hover::before {
+    left: 100%;
+}
+
+@media (max-width: 768px) {
+    .stat-card, .action-card {
+        margin-bottom: 1rem;
+    }
+    
+    .dashboard-header h2 {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header enhanced-card">
+        <h2><i class="fas fa-hand-holding-heart me-2 pulse-icon"></i>Donor Dashboard</h2>
+        <p class="mb-0">Thank you for being a life saver! Manage your donations and requests</p>
+    </div>
+
+    <!-- Welcome Message -->
+    <div class="welcome-card">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4 class="text-danger mb-3"><i class="fas fa-heart me-2"></i>Thank You for Being a Hero!</h4>
+                <p class="mb-0 text-muted">Your generosity makes a profound difference in the world. Every donation has the potential to save up to three lives and bring hope to families in their darkest moments.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="fas fa-hand-holding-medical fa-4x text-danger opacity-50 pulse-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Statistics -->
+    <div class="modern-card mb-4">
+        <div class="card-header bg-white">
+            <h4 class="section-title"><i class="fas fa-chart-bar me-2"></i>Your Request Statistics</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card primary">
+                        <i class="fas fa-sync-alt fa-2x mb-2"></i>
+                        <h4>{{requestmade}}</h4>
+                        <span>Request Made</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card warning">
+                        <i class="fas fa-sync fa-2x mb-2"></i>
+                        <h4>{{requestpending}}</h4>
+                        <span>Pending Request</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card success">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <h4>{{requestapproved}}</h4>
+                        <span>Approved Request</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card danger">
+                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                        <h4>{{requestrejected}}</h4>
+                        <span>Rejected Request</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="modern-card">
+        <div class="card-header bg-white">
+            <h4 class="section-title"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-6">
+                    <a href="/donor/donate-blood" class="action-card">
+                        <div class="card bg-danger text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-hand-holding-medical fa-2x mb-2"></i>
+                                <h6>Donate Blood</h6>
+                                <small>Submit donation request</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="/donor/make-request" class="action-card">
+                        <div class="card bg-primary text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                                <h6>Request Blood</h6>
+                                <small>Make blood request</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="/donor/certificates" class="action-card">
+                        <div class="card bg-warning text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-award fa-2x mb-2"></i>
+                                <h6>My Certificates</h6>
+                                <small>View achievements</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="/blood-camps" class="action-card">
+                        <div class="card bg-info text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-calendar-plus fa-2x mb-2"></i>
+                                <h6>Blood Camps</h6>
+                                <small>Join donation drives</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="/donor/donation-history" class="action-card">
+                        <div class="card bg-success text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-history fa-2x mb-2"></i>
+                                <h6>Donation History</h6>
+                                <small>View donation records</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="/donor/request-history" class="action-card">
+                        <div class="card bg-secondary text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-clock fa-2x mb-2"></i>
+                                <h6>Request History</h6>
+                                <small>View request records</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

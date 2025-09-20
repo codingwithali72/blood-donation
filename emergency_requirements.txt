@@ -1,0 +1,38 @@
+# Core Django dependencies (already included in main project)
+Django>=3.0.0
+django-widget-tweaks
+
+# Additional packages for emergency system
+# Uncomment and install these for full functionality:
+
+# For SMS notifications via Twilio
+# twilio>=7.0.0
+
+# For advanced geospatial queries (optional)
+# django-gis
+# psycopg2-binary  # For PostgreSQL with PostGIS
+
+# For WebSocket support (real-time updates)
+# channels>=3.0.0
+# channels-redis>=3.0.0
+
+# For API functionality
+# djangorestframework>=3.12.0
+# django-cors-headers>=3.7.0
+
+# For production deployment
+whitenoise>=5.0.0
+gunicorn>=20.0.0
+
+# For enhanced logging
+# sentry-sdk[django]>=1.0.0
+
+# Development tools
+# django-debug-toolbar>=3.0.0
+# django-extensions>=3.0.0
+
+# Note: The emergency system will work without these packages with fallbacks:
+# - SMS will be logged/simulated without Twilio
+# - Distance calculations use basic Haversine formula without PostGIS
+# - Real-time updates use JavaScript polling without WebSockets
+# - Basic email notifications use Django's built-in email backend

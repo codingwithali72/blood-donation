@@ -1,0 +1,562 @@
+{% extends 'blood/navbar.html' %}
+{% load static %}
+
+{% block content %}
+    <style>
+        body {
+            margin-top: 80px;
+            background: var(--bg-primary, #f8fafc);
+            transition: background-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sponsor-card {
+            border: none;
+            border-radius: 20px;
+            background: var(--card-bg, #ffffff);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            height: 100%;
+            position: relative;
+        }
+
+        .sponsor-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .sponsor-logo {
+            height: 220px;
+            background: linear-gradient(135deg, var(--primary-50, #fef2f2), var(--primary-100, #fee2e2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sponsor-logo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .sponsor-card:hover .sponsor-logo::before {
+            left: 100%;
+        }
+
+        .sponsor-logo img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        .sponsor-card:hover .sponsor-logo img {
+            transform: scale(1.1);
+        }
+
+        .sponsor-logo .placeholder {
+            color: var(--primary-400, #f87171);
+            font-size: 4rem;
+            opacity: 0.7;
+        }
+
+        .sponsor-details {
+            padding: 2.5rem 2rem;
+        }
+
+        .sponsor-name {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .sponsor-description {
+            color: var(--text-secondary, #64748b);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary, #64748b);
+            padding: 0.5rem 0;
+        }
+
+        .contact-info i {
+            width: 24px;
+            margin-right: 1rem;
+            color: var(--primary-500, #ef4444);
+            font-size: 1.1rem;
+        }
+
+        .local-sponsor {
+            border: 2px solid var(--success-500, #10b981);
+            position: relative;
+        }
+
+        .local-sponsor::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--success-400, #34d399), var(--success-600, #059669));
+        }
+
+        .local-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: linear-gradient(135deg, var(--success-500, #10b981), var(--success-600, #059669));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .sponsor-website {
+            background: linear-gradient(135deg, var(--primary-500, #ef4444), var(--primary-600, #dc2626));
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            margin-top: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .sponsor-website:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-600, #dc2626) 0%, var(--primary-700, #b91c1c) 50%, var(--primary-800, #991b1b) 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="%23ffffff" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+            background-size: cover;
+        }
+
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .page-header .lead {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .section-divider {
+            margin: 4rem 0;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500, #ef4444), var(--primary-600, #dc2626));
+            border-radius: 2px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary, #64748b);
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--text-muted, #94a3b8);
+        }
+
+        .empty-state i {
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 1rem;
+        }
+
+        .location-info {
+            background: linear-gradient(135deg, var(--success-50, #ecfdf5), var(--success-100, #d1fae5));
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border-left: 5px solid var(--success-500, #10b981);
+            border: 1px solid var(--success-200, #a7f3d0);
+        }
+
+        .location-info h5 {
+            color: var(--success-800, #065f46);
+            font-weight: 700;
+        }
+
+        .location-info p {
+            color: var(--success-700, #047857);
+            margin-bottom: 0;
+        }
+
+        .stats-row {
+            background: var(--card-bg, #ffffff);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-500, #ef4444);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary, #64748b);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .partnership-cta {
+            background: linear-gradient(135deg, var(--primary-50, #fef2f2), var(--primary-100, #fee2e2));
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+            border: 1px solid var(--primary-200, #fecaca);
+        }
+
+        .partnership-cta h4 {
+            color: var(--primary-700, #b91c1c);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .partnership-cta p {
+            color: var(--primary-600, #dc2626);
+            margin-bottom: 2rem;
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--primary-500, #ef4444), var(--primary-600, #dc2626));
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-cta:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Dark theme support */
+        [data-theme="dark"] .sponsor-card {
+            background: var(--bg-secondary, #1e293b);
+            border: 1px solid var(--border-color, #334155);
+        }
+
+        [data-theme="dark"] .sponsor-logo {
+            background: linear-gradient(135deg, var(--bg-tertiary, #334155), var(--border-color, #475569));
+        }
+
+        [data-theme="dark"] .location-info {
+            background: var(--bg-secondary, #1e293b);
+            border-color: var(--success-600, #059669);
+        }
+
+        [data-theme="dark"] .stats-row {
+            background: var(--bg-secondary, #1e293b);
+        }
+
+        [data-theme="dark"] .partnership-cta {
+            background: var(--bg-secondary, #1e293b);
+            border-color: var(--border-color, #334155);
+        }
+
+        @media (max-width: 768px) {
+            .sponsor-details {
+                padding: 2rem 1.5rem;
+            }
+            
+            .sponsor-logo {
+                height: 180px;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+
+<div class="sponsor-page-content" style="margin-top: 80px;">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-handshake me-3"></i>Our Trusted Sponsors</h1>
+            <p class="lead">Partners who make our life-saving mission possible</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics Row -->
+        <div class="stats-row">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ all_sponsors.count }}</span>
+                        <span class="stat-label">Total Sponsors</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ local_sponsors|length }}</span>
+                        <span class="stat-label">Local Partners</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-item">
+                        <span class="stat-number"><i class="fas fa-handshake"></i></span>
+                        <span class="stat-label">Active Partnerships</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Info -->
+        {% if user_city %}
+        <div class="location-info">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Sponsors in Your Area: {{user_city}}</h5>
+                    <p class="mb-0">We've highlighted sponsors and partners in your location to help you connect locally and support community-driven blood donation initiatives.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <i class="fas fa-location-arrow fa-3x" style="color: var(--success-500, #10b981);"></i>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Local Sponsors Section -->
+        {% if local_sponsors %}
+        <div class="section-divider">
+            <h2 class="section-title">🏠 Local Sponsors in {{user_city}}</h2>
+            <p class="section-subtitle">Organizations in your area supporting blood donation</p>
+        </div>
+        
+        <div class="row">
+            {% for sponsor in local_sponsors %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="sponsor-card local-sponsor">
+                    <div class="local-badge">
+                        <i class="fas fa-map-marker-alt me-1"></i>Local
+                    </div>
+                    
+                    <div class="sponsor-logo">
+                        {% if sponsor.logo %}
+                            <img src="{{sponsor.logo.url}}" alt="{{sponsor.name}} Logo">
+                        {% else %}
+                            <div class="placeholder">
+                                <i class="fas fa-building"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="sponsor-details">
+                        <h3 class="sponsor-name">{{sponsor.name}}</h3>
+                        <p class="sponsor-description">{{sponsor.description}}</p>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{sponsor.contact_email}}</span>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-phone"></i>
+                            <span>{{sponsor.contact_phone}}</span>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{sponsor.city}}, {{sponsor.state}}</span>
+                        </div>
+                        
+                        {% if sponsor.website %}
+                        <a href="{{sponsor.website}}" target="_blank" class="sponsor-website">
+                            <i class="fas fa-external-link-alt me-2"></i>Visit Website
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Other Sponsors Section -->
+        {% if other_sponsors %}
+        <div class="section-divider">
+            <h2 class="section-title">🌟 All Sponsors</h2>
+            <p class="section-subtitle">Organizations nationwide supporting our mission</p>
+        </div>
+        
+        <div class="row">
+            {% for sponsor in other_sponsors %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="sponsor-card">
+                    <div class="sponsor-logo">
+                        {% if sponsor.logo %}
+                            <img src="{{sponsor.logo.url}}" alt="{{sponsor.name}} Logo">
+                        {% else %}
+                            <div class="placeholder">
+                                <i class="fas fa-building"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="sponsor-details">
+                        <h3 class="sponsor-name">{{sponsor.name}}</h3>
+                        <p class="sponsor-description">{{sponsor.description}}</p>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{sponsor.contact_email}}</span>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-phone"></i>
+                            <span>{{sponsor.contact_phone}}</span>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{sponsor.city}}, {{sponsor.state}}</span>
+                        </div>
+                        
+                        {% if sponsor.website %}
+                        <a href="{{sponsor.website}}" target="_blank" class="sponsor-website">
+                            <i class="fas fa-external-link-alt me-2"></i>Visit Website
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Empty State -->
+        {% if not local_sponsors and not other_sponsors %}
+        <div class="empty-state">
+            <i class="fas fa-handshake fa-5x mb-4" style="color: #dee2e6;"></i>
+            <h3>No Sponsors Listed</h3>
+            <p>We're currently building our network of sponsors and partners.</p>
+            <p class="text-muted">Check back soon for updates!</p>
+        </div>
+        {% endif %}
+        
+        <!-- Partnership CTA -->
+        <div class="partnership-cta">
+            <h4><i class="fas fa-hands-helping me-2"></i>Become a Sponsor Partner</h4>
+            <p class="mb-3">
+                Join our mission to save lives through blood donation. Partner with us to make a lasting difference in your community and help us expand our life-saving network.
+            </p>
+            <a href="/adminlogin" class="btn-cta">
+                <i class="fas fa-rocket"></i>
+                <span>Start Partnership</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

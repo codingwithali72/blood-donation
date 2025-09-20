@@ -1,0 +1,412 @@
+/* Modern Blood Bank Management System CSS */
+/* Red and White Theme with Contemporary Design */
+
+:root {
+  /* Primary: Ruddy Color Palette */
+  --primary-100: #FFF2F2;
+  --primary-200: #FFB6B6;
+  --primary-300: #FF7980;
+  --primary-400: #FF3D52;
+  --primary-500: #FF002B;
+  --primary-600: #C9002D;
+  --primary-700: #93002A;
+  --primary-800: #5C0020;
+  --primary-900: #26000F;
+  
+  /* Legacy support - mapping to new palette */
+  --primary-red: var(--primary-500);
+  --secondary-red: var(--primary-400);
+  --light-red: var(--primary-100);
+  --dark-red: var(--primary-700);
+  --pure-white: #ffffff;
+  --light-gray: #f8fafc;
+  --medium-gray: #64748b;
+  --dark-gray: #1e293b;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--dark-gray);
+  background-color: var(--pure-white);
+}
+
+/* Modern Navbar Styles */
+.modern-navbar {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 100%);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  padding: 1rem 0;
+}
+
+.modern-navbar .navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--pure-white) !important;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modern-navbar .navbar-brand i {
+  font-size: 1.8rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.modern-navbar .nav-link {
+  color: var(--pure-white) !important;
+  font-weight: 500;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin: 0 0.2rem;
+}
+
+.modern-navbar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 30%, var(--primary-400) 70%, var(--primary-200) 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,0.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/></svg>');
+  opacity: 0.3;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: var(--pure-white);
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 1s ease;
+}
+
+.hero-subtitle {
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+  animation: fadeInUp 1s ease 0.2s both;
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.8;
+  animation: fadeInUp 1s ease 0.4s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Call to Action Buttons */
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 1s ease 0.6s both;
+}
+
+.btn-modern {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow);
+}
+
+.btn-primary-modern {
+  background-color: var(--pure-white);
+  color: var(--primary-600);
+}
+
+.btn-primary-modern:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  color: var(--primary-600);
+  text-decoration: none;
+}
+
+.btn-secondary-modern {
+  background-color: transparent;
+  color: var(--pure-white);
+  border: 2px solid var(--pure-white);
+}
+
+.btn-secondary-modern:hover {
+  background-color: var(--pure-white);
+  color: var(--primary-600);
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+
+/* Features Section */
+.features-section {
+  padding: 6rem 0;
+  background-color: var(--light-gray);
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--dark-gray);
+  margin-bottom: 1rem;
+}
+
+.section-subtitle {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--medium-gray);
+  margin-bottom: 4rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feature-card {
+  background: var(--pure-white);
+  border-radius: 20px;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  height: 100%;
+  border: 2px solid transparent;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--light-red);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  color: var(--primary-red);
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.feature-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  margin-bottom: 1rem;
+}
+
+.feature-description {
+  color: var(--medium-gray);
+  line-height: 1.6;
+}
+
+/* Stats Section */
+.stats-section {
+  background: linear-gradient(135deg, var(--primary-red) 0%, var(--secondary-red) 100%);
+  padding: 4rem 0;
+  color: var(--pure-white);
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 800;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Blood Types Section */
+.blood-types-section {
+  padding: 6rem 0;
+  background-color: var(--pure-white);
+}
+
+.blood-type-card {
+  background: linear-gradient(135deg, var(--light-red) 0%, var(--pure-white) 100%);
+  border: 2px solid var(--light-red);
+  border-radius: 15px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.blood-type-card:hover {
+  border-color: var(--primary-red);
+  transform: scale(1.05);
+  box-shadow: var(--shadow);
+}
+
+.blood-type {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary-red);
+  margin-bottom: 0.5rem;
+}
+
+.blood-type-name {
+  color: var(--medium-gray);
+  font-weight: 500;
+}
+
+/* Modern Footer */
+.modern-footer {
+  background: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 100%);
+  color: var(--pure-white);
+  padding: 3rem 0 1rem 0;
+  text-align: center;
+}
+
+.footer-content {
+  margin-bottom: 2rem;
+}
+
+.footer-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.footer-description {
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.footer-link {
+  color: var(--pure-white);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: var(--light-red);
+  text-decoration: none;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 1rem;
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .feature-card {
+    margin-bottom: 2rem;
+  }
+  
+  .footer-links {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* Utility Classes */
+.text-red {
+  color: var(--primary-red);
+}
+
+.bg-red {
+  background-color: var(--primary-red);
+}
+
+.bg-light-red {
+  background-color: var(--light-red);
+}
+
+.rounded-modern {
+  border-radius: 15px;
+}
+
+.shadow-modern {
+  box-shadow: var(--shadow);
+}
+
+.shadow-modern-lg {
+  box-shadow: var(--shadow-lg);
+}

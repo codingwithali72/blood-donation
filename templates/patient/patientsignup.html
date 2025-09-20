@@ -1,0 +1,508 @@
+{%load static%}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Signup - Blood Bank Management</title>
+      
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Modern CSS -->
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Patient Signup Page Styles */
+    .patient-signup-body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 20%, #f1f5f9 40%, #e2e8f0 60%, #f8fafc 80%, #ffffff 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .patient-signup-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        margin-top: 80px;
+    }
+    
+    .patient-signup-container {
+        width: 100%;
+        max-width: 650px;
+    }
+    
+    .patient-signup-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 15px 50px rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(240, 249, 255, 0.8);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .patient-signup-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 30%, #2563eb 60%, var(--primary-red) 100%);
+    }
+    
+    .patient-signup-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 70px rgba(59, 130, 246, 0.15);
+    }
+    
+    .patient-signup-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 40%, #2563eb 70%, var(--primary-red) 100%);
+        color: white;
+        text-align: center;
+        padding: 3rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .patient-signup-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        animation: patientSignupPulse 12s ease-in-out infinite;
+    }
+    
+    @keyframes patientSignupPulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.2) rotate(270deg); }
+    }
+    
+    .patient-signup-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        animation: patientHealingPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes patientHealingPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+    }
+    
+    .patient-signup-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .patient-signup-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .patient-signup-body {
+        padding: 3rem;
+        background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+    }
+    
+    .patient-form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .patient-form-single {
+        margin-bottom: 1.5rem;
+    }
+    
+    .patient-signup-label {
+        font-weight: 600;
+        color: var(--dark-gray);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .patient-signup-label i {
+        color: #3b82f6;
+        font-size: 1rem;
+    }
+    
+    .patient-signup-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #bfdbfe;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 3px 10px rgba(59, 130, 246, 0.05);
+    }
+    
+    .patient-signup-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+        background: white;
+    }
+    
+    .patient-signup-input::placeholder {
+        color: #93c5fd;
+        font-weight: 400;
+    }
+    
+    .patient-signup-select {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #bfdbfe;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: white;
+        box-shadow: 0 3px 10px rgba(59, 130, 246, 0.05);
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%233b82f6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+    
+    .patient-signup-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .patient-signup-textarea {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #bfdbfe;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 3px 10px rgba(59, 130, 246, 0.05);
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .patient-signup-textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        transform: translateY(-2px);
+        background: white;
+    }
+    
+    .patient-signup-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 30%, #2563eb 70%, var(--primary-red) 100%);
+        border: none;
+        color: white;
+        padding: 1.25rem 2rem;
+        border-radius: 14px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+    
+    .patient-signup-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s;
+    }
+    
+    .patient-signup-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+    
+    .patient-signup-btn:hover::before {
+        left: 100%;
+    }
+    
+    .patient-login-link {
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 14px;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    .patient-login-link p {
+        margin: 0;
+        color: var(--medium-gray);
+        font-size: 0.95rem;
+    }
+    
+    .patient-login-link a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .patient-login-link a:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+    
+    /* Patient Support Badge */
+    .patient-support {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 12px;
+        color: #1d4ed8;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .patient-support i {
+        font-size: 1.2rem;
+        animation: patientCareGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes patientCareGlow {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .patient-signup-content {
+            padding: 1rem;
+            margin-top: 70px;
+        }
+        
+        .patient-signup-container {
+            max-width: 100%;
+        }
+        
+        .patient-signup-header {
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .patient-signup-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .patient-form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .patient-signup-icon {
+            font-size: 3rem;
+        }
+        
+        .patient-signup-title {
+            font-size: 1.6rem;
+        }
+    }
+    </style>
+  </head>
+  <body class="patient-signup-body">
+    {% include "blood/navbar.html" %}
+    
+    <div class="patient-signup-content">
+        <div class="patient-signup-container">
+            <div class="patient-signup-card">
+                <div class="patient-signup-header">
+                    <i class="fas fa-user-injured patient-signup-icon"></i>
+                    <h2 class="patient-signup-title">Patient Registration</h2>
+                    <p class="patient-signup-subtitle">Register for blood assistance and medical support</p>
+                </div>
+                
+                <div class="patient-signup-body">
+                    <form method="POST" autocomplete="off" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="patient-form-row">
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-user"></i>
+                                    First Name
+                                </label>
+                                {% render_field userForm.first_name|attr:'required:true' class="patient-signup-input" placeholder="Enter first name" %}
+                            </div>
+                            
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-user"></i>
+                                    Last Name
+                                </label>
+                                {% render_field userForm.last_name|attr:'required:true' class="patient-signup-input" placeholder="Enter last name" %}
+                            </div>
+                        </div>
+                        
+                        <div class="patient-form-row">
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-at"></i>
+                                    Username
+                                </label>
+                                {% render_field userForm.username|attr:'required:true' class="patient-signup-input" placeholder="Choose username" %}
+                            </div>
+                            
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-lock"></i>
+                                    Password
+                                </label>
+                                {% render_field userForm.password|attr:'required:true' class="patient-signup-input" placeholder="Create password" %}
+                            </div>
+                        </div>
+                        
+                        <div class="patient-form-row">
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    Age
+                                </label>
+                                {% render_field patientForm.age|attr:'required:true' class="patient-signup-input" placeholder="Enter age" %}
+                            </div>
+                            
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-tint"></i>
+                                    Blood Group
+                                </label>
+                                <select name="bloodgroup" class="patient-signup-select" required>
+                                    <option disabled selected>Choose your blood group</option>
+                                    <option>O+</option>
+                                    <option>O-</option>
+                                    <option>A+</option>
+                                    <option>A-</option>
+                                    <option>B+</option>
+                                    <option>B-</option>
+                                    <option>AB+</option>
+                                    <option>AB-</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="patient-form-row">
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-stethoscope"></i>
+                                    Disease/Condition
+                                </label>
+                                {% render_field patientForm.disease|attr:'required:true' class="patient-signup-input" placeholder="Enter medical condition" %}
+                            </div>
+                            
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-user-md"></i>
+                                    Doctor Name
+                                </label>
+                                {% render_field patientForm.doctorname|attr:'required:true' class="patient-signup-input" placeholder="Enter doctor name" %}
+                            </div>
+                        </div>
+                        
+                        <div class="patient-form-single">
+                            <label class="patient-signup-label">
+                                <i class="fas fa-id-card"></i>
+                                Aadhaar Number
+                            </label>
+                            {% render_field patientForm.aadhaar_number class="patient-signup-input" placeholder="Enter 12-digit Aadhaar number" %}
+                        </div>
+                        
+                        <div class="patient-form-single">
+                            <label class="patient-signup-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Address
+                            </label>
+                            {% render_field patientForm.address|attr:'required:true' class="patient-signup-input" placeholder="Enter your full address" %}
+                        </div>
+                        
+                        <div class="patient-form-row">
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-phone"></i>
+                                    Mobile Number
+                                </label>
+                                {% render_field patientForm.mobile|attr:'required:true' class="patient-signup-input" placeholder="Enter mobile number" %}
+                            </div>
+                            
+                            <div>
+                                <label class="patient-signup-label">
+                                    <i class="fas fa-camera"></i>
+                                    Profile Picture
+                                </label>
+                                {% render_field patientForm.profile_pic|attr:'required:true' class="patient-signup-input" %}
+                            </div>
+                        </div>
+                        
+                        <div class="patient-support">
+                            <i class="fas fa-shield-heart"></i>
+                            24/7 Emergency Support • Quick Response • Medical Assistance
+                        </div>
+                        
+                        <button class="patient-signup-btn" type="submit">
+                            <i class="fas fa-heartbeat" style="margin-right: 0.5rem;"></i>
+                            Register for Medical Support
+                        </button>
+                    </form>
+                    
+                    <div class="patient-login-link">
+                        <p>Already have an account? <a href="/patient/patientlogin">Sign in here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include "blood/footer.html" %}
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>

@@ -1,0 +1,386 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms & Conditions - Blood Bank Management</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Theme Support */
+    body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+        margin-top: 80px;
+    }
+    
+    [data-theme="dark"] {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --card-bg: #1e293b;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    [data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --card-bg: #ffffff;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Terms Page Styles */
+    .terms-wrapper {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary, linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #e2e8f0 70%, #f8fafc 100%));
+        min-height: 100vh;
+        padding: 2rem 0;
+        transition: background-color 0.3s ease;
+    }
+    
+    .terms-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .terms-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    .terms-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--text-primary, var(--primary-700));
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary-600) 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: color 0.3s ease;
+    }
+    
+    .terms-subtitle {
+        font-size: 1.2rem;
+        color: var(--text-secondary, var(--medium-gray));
+        margin: 0;
+        transition: color 0.3s ease;
+    }
+    
+    .terms-card {
+        background: var(--card-bg, white);
+        border-radius: 24px;
+        box-shadow: var(--shadow-dark, 0 15px 50px rgba(0, 0, 0, 0.1));
+        border: 1px solid var(--border-color, #e2e8f0);
+        overflow: hidden;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .terms-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-500) 0%, #3b82f6 50%, var(--primary-600) 100%);
+    }
+    
+    .terms-content {
+        padding: 3rem;
+        line-height: 1.8;
+    }
+    
+    .terms-section {
+        margin-bottom: 3rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary, var(--primary-600));
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: color 0.3s ease;
+    }
+    
+    .section-title i {
+        color: var(--primary-500);
+        font-size: 1.2rem;
+    }
+    
+    .section-content {
+        color: var(--text-secondary, var(--medium-gray));
+        margin-bottom: 1.5rem;
+        transition: color 0.3s ease;
+    }
+    
+    .terms-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .terms-list li {
+        padding: 0.75rem 0;
+        color: var(--text-secondary, var(--medium-gray));
+        position: relative;
+        padding-left: 2rem;
+        transition: color 0.3s ease;
+    }
+    
+    .terms-list li::before {
+        content: '\f058';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 0;
+        color: var(--primary-500);
+        font-size: 0.9rem;
+        top: 0.8rem;
+    }
+    
+    .highlight-box {
+        background: var(--bg-tertiary, rgba(59, 130, 246, 0.1));
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        transition: all 0.3s ease;
+    }
+    
+    .highlight-box h4 {
+        color: var(--text-primary, #1d4ed8);
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .highlight-box p {
+        margin: 0;
+        color: var(--text-secondary, var(--medium-gray));
+        transition: color 0.3s ease;
+    }
+    
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+    }
+    
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 0, 43, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .terms-title {
+            font-size: 2.2rem;
+        }
+        
+        .terms-content {
+            padding: 2rem 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+        }
+    }
+    </style>
+</head>
+
+<body>
+    {% include "blood/navbar.html" %}
+    
+    <div class="terms-wrapper">
+        <div class="terms-container">
+            <div class="terms-header">
+                <h1 class="terms-title">
+                    <i class="fas fa-file-contract" style="margin-right: 1rem;"></i>
+                    Terms & Conditions
+                </h1>
+                <p class="terms-subtitle">
+                    Please read these terms and conditions carefully before using our Blood Bank Management System
+                </p>
+            </div>
+            
+            <div class="terms-card">
+                <div class="terms-content">
+                    <div class="terms-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Introduction
+                        </h2>
+                        <div class="section-content">
+                            Welcome to the Blood Bank Management System. These Terms and Conditions ("Terms") govern your use of our blood donation and management platform. By accessing or using our services, you agree to be bound by these Terms.
+                        </div>
+                        
+                        <div class="highlight-box">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Important Notice</h4>
+                            <p>This system is designed to facilitate life-saving blood donations. All users must comply with medical and ethical guidelines.</p>
+                        </div>
+                    </div>
+
+                    <div class="terms-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-user-check"></i>
+                            User Responsibilities
+                        </h2>
+                        <div class="section-content">
+                            As a user of our Blood Bank Management System, you agree to:
+                        </div>
+                        <ul class="terms-list">
+                            <li>Provide accurate and truthful information about your health status</li>
+                            <li>Follow all pre-donation and post-donation medical guidelines</li>
+                            <li>Respect the privacy and confidentiality of other users</li>
+                            <li>Use the system only for legitimate blood donation purposes</li>
+                            <li>Notify us immediately of any changes to your health status</li>
+                            <li>Comply with all applicable laws and regulations</li>
+                        </ul>
+                    </div>
+
+                    <div class="terms-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Medical Disclaimer
+                        </h2>
+                        <div class="section-content">
+                            Our platform facilitates blood donation coordination but does not provide medical advice. All medical decisions should be made in consultation with qualified healthcare professionals.
+                        </div>
+                        
+                        <div class="highlight-box">
+                            <h4><i class="fas fa-stethoscope"></i> Medical Safety</h4>
+                            <p>All blood donations undergo rigorous testing and screening procedures in accordance with medical standards and regulations.</p>
+                        </div>
+                    </div>
+
+                    <div class="terms-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-lock"></i>
+                            Privacy & Data Protection
+                        </h2>
+                        <div class="section-content">
+                            We are committed to protecting your personal and medical information. All data is handled in accordance with applicable privacy laws and medical confidentiality requirements.
+                        </div>
+                        <ul class="terms-list">
+                            <li>Personal information is encrypted and securely stored</li>
+                            <li>Medical data is only accessible to authorized personnel</li>
+                            <li>We do not sell or share your information with third parties</li>
+                            <li>You have the right to access and update your information</li>
+                        </ul>
+                    </div>
+
+                    <div class="terms-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-ban"></i>
+                            Prohibited Activities
+                        </h2>
+                        <div class="section-content">
+                            The following activities are strictly prohibited:
+                        </div>
+                        <ul class="terms-list">
+                            <li>Providing false or misleading health information</li>
+                            <li>Attempting to circumvent medical screening procedures</li>
+                            <li>Using the system for commercial or non-medical purposes</li>
+                            <li>Harassing or intimidating other users or staff</li>
+                            <li>Attempting to access unauthorized areas of the system</li>
+                        </ul>
+                    </div>
+
+                    <div class="terms-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-balance-scale"></i>
+                            Limitation of Liability
+                        </h2>
+                        <div class="section-content">
+                            While we strive to maintain the highest standards of service, we cannot guarantee uninterrupted access to our platform. We are not liable for any indirect, incidental, or consequential damages arising from your use of our services.
+                        </div>
+                    </div>
+
+                    <div class="terms-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-edit"></i>
+                            Changes to Terms
+                        </h2>
+                        <div class="section-content">
+                            We reserve the right to update these Terms and Conditions at any time. Users will be notified of significant changes, and continued use of the system constitutes acceptance of the updated terms.
+                        </div>
+                    </div>
+
+                    <div class="terms-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-phone"></i>
+                            Contact Information
+                        </h2>
+                        <div class="section-content">
+                            If you have any questions about these Terms and Conditions, please contact us:
+                        </div>
+                        <div class="highlight-box">
+                            <h4><i class="fas fa-envelope"></i> Get in Touch</h4>
+                            <p>Email: support@bloodbank.com | Phone: +1 (555) 123-4567 | Emergency: 911</p>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color, #e2e8f0);">
+                        <p style="color: var(--text-muted, var(--medium-gray)); font-size: 0.9rem; margin-bottom: 1rem;">
+                            Last updated: August 26, 2025
+                        </p>
+                        <a href="/" class="back-button">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Theme initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load saved theme or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        
+        // Apply theme to body background
+        if (savedTheme === 'dark') {
+            document.body.style.backgroundColor = '#0f172a';
+            document.body.style.color = '#f8fafc';
+        } else {
+            document.body.style.backgroundColor = '#ffffff';
+            document.body.style.color = '#1e293b';
+        }
+    });
+    </script>
+</body>
+</html>

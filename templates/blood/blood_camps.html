@@ -1,0 +1,519 @@
+{% extends 'blood/navbar.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Camps - Blood Bank Management</title>
+    <style>
+        body {
+            margin-top: 80px;
+            background: var(--bg-primary, #ffffff);
+            transition: background-color 0.3s ease;
+        }
+
+        .camp-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .camp-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .camp-header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .camp-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .camp-date {
+            background: rgba(255,255,255,0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .register-btn {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,184,148,0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .register-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .camp-details {
+            padding: 2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .detail-item i {
+            width: 25px;
+            color: #ff6b6b;
+            margin-right: 1rem;
+        }
+
+        .progress-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .progress-bar-custom {
+            height: 10px;
+            border-radius: 5px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894, #00a085);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6c757d;
+        }
+        
+        .coming-soon-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            padding: 2rem 0;
+        }
+        
+        .coming-soon-card {
+            background: var(--card-bg, #ffffff);
+            border-radius: 25px;
+            padding: 4rem 3rem;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coming-soon-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-400, #f87171), var(--primary-500, #ef4444), var(--orange-500, #f97316));
+        }
+        
+        .coming-soon-icon {
+            margin-bottom: 2rem;
+        }
+        
+        .coming-soon-icon i {
+            font-size: 5rem;
+            color: var(--primary-500, #ef4444);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .coming-soon-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-500, #ef4444), var(--orange-500, #f97316));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* VISUAL TEST INDICATOR - REMOVE AFTER CONFIRMING CHANGES WORK */
+        .test-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #00ff00;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 9999;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .coming-soon-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary, #64748b);
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .features-preview {
+            margin: 3rem 0;
+        }
+        
+        .feature-item {
+            text-align: center;
+            padding: 1.5rem 1rem;
+        }
+        
+        .feature-item i {
+            font-size: 2.5rem;
+            color: var(--primary-500, #ef4444);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .feature-item h6 {
+            font-weight: 700;
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-item small {
+            color: var(--text-secondary, #64748b);
+            font-weight: 500;
+        }
+        
+        .notify-me-section {
+            background: var(--bg-secondary, #f8fafc);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            margin: 3rem 0;
+        }
+        
+        .notify-me-section h5 {
+            font-weight: 800;
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .notify-me-section p {
+            color: var(--text-secondary, #64748b);
+            margin-bottom: 2rem;
+        }
+        
+        .contact-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .notify-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .notify-btn.primary {
+            background: linear-gradient(135deg, var(--primary-500, #ef4444), var(--primary-600, #dc2626));
+            color: white;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+        
+        .notify-btn.primary:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(239, 68, 68, 0.4);
+        }
+        
+        .notify-btn.secondary {
+            background: linear-gradient(135deg, var(--blue-500, #3b82f6), var(--blue-600, #2563eb));
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .notify-btn.secondary:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+        }
+        
+        .progress-indicator {
+            margin-top: 3rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary, #e2e8f0);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-400, #34d399), var(--success-500, #10b981));
+            border-radius: 4px;
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .progress-text {
+            color: var(--text-muted, #94a3b8);
+            font-weight: 600;
+        }
+        
+        /* Dark theme support */
+        [data-theme="dark"] .coming-soon-card {
+            background: var(--bg-secondary, #1e293b);
+        }
+        
+        [data-theme="dark"] .notify-me-section {
+            background: var(--bg-tertiary, #334155);
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .feature-highlight {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border-left: 5px solid #ff6b6b;
+        }
+
+        @media (max-width: 768px) {
+            .camp-card {
+                margin-bottom: 1.5rem;
+            }
+            
+            .camp-details {
+                padding: 1.5rem;
+            }
+            
+            .detail-item {
+                font-size: 0.9rem;
+            }
+            
+            .coming-soon-card {
+                padding: 3rem 2rem;
+                margin: 1rem;
+            }
+            
+            .coming-soon-title {
+                font-size: 2.5rem;
+            }
+            
+            .coming-soon-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .contact-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .notify-btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<!-- TEST INDICATOR: If you see this, the new template is loading -->
+<div class="test-indicator">NEW TEMPLATE LOADED ✓</div>
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-calendar-plus me-3"></i>Blood Donation Camps</h1>
+            <p class="lead">Join organized blood donation drives in your community</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Feature Highlight -->
+        <div class="feature-highlight">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4><i class="fas fa-users me-2"></i>Community Blood Drives</h4>
+                    <p class="mb-0">
+                        Participate in organized blood donation camps in your area. These camps are organized 
+                        by certified medical professionals and provide a convenient way to donate blood while 
+                        connecting with your community.
+                    </p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <i class="fas fa-hand-holding-medical fa-4x text-danger"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coming Soon Message -->
+        <div class="coming-soon-container">
+            <div class="coming-soon-card">
+                <div class="coming-soon-icon">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <h2 class="coming-soon-title">Blood Camps Coming Soon!</h2>
+                <p class="coming-soon-subtitle">
+                    We're working hard to bring organized blood donation camps to your community. 
+                    Our team is coordinating with healthcare partners and sponsors to create 
+                    accessible donation opportunities near you.
+                </p>
+                
+                <div class="features-preview">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="feature-item">
+                                <i class="fas fa-users-medical"></i>
+                                <h6>Professional Staff</h6>
+                                <small>Certified medical professionals</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="feature-item">
+                                <i class="fas fa-shield-heart"></i>
+                                <h6>Safe Environment</h6>
+                                <small>Sterile & secure facilities</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="feature-item">
+                                <i class="fas fa-heart-pulse"></i>
+                                <h6>Community Impact</h6>
+                                <small>Direct local blood supply</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notify-me-section">
+                    <h5>Get Notified</h5>
+                    <p>Be the first to know when blood camps are available in your area!</p>
+                    <div class="contact-options">
+                        <a href="/donor/donorlogin" class="notify-btn primary">
+                            <i class="fas fa-bell"></i>
+                            <span>Join as Donor</span>
+                        </a>
+                        <a href="/adminlogin" class="notify-btn secondary">
+                            <i class="fas fa-handshake"></i>
+                            <span>Organize a Camp</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="progress-indicator">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 75%;"></div>
+                    </div>
+                    <small class="progress-text">Development Progress: 75% Complete</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="text-center mt-5 p-4" style="background: var(--bg-secondary, #f8fafc); border-radius: 15px; border: 1px solid var(--border-color, #e2e8f0);">
+            <h4 style="color: var(--primary-600, #dc2626); font-weight: 800; margin-bottom: 1rem;">Want to Stay Updated?</h4>
+            <p style="color: var(--text-secondary, #64748b); margin-bottom: 2rem; font-weight: 500;">
+                Register as a donor today and be the first to know when blood camps become available in your area.
+            </p>
+            <a href="/donor/donorlogin" style="background: linear-gradient(135deg, var(--primary-500, #ef4444), var(--primary-600, #dc2626)); color: white; padding: 1rem 2.5rem; border-radius: 25px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 0.75rem; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(239, 68, 68, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(239, 68, 68, 0.3)'">
+                <i class="fas fa-user-plus"></i>
+                <span>Register as Donor</span>
+            </a>
+        </div>
+    </div>
+    
+    {% include "blood/footer.html" %}
+</body>
+</html>

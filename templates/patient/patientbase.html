@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Portal - Blood Bank Management</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+
+    <style>
+/* Patient Portal Specific Styles */
+.patient-body {
+    background: var(--bg-secondary, linear-gradient(135deg, #fef2f2 0%, #f1f5f9 100%));
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+/* Theme Support */
+[data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --card-bg: #1e293b;
+    --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+    --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+}
+
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --card-bg: #ffffff;
+    --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --sidebar-bg: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+/* Patient Navbar */
+.patient-navbar {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 2px 20px rgba(59, 130, 246, 0.2);
+    border: none;
+}
+
+.patient-navbar .navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.patient-navbar .navbar-brand i {
+    font-size: 1.5rem;
+    animation: brandPulse 3s ease-in-out infinite;
+}
+
+@keyframes brandPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.patient-navbar .nav-link {
+    color: white !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.patient-navbar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Modern Patient Sidebar */
+.patient-sidebar {
+    width: 280px;
+    height: 100vh;
+    background: var(--sidebar-bg, linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%));
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    padding-top: 80px;
+    box-shadow: 4px 0 25px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+    overflow-y: auto;
+}
+
+.patient-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.patient-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.patient-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.patient-sidebar-header {
+    padding: 2rem 1.5rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.patient-sidebar-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 1px;
+}
+
+.patient-sidebar-header h4 {
+    color: white;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.patient-sidebar-header i {
+    font-size: 1.3rem;
+    animation: headerPulse 2s ease-in-out infinite;
+}
+
+@keyframes headerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.patient-sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.patient-sidebar-menu li {
+    margin: 0.5rem 1.5rem;
+}
+
+.patient-sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.95rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.patient-sidebar-menu li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s;
+}
+
+.patient-sidebar-menu li a:hover::before {
+    left: 100%;
+}
+
+.patient-sidebar-menu li a i {
+    width: 24px;
+    margin-right: 15px;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.patient-sidebar-menu li a:hover,
+.patient-sidebar-menu li a.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateX(8px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.patient-sidebar-menu li a.active {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Menu Section Dividers */
+.menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 1rem 1.5rem;
+    position: relative;
+}
+
+.menu-divider::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+}
+
+/* Menu Labels */
+.menu-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Main Content Area */
+.patient-main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    padding: 100px 2rem 2rem 2rem;
+    background: var(--bg-secondary, linear-gradient(135deg, #fef2f2 0%, #f1f5f9 100%));
+    transition: all 0.3s ease;
+}
+
+/* Patient Dashboard Cards */
+.patient-card {
+    background: var(--card-bg, white);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow-dark, 0 8px 32px rgba(0, 0, 0, 0.08));
+    border: 1px solid var(--border-color, rgba(59, 130, 246, 0.1));
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.patient-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.patient-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-dark, 0 20px 50px rgba(0, 0, 0, 0.15));
+}
+
+/* Form Styles */
+.patient-form {
+    background: var(--card-bg, white);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: var(--shadow-dark, 0 8px 32px rgba(0, 0, 0, 0.08));
+    border: 1px solid var(--border-color, rgba(59, 130, 246, 0.1));
+    transition: all 0.3s ease;
+}
+
+.patient-form .form-group label {
+    font-weight: 600;
+    color: var(--text-primary, var(--dark-gray));
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.patient-form .form-control {
+    border: 2px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    transition: all 0.3s ease;
+    background: var(--card-bg, white);
+    color: var(--text-primary, var(--dark-gray));
+}
+
+.patient-form .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.btn-patient-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: none;
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-patient-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+    color: white;
+}
+
+/* Table Styles */
+.patient-table {
+    background: var(--card-bg, white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-dark, 0 8px 32px rgba(0, 0, 0, 0.08));
+    transition: all 0.3s ease;
+}
+
+.patient-table .table thead th {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    padding: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.patient-table .table tbody td {
+    padding: 1.25rem;
+    border-color: var(--border-color, #f1f5f9);
+    vertical-align: middle;
+    color: var(--text-secondary, #374151);
+}
+
+.patient-table .table tbody tr:hover {
+    background-color: var(--bg-tertiary, #f8fafc);
+}
+
+/* Mobile Toggle */
+.mobile-toggle {
+    display: none;
+    position: fixed;
+    top: 90px;
+    left: 20px;
+    z-index: 1001;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+.mobile-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .patient-sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+    }
+    
+    .patient-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .patient-main-content {
+        margin-left: 0;
+        padding: 100px 1rem 1rem 1rem;
+    }
+    
+    .mobile-toggle {
+        display: block;
+    }
+}
+
+@media (max-width: 576px) {
+    .patient-sidebar {
+        width: 260px;
+    }
+    
+    .patient-sidebar-menu li {
+        margin: 0.25rem 1rem;
+    }
+    
+    .patient-sidebar-menu li a {
+        padding: 0.875rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+    </style>
+</head>
+<body class="patient-body">
+    <!-- Modern Patient Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top patient-navbar">
+        <a class="navbar-brand" href="/patient/patient-dashboard">
+            <i class="fas fa-user-injured"></i>
+            Patient Portal
+        </a>
+        
+        <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Modern Patient Sidebar -->
+    <div class="patient-sidebar">
+        <div class="patient-sidebar-header">
+            <h4><i class="fas fa-user-injured"></i> Patient Portal</h4>
+        </div>
+        
+        <ul class="patient-sidebar-menu">
+            <div class="menu-label">Dashboard</div>
+            <li>
+                <a href="/patient/patient-dashboard" class="active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </li>
+            
+            <div class="menu-divider"></div>
+            <div class="menu-label">Blood Services</div>
+            <li>
+                <a href="/patient/make-request">
+                    <i class="fas fa-clipboard-list"></i>
+                    Request Blood
+                </a>
+            </li>
+            <li>
+                <a href="/patient/my-request">
+                    <i class="fas fa-history"></i>
+                    My Requests
+                </a>
+            </li>
+            
+            <div class="menu-divider"></div>
+            <div class="menu-label">Information</div>
+            <li>
+                <a href="/blood/terms">
+                    <i class="fas fa-file-contract"></i>
+                    Terms & Conditions
+                </a>
+            </li>
+            <li>
+                <a href="/blood/privacy">
+                    <i class="fas fa-shield-alt"></i>
+                    Privacy Policy
+                </a>
+            </li>
+            
+            <div class="menu-divider"></div>
+            <div class="menu-label">Navigation</div>
+            <li>
+                <a href="/">
+                    <i class="fas fa-home"></i>
+                    Back to Home
+                </a>
+            </li>
+            <li>
+                <a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content Area -->
+    <div class="patient-main-content">
+        {% block content %}
+        {% endblock content %}
+    </div>
+
+<!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+    // Theme initialization and management
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load saved theme or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        
+        // Apply theme to body
+        if (savedTheme === 'dark') {
+            document.body.style.backgroundColor = '#0f172a';
+            document.body.style.color = '#f8fafc';
+        } else {
+            document.body.style.backgroundColor = '#f8fafc';
+            document.body.style.color = '#1e293b';
+        }
+        
+        // Set active menu item based on current URL
+        setActiveMenuItem();
+    });
+    
+    // Mobile sidebar toggle function
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.patient-sidebar');
+        sidebar.classList.toggle('show');
+    }
+    
+    // Set active menu item
+    function setActiveMenuItem() {
+        const currentPath = window.location.pathname;
+        const menuLinks = document.querySelectorAll('.patient-sidebar-menu a');
+        
+        menuLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    }
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        const sidebar = document.querySelector('.patient-sidebar');
+        const toggleBtn = document.querySelector('.mobile-toggle');
+        
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                sidebar.classList.remove('show');
+            }
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const sidebar = document.querySelector('.patient-sidebar');
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('show');
+        }
+    });
+    </script>
+
+</body>
+</html>
+<!--
+developed By : sumit kumar
+facebook : fb.com/sumit.luv
+youtube : youtube.com/lazycoders
+-->

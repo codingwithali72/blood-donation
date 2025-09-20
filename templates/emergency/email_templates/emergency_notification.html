@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 Emergency Blood Alert</title>
+</head>
+<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #dc2626, #b91c1c); padding: 30px 20px; text-align: center; color: white;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">🚨 EMERGENCY BLOOD ALERT</h1>
+            <p style="margin: 10px 0 0; font-size: 18px; opacity: 0.9;">Blood Available Near You!</p>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 30px 20px;">
+            <div style="background-color: #fef2f2; border-left: 4px solid #dc2626; padding: 20px; margin-bottom: 25px; border-radius: 6px;">
+                <h2 style="margin: 0 0 10px; color: #dc2626; font-size: 22px;">{{ quantity }} bag(s) of {{ blood_group }} blood found!</h2>
+                <p style="margin: 0; color: #7f1d1d; font-weight: 500;">Request ID: {{ emergency_request.request_id }}</p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.6; color: #333; margin-bottom: 25px;">
+                Great news! We've found nearby hospitals that have the blood you requested. Please contact them immediately:
+            </p>
+            
+            <!-- Hospitals List -->
+            {% for hospital in hospitals %}
+            <div style="border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 20px; background-color: #fafafa;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                    <div>
+                        <h3 style="margin: 0 0 8px; color: #dc2626; font-size: 20px; font-weight: bold;">{{ hospital.name }}</h3>
+                        <p style="margin: 0; color: #666; font-size: 14px;">📍 {{ hospital.address }}</p>
+                    </div>
+                    <div style="background-color: #10b981; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">
+                        Available ✓
+                    </div>
+                </div>
+                
+                <div style="background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <p style="margin: 0 0 5px; font-size: 14px; color: #666;">Emergency Phone:</p>
+                            <p style="margin: 0; font-size: 18px; font-weight: bold; color: #dc2626;">📞 {{ hospital.emergency_phone }}</p>
+                        </div>
+                        <div>
+                            <p style="margin: 0 0 5px; font-size: 14px; color: #666;">Distance:</p>
+                            <p style="margin: 0; font-size: 16px; font-weight: 600; color: #059669;">🚗 {{ hospital.calculate_distance:emergency_request.user_latitude:emergency_request.user_longitude|floatformat:1 }} km</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 6px; text-align: center;">
+                    <p style="margin: 0; color: #166534; font-weight: 600;">✅ {{ blood_group }} blood confirmed available</p>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Instructions -->
+            <div style="background-color: #fffbeb; border: 1px solid #fbbf24; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                <h4 style="margin: 0 0 10px; color: #92400e; font-size: 16px;">⚠️ Important Instructions:</h4>
+                <ul style="margin: 0; padding-left: 20px; color: #92400e;">
+                    <li style="margin-bottom: 8px;">Call the emergency number immediately</li>
+                    <li style="margin-bottom: 8px;">Mention your Request ID: <strong>{{ emergency_request.request_id }}</strong></li>
+                    <li style="margin-bottom: 8px;">Carry valid ID and any medical prescriptions</li>
+                    <li style="margin-bottom: 8px;">Blood may be reserved for limited time only</li>
+                </ul>
+            </div>
+            
+            <!-- Request Details -->
+            <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                <h4 style="margin: 0 0 15px; color: #374151; font-size: 16px;">📋 Request Details:</h4>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px; width: 40%;">Blood Group:</td>
+                        <td style="padding: 8px 0; font-weight: 600; color: #dc2626; font-size: 14px;">{{ blood_group }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Quantity Needed:</td>
+                        <td style="padding: 8px 0; font-weight: 600; color: #374151; font-size: 14px;">{{ quantity }} bags</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Request Time:</td>
+                        <td style="padding: 8px 0; font-weight: 600; color: #374151; font-size: 14px;">{{ emergency_request.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Hospitals Found:</td>
+                        <td style="padding: 8px 0; font-weight: 600; color: #10b981; font-size: 14px;">{{ hospitals|length }} hospital(s)</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Emergency Contact -->
+            <div style="background-color: #dc2626; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 25px 0;">
+                <h4 style="margin: 0 0 10px; font-size: 18px;">🆘 Emergency Services</h4>
+                <p style="margin: 0; font-size: 24px; font-weight: bold;">Call 108 for Ambulance</p>
+                <p style="margin: 5px 0 0; font-size: 14px; opacity: 0.9;">Available 24/7 across India</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f3f4f6; padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
+            <p style="margin: 0 0 10px;">This is an automated emergency notification from the Blood Bank Management System.</p>
+            <p style="margin: 0;">🩸 Saving lives, one donation at a time.</p>
+            <p style="margin: 10px 0 0;">
+                <a href="/emergency/hospitals/" style="color: #dc2626; text-decoration: none;">View Live Hospital Inventory</a> |
+                <a href="/emergency/" style="color: #dc2626; text-decoration: none;">Make Another Request</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1225 @@
+{% load static %}
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank Management System - Save Lives, Donate Blood</title>
+    <meta name="description" content="Modern blood bank management system for efficient blood donation and distribution. Join us in saving lives through blood donation.">
+    
+    <style>
+    /* Theme Support */
+    body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+        margin-top: 110px; /* Increased to 110px to fully show hero title */
+    }
+    
+    [data-theme="dark"] {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    [data-theme="light"] {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    /* Video Background Hero Section */
+    .hero-section {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 30%, var(--primary-400) 70%, var(--primary-200) 100%);
+    }
+    
+    .video-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+    }
+    
+    .video-background iframe {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100vw;
+        height: 56.25vw; /* 16:9 aspect ratio */
+        min-height: 100vh;
+        min-width: 177.77vh; /* 16:9 aspect ratio */
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+    
+    /* Video Overlay Shade */
+    .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            135deg,
+            rgba(255, 0, 43, 0.8) 0%,
+            rgba(201, 0, 45, 0.7) 30%,
+            rgba(147, 0, 42, 0.6) 60%,
+            rgba(92, 0, 32, 0.8) 100%
+        );
+        z-index: 2;
+    }
+    
+    /* Additional Pattern Overlay */
+    .video-overlay::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+            linear-gradient(45deg, transparent 49%, rgba(255, 255, 255, 0.02) 50%, transparent 51%);
+        background-size: 200px 200px, 300px 300px, 60px 60px;
+        animation: patternFloat 20s ease-in-out infinite;
+    }
+    
+    @keyframes patternFloat {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(10px, -10px) rotate(1deg); }
+        50% { transform: translate(-5px, 5px) rotate(-1deg); }
+        75% { transform: translate(5px, -5px) rotate(0.5deg); }
+    }
+    
+    /* Hero Content */
+    .hero-content {
+        position: relative;
+        z-index: 3;
+        text-align: center;
+        color: var(--pure-white);
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 
+            3px 3px 12px rgba(0, 0, 0, 0.8),
+            1px 1px 6px rgba(0, 0, 0, 0.9),
+            0 0 20px rgba(0, 0, 0, 0.6);
+        animation: fadeInUp 1s ease;
+        line-height: 1.2;
+        color: #ffffff !important;
+        text-stroke: 1px rgba(0, 0, 0, 0.5);
+        -webkit-text-stroke: 1px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.4rem;
+        margin-bottom: 2rem;
+        opacity: 0.98;
+        animation: fadeInUp 1s ease 0.2s both;
+        text-shadow: 
+            2px 2px 8px rgba(0, 0, 0, 0.8),
+            1px 1px 4px rgba(0, 0, 0, 0.9);
+        font-weight: 600;
+        color: #ffffff !important;
+    }
+    
+    .hero-description {
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+        opacity: 0.95;
+        animation: fadeInUp 1s ease 0.4s both;
+        text-shadow: 
+            2px 2px 6px rgba(0, 0, 0, 0.8),
+            1px 1px 3px rgba(0, 0, 0, 0.9);
+        line-height: 1.6;
+        color: #ffffff !important;
+        font-weight: 400;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Call to Action Buttons */
+    .cta-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        animation: fadeInUp 1s ease 0.6s both;
+    }
+    
+    .btn-modern {
+        padding: 1.2rem 2.5rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        font-size: 1.1rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .btn-primary-modern {
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--primary-600);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+    
+    .btn-primary-modern:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        background: rgba(255, 255, 255, 1);
+        color: var(--primary-600);
+        text-decoration: none;
+    }
+    
+    .btn-secondary-modern {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--pure-white);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+    
+    .btn-secondary-modern:hover {
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--primary-600);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        text-decoration: none;
+    }
+    
+    .btn-modern i {
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-modern:hover i {
+        transform: scale(1.2) rotate(5deg);
+    }
+    
+    /* Video Control */
+    .video-control {
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 4;
+        background: rgba(0, 0, 0, 0.5);
+        border: none;
+        color: white;
+        padding: 0.75rem;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .video-control:hover {
+        background: rgba(0, 0, 0, 0.7);
+        transform: scale(1.1);
+    }
+    
+    /* Features Section with Theme Support */
+    .features-section {
+        padding: 6rem 0;
+        background: var(--bg-secondary, #f8fafc);
+        transition: background-color 0.3s ease;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #1f2937 !important;
+    }
+    
+    .section-subtitle {
+        text-align: center;
+        font-size: 1.1rem;
+        color: #6b7280 !important;
+        margin-bottom: 4rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Enhanced Feature Cards with Borders */
+    .feature-card {
+        background: white !important;
+        padding: 2.5rem 2rem;
+        border-radius: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 2px solid #e2e8f0 !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-500) 0%, var(--primary-400) 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary-300);
+        box-shadow: 0 20px 40px rgba(255, 0, 43, 0.15);
+    }
+    
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        color: #dc2626 !important;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+        color: var(--primary-600);
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1f2937 !important;
+    }
+    
+    .feature-description {
+        color: #6b7280 !important;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+    
+    /* Enhanced Stats Section */
+    .stats-section {
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 30%, var(--primary-400) 70%, var(--primary-300) 100%) !important;
+        color: white !important;
+        padding: 6rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stats-section .stat-item {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        color: white !important;
+    }
+    
+    .stats-section .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        display: block;
+        color: white !important;
+    }
+    
+    .stats-section .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.95;
+        color: white !important;
+        font-weight: 500;
+    }
+    
+    .stats-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,0.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .stat-item {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    /* Enhanced Blood Types Section */
+    .blood-types-section {
+        padding: 6rem 0;
+        background: white !important;
+        transition: background-color 0.3s ease;
+    }
+    
+    .blood-type-card {
+        background: white !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 16px;
+        padding: 2rem 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+        box-shadow: var(--shadow-dark, 0 4px 15px rgba(0, 0, 0, 0.1));
+    }
+    
+    .blood-type-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-400);
+        box-shadow: 0 12px 30px rgba(255, 0, 43, 0.15);
+    }
+    
+    .blood-type {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #dc2626 !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    .blood-type-name {
+        color: #6b7280 !important;
+        font-weight: 500;
+    }
+    
+    /* Enhanced CTA Section as Card */
+    .cta-card-section {
+        padding: 6rem 0;
+        background: var(--bg-secondary, #f8fafc);
+        transition: background-color 0.3s ease;
+    }
+    
+    .cta-card {
+        background: var(--card-bg, white);
+        border: 3px solid var(--primary-200);
+        border-radius: 24px;
+        padding: 4rem 3rem;
+        text-align: center;
+        box-shadow: var(--shadow-dark, 0 20px 50px rgba(0, 0, 0, 0.1));
+        position: relative;
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+    }
+    
+    .cta-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-500) 0%, var(--primary-400) 50%, var(--primary-300) 100%);
+    }
+    
+    .cta-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary-400);
+        box-shadow: 0 30px 70px rgba(255, 0, 43, 0.2);
+    }
+    
+    .cta-card h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: var(--text-primary, var(--dark-gray));
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-400) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .cta-card p {
+        color: var(--text-secondary, var(--medium-gray));
+        line-height: 1.6;
+        margin-bottom: 3rem;
+    }
+    
+    .cta-card .cta-buttons {
+        gap: 2rem;
+        margin-top: 1rem;
+    }
+    
+    .cta-card .btn-modern {
+        padding: 1.25rem 2.5rem;
+        font-size: 1.1rem;
+        min-width: 200px;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Enhanced CTA Button Styles for Maximum Visibility */
+    .cta-card .btn-primary-modern {
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+        color: white;
+        border: 3px solid var(--primary-500);
+        box-shadow: 0 8px 25px rgba(255, 0, 43, 0.3);
+    }
+    
+    .cta-card .btn-primary-modern:hover {
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 100%);
+        color: white;
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 15px 40px rgba(255, 0, 43, 0.4);
+        border-color: var(--primary-600);
+        text-decoration: none;
+    }
+    
+    .cta-card .btn-secondary-modern {
+        background: white;
+        color: var(--primary-600);
+        border: 3px solid var(--primary-400);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .cta-card .btn-secondary-modern:hover {
+        background: var(--primary-50);
+        color: var(--primary-700);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 15px 40px rgba(255, 0, 43, 0.2);
+        border-color: var(--primary-500);
+        text-decoration: none;
+    }
+    
+    /* Pulsing Animation for CTA Buttons */
+    .cta-card .btn-modern {
+        animation: ctaPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes ctaPulse {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 0 8px 25px rgba(255, 0, 43, 0.3);
+        }
+        50% { 
+            transform: scale(1.02);
+            box-shadow: 0 12px 35px rgba(255, 0, 43, 0.4);
+        }
+    }
+    
+    .cta-card .btn-modern:hover {
+        animation: none; /* Stop pulsing on hover */
+    }
+    
+    /* Additional Animation for Visual Appeal */
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .hero-description {
+            font-size: 1rem;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .cta-card .btn-modern {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            min-width: 180px;
+            margin: 0.5rem;
+        }
+        
+        .cta-card .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .video-control {
+            bottom: 1rem;
+            right: 1rem;
+        }
+        
+        .feature-card {
+            margin-bottom: 2rem;
+        }
+        
+        .cta-card {
+            padding: 3rem 2rem;
+        }
+        
+        .cta-card h2 {
+            font-size: 2rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .hero-content {
+            padding: 1rem;
+        }
+        
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .cta-card {
+            padding: 2rem 1rem;
+        }
+        
+        body {
+            margin-top: 80px; /* Adjusted for mobile navbar spacing */
+        }
+    }
+    </style>
+</head>
+
+<body>
+    {% include "blood/navbar.html" %}
+    
+    <!-- Hero Section with Video Background -->
+    <section class="hero-section">
+        <!-- Video Background -->
+        <div class="video-background">
+            <iframe 
+                src="https://www.youtube.com/embed/tKv7cWakthA?autoplay=1&mute=1&loop=1&playlist=tKv7cWakthA&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&disablekb=1&fs=0&cc_load_policy=0&playsinline=1&enablejsapi=1"
+                frameborder="0"
+                allow="autoplay; encrypted-media"
+                allowfullscreen
+                title="Blood Donation Background Video">
+            </iframe>
+        </div>
+        
+        <!-- Video Overlay Shade -->
+        <div class="video-overlay"></div>
+        
+        <!-- Hero Content -->
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Save Lives Through Blood Donation</h1>
+                <p class="hero-subtitle">Be a Hero - Your Blood Can Save Up to 3 Lives</p>
+                <p class="hero-description">
+                    Join our modern blood bank management system and become part of a life-saving mission. 
+                    Whether you're a donor ready to give the gift of life or a patient in need, 
+                    we're here to connect hearts and save lives.
+                </p>
+            <div class="cta-buttons">
+                <!-- Emergency Button - Top Priority with Black Text and Popping Animation -->
+                <a href="/emergency/" class="btn-modern btn-emergency-enhanced">
+                    <i class="fas fa-ambulance"></i>
+                    🚨 EMERGENCY BLOOD REQUEST
+                </a>
+                
+                <!-- Side by Side Buttons Container -->
+                <div class="side-by-side-buttons">
+                    <!-- Donate Button - Premium Style -->
+                    <a href="/donor/donorlogin" class="btn-modern btn-donate-enhanced">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        Become a Donor
+                    </a>
+                    
+                    <!-- Request Button - Matching Style -->
+                    <a href="/patient/patientlogin" class="btn-modern btn-request-enhanced">
+                        <i class="fas fa-user-injured"></i>
+                        Request Blood
+                    </a>
+                </div>
+            </div>
+            
+            <style>
+            /* Enhanced Button Styles for CTA Section */
+            .btn-emergency-enhanced {
+                background: linear-gradient(135deg, #ef4444, #dc2626, #b91c1c) !important;
+                color: #000000 !important; /* Black text for emergency button */
+                border: 3px solid #ef4444 !important;
+                font-weight: 800 !important;
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4) !important;
+                animation: emergencyPopPulse 1.2s ease-in-out infinite !important;
+                text-transform: uppercase !important;
+                letter-spacing: 1px !important;
+                padding: 1.3rem 2.8rem !important;
+                font-size: 1.15rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .btn-emergency-enhanced:hover {
+                background: linear-gradient(135deg, #dc2626, #b91c1c, #991b1b) !important;
+                color: #000000 !important;
+                transform: translateY(-5px) scale(1.08) !important;
+                box-shadow: 0 15px 40px rgba(239, 68, 68, 0.6) !important;
+                border-color: #dc2626 !important;
+                text-decoration: none !important;
+                animation: none !important; /* Stop pulsing on hover */
+            }
+            
+            .btn-donate-enhanced {
+                background: linear-gradient(135deg, #dc2626, #b91c1c, #991b1b) !important;
+                color: white !important;
+                border: 3px solid #dc2626 !important;
+                font-weight: 700 !important;
+                box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4) !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.8px !important;
+                padding: 1.25rem 2.5rem !important;
+                font-size: 1.1rem !important;
+                margin-bottom: 1rem !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            
+            .btn-donate-enhanced:hover {
+                background: linear-gradient(135deg, #b91c1c, #991b1b, #7f1d1d) !important;
+                color: white !important;
+                transform: translateY(-4px) scale(1.05) !important;
+                box-shadow: 0 12px 35px rgba(220, 38, 38, 0.5) !important;
+                border-color: #b91c1c !important;
+                text-decoration: none !important;
+            }
+            
+            .btn-request-enhanced {
+                background: linear-gradient(135deg, #2563eb, #1d4ed8, #1e40af) !important;
+                color: white !important;
+                border: 3px solid #2563eb !important;
+                font-weight: 700 !important;
+                box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4) !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.8px !important;
+                padding: 1.25rem 2.5rem !important;
+                font-size: 1.1rem !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            
+            .btn-request-enhanced:hover {
+                background: linear-gradient(135deg, #1d4ed8, #1e40af, #1e3a8a) !important;
+                color: white !important;
+                transform: translateY(-4px) scale(1.05) !important;
+                box-shadow: 0 12px 35px rgba(37, 99, 235, 0.5) !important;
+                border-color: #1d4ed8 !important;
+                text-decoration: none !important;
+            }
+            
+            /* Emergency Button Popping Animation */
+            @keyframes emergencyPopPulse {
+                0%, 100% { 
+                    transform: scale(1) rotate(0deg);
+                    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+                }
+                25% {
+                    transform: scale(1.03) rotate(1deg);
+                    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
+                }
+                50% { 
+                    transform: scale(1.06) rotate(0deg);
+                    box-shadow: 0 12px 35px rgba(239, 68, 68, 0.6);
+                }
+                75% {
+                    transform: scale(1.03) rotate(-1deg);
+                    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
+                }
+            }
+            
+            /* Enhanced CTA Buttons Container */
+            .cta-buttons {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                margin-top: 2rem;
+            }
+            
+            /* Side by Side Buttons Container */
+            .side-by-side-buttons {
+                display: flex;
+                gap: 1.5rem;
+                justify-content: center;
+                flex-wrap: wrap;
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+            
+            /* Button Icons Enhancement */
+            .btn-modern i {
+                font-size: 1.3rem;
+                margin-right: 0.8rem;
+                transition: transform 0.3s ease;
+            }
+            
+            .btn-modern:hover i {
+                transform: scale(1.2) rotate(10deg);
+            }
+            
+            .btn-emergency-enhanced i {
+                color: #000000 !important; /* Black icon for emergency */
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            }
+            
+            /* Side-by-side buttons styling for better layout */
+            .side-by-side-buttons .btn-donate-enhanced,
+            .side-by-side-buttons .btn-request-enhanced {
+                flex: 1;
+                max-width: 220px;
+                min-width: 180px;
+                margin-bottom: 0 !important;
+            }
+            
+            /* Mobile Responsive Enhancements */
+            @media (max-width: 768px) {
+                .btn-emergency-enhanced,
+                .btn-donate-enhanced,
+                .btn-request-enhanced {
+                    padding: 1.1rem 1.8rem !important;
+                    font-size: 1rem !important;
+                    margin-bottom: 1rem !important;
+                }
+                
+                .cta-buttons {
+                    gap: 0.8rem;
+                }
+                
+                .side-by-side-buttons {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+                
+                .side-by-side-buttons .btn-donate-enhanced,
+                .side-by-side-buttons .btn-request-enhanced {
+                    max-width: none;
+                    width: 100%;
+                }
+            }
+            </style>
+            </div>
+        </div>
+        
+        <!-- Video Control Button -->
+        <button class="video-control" onclick="toggleVideo()" id="videoToggle">
+            <i class="fas fa-pause" id="videoIcon"></i>
+        </button>
+    </section>
+    
+    <script>
+    let videoPlaying = true;
+    
+    function toggleVideo() {
+        const iframe = document.querySelector('.video-background iframe');
+        const icon = document.getElementById('videoIcon');
+        
+        if (videoPlaying) {
+            // Pause video by removing autoplay
+            iframe.src = iframe.src.replace('autoplay=1', 'autoplay=0');
+            icon.className = 'fas fa-play';
+            videoPlaying = false;
+        } else {
+            // Resume video by adding autoplay
+            iframe.src = iframe.src.replace('autoplay=0', 'autoplay=1');
+            icon.className = 'fas fa-pause';
+            videoPlaying = true;
+        }
+    }
+    
+    // Fallback for browsers that block autoplay
+    window.addEventListener('load', function() {
+        const iframe = document.querySelector('.video-background iframe');
+        const heroSection = document.querySelector('.hero-section');
+        
+        // Add click event to start video on user interaction
+        heroSection.addEventListener('click', function() {
+            if (!videoPlaying) {
+                iframe.src = iframe.src.replace('autoplay=0', 'autoplay=1');
+                document.getElementById('videoIcon').className = 'fas fa-pause';
+                videoPlaying = true;
+            }
+        }, { once: true });
+    });
+    </script>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <p class="section-subtitle">
+                Comprehensive blood bank management with modern technology and dedicated care
+            </p>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-hand-holding-heart feature-icon"></i>
+                        <h3 class="feature-title">Blood Donation</h3>
+                        <p class="feature-description">
+                            Register as a donor and contribute to saving lives. Our streamlined process 
+                            makes donation safe, quick, and meaningful. Every donation is carefully 
+                            processed and distributed to those in need.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-search-plus feature-icon"></i>
+                        <h3 class="feature-title">Blood Requests</h3>
+                        <p class="feature-description">
+                            Patients and healthcare providers can request specific blood types. 
+                            Our system ensures fast processing and availability checking to 
+                            provide timely assistance during critical situations.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-chart-bar feature-icon"></i>
+                        <h3 class="feature-title">Inventory Management</h3>
+                        <p class="feature-description">
+                            Real-time tracking of blood inventory across all blood groups. 
+                            Advanced analytics help maintain optimal stock levels and 
+                            prevent shortages during emergencies.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-user-shield feature-icon"></i>
+                        <h3 class="feature-title">Admin Control</h3>
+                        <p class="feature-description">
+                            Comprehensive administrative dashboard for managing donors, 
+                            patients, requests, and inventory. Complete oversight and 
+                            control over all blood bank operations.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-history feature-icon"></i>
+                        <h3 class="feature-title">History Tracking</h3>
+                        <p class="feature-description">
+                            Complete history of all donations and requests with detailed 
+                            tracking. Monitor your donation impact and request status 
+                            with transparent record-keeping.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h3 class="feature-title">Safe & Secure</h3>
+                        <p class="feature-description">
+                            All medical data is handled with highest security standards. 
+                            Rigorous testing and safety protocols ensure quality and 
+                            safety of all blood products.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-item">
+                        <span class="stat-number"><i class="fas fa-users"></i></span>
+                        <span class="stat-label">Registered Donors</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-item">
+                        <span class="stat-number"><i class="fas fa-tint"></i></span>
+                        <span class="stat-label">Units Available</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-item">
+                        <span class="stat-number"><i class="fas fa-heart"></i></span>
+                        <span class="stat-label">Lives Saved</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-item">
+                        <span class="stat-number"><i class="fas fa-clock"></i></span>
+                        <span class="stat-label">24/7 Available</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blood Types Section -->
+    <section class="blood-types-section">
+        <div class="container">
+            <h2 class="section-title">Blood Types We Manage</h2>
+            <p class="section-subtitle">
+                We maintain inventory for all blood groups to ensure availability when needed
+            </p>
+            <div class="row">
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-type-card">
+                        <div class="blood-type">A+</div>
+                        <div class="blood-type-name">A Positive</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-type-card">
+                        <div class="blood-type">A-</div>
+                        <div class="blood-type-name">A Negative</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-type-card">
+                        <div class="blood-type">B+</div>
+                        <div class="blood-type-name">B Positive</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-type-card">
+                        <div class="blood-type">B-</div>
+                        <div class="blood-type-name">B Negative</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-type-card">
+                        <div class="blood-type">AB+</div>
+                        <div class="blood-type-name">AB Positive</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-type-card">
+                        <div class="blood-type">AB-</div>
+                        <div class="blood-type-name">AB Negative</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-type-card">
+                        <div class="blood-type">O+</div>
+                        <div class="blood-type-name">O Positive</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-type-card">
+                        <div class="blood-type">O-</div>
+                        <div class="blood-type-name">O Negative</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Call to Action Section as Card -->
+    <section class="cta-card-section">
+        <div class="container">
+            <div class="cta-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2>Ready to Make a Difference?</h2>
+                        <p style="font-size: 1.2rem; margin-bottom: 1rem; opacity: 0.9;">
+                            "Opportunities knock the door sometimes, so don't let it go and donate blood."
+                        </p>
+                        <p style="margin-bottom: 3rem; opacity: 0.8;">- Every donation counts, every life matters</p>
+                        <div class="cta-buttons">
+                            <a href="/donor/donorsignup" class="btn-modern btn-primary-modern">
+                                <i class="fas fa-user-plus"></i>
+                                Register as Donor
+                            </a>
+                            <a href="/patient/patientsignup" class="btn-modern btn-secondary-modern">
+                                <i class="fas fa-user-injured"></i>
+                                Register as Patient
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div style="position: relative; display: inline-block;">
+                            <i class="fas fa-hands-helping" style="font-size: 6rem; color: var(--primary-400); opacity: 0.8; animation: ctaPulse 2s ease-in-out infinite;"></i>
+                            <div style="position: absolute; top: -10px; right: -10px; background: var(--primary-500); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; animation: bounce 2s infinite;">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include "blood/footer.html" %}
+    
+    <!-- HeyGen AI Blood Donation Assistant - From LiveChat.html -->
+    <script>
+        // HeyGen Interactive Avatar for Blood Donation Assistance
+        !function(window){
+            const host = "https://labs.heygen.com",
+                  url = host + "/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJBbm5fRG9jdG9yX1N0YW5kaW5nMl9wdWJs%0D%0AaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My82OTlh%0D%0ANGMyOTk1OTE0ZDM5YjJjYjMxMWE5MzBkNzcyMF80NTU3MC9wcmV2aWV3X3RhbGtfMy53ZWJwIiwi%0D%0AbmVlZFJlbW92ZUJhY2tncm91bmQiOmZhbHNlLCJrbm93bGVkZ2VCYXNlSWQiOiJkZW1vLTEiLCJ1%0D%0Ac2VybmFtZSI6IjFmMjY0ZTk1ZTY3MDQyNzNhNzM2ZjlhZjgzYjJkY2NhIn0%3D&inIFrame=1",
+                  clientWidth = document.body.clientWidth,
+                  wrapDiv = document.createElement("div");
+
+            wrapDiv.id = "heygen-streaming-embed";
+
+            const container = document.createElement("div");
+            container.id = "heygen-streaming-container";
+
+            const stylesheet = document.createElement("style");
+            stylesheet.innerHTML = `
+                #heygen-streaming-embed {
+                    z-index: 9999;
+                    position: fixed;
+                    left: 40px;
+                    bottom: 40px;
+                    width: 200px;
+                    height: 200px;
+                    border-radius: 50%;
+                    border: 2px solid #fff;
+                    box-shadow: 0px 8px 24px rgba(0,0,0,0.12);
+                    transition: all linear 0.1s;
+                    overflow: hidden;
+                    opacity: 0;
+                    visibility: hidden;
+                }
+                #heygen-streaming-embed.show {
+                    opacity: 1;
+                    visibility: visible;
+                }
+                #heygen-streaming-embed.expand {
+                    ${clientWidth < 540 ? "height: 266px; width: 96%; left: 50%; transform: translateX(-50%);" : "height: 366px; width: calc(366px * 16 / 9);"}
+                    border: 0;
+                    border-radius: 8px;
+                }
+                #heygen-streaming-container {
+                    width: 100%;
+                    height: 100%;
+                }
+                #heygen-streaming-container iframe {
+                    width: 100%;
+                    height: 100%;
+                    border: 0;
+                }
+                
+                /* Add pulsing effect for better visibility */
+                #heygen-streaming-embed:not(.expand) {
+                    animation: aiAssistantPulse 3s ease-in-out infinite;
+                }
+                
+                @keyframes aiAssistantPulse {
+                    0%, 100% { 
+                        transform: scale(1);
+                        box-shadow: 0px 8px 24px rgba(220, 38, 38, 0.3);
+                    }
+                    50% { 
+                        transform: scale(1.05);
+                        box-shadow: 0px 12px 30px rgba(220, 38, 38, 0.5);
+                    }
+                }
+                
+                /* Add tooltip on hover */
+                #heygen-streaming-embed::before {
+                    content: '💬 Blood Donation Assistant - Click to chat!';
+                    position: absolute;
+                    top: -50px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0, 0, 0, 0.8);
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    white-space: nowrap;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.3s ease;
+                    z-index: 10001;
+                }
+                
+                #heygen-streaming-embed:hover::before {
+                    opacity: 1;
+                    visibility: visible;
+                }
+            `;
+
+            const iframe = document.createElement("iframe");
+            iframe.allowFullscreen = false;
+            iframe.title = "Blood Donation AI Assistant";
+            iframe.role = "dialog";
+            iframe.allow = "microphone";
+            iframe.src = url;
+
+            let visible = false, initial = false;
+            window.addEventListener("message", (e => {
+                if (e.origin === host && e.data && e.data.type === "streaming-embed") {
+                    if (e.data.action === "init") {
+                        initial = true;
+                        wrapDiv.classList.toggle("show", initial);
+                    }
+                    if (e.data.action === "show") {
+                        visible = true;
+                        wrapDiv.classList.toggle("expand", visible);
+                    }
+                    if (e.data.action === "hide") {
+                        visible = false;
+                        wrapDiv.classList.toggle("expand", visible);
+                    }
+                }
+            }));
+
+            container.appendChild(iframe);
+            wrapDiv.appendChild(stylesheet);
+            wrapDiv.appendChild(container);
+            document.body.appendChild(wrapDiv);
+        }(globalThis);
+    </script>
+</body>
+
+</html>

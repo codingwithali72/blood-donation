@@ -1,0 +1,480 @@
+{% extends 'patient/patientbase.html' %}
+{% block content %}
+{% load widget_tweaks %}
+{%load static%}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Theme Support */
+    body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+        margin-top: 80px; /* Account for fixed navbar */
+    }
+    
+    [data-theme="dark"] {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --card-bg: #1e293b;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    [data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --card-bg: #ffffff;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Simplified Blood Request Styles */
+    .simplified-request-wrapper {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary, linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #f1f5f9 70%, #e2e8f0 100%));
+        min-height: 100vh;
+        padding: 2rem 0;
+        transition: background-color 0.3s ease;
+    }
+    
+    .simplified-request-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .request-card {
+        background: var(--card-bg, white);
+        border-radius: 24px;
+        box-shadow: var(--shadow-dark, 0 15px 50px rgba(59, 130, 246, 0.1));
+        border: 1px solid var(--border-color, rgba(240, 249, 255, 0.8));
+        overflow: hidden;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .request-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #dc2626 0%, #b91c1c 30%, #991b1b 60%, #7f1d1d 100%);
+    }
+    
+    .request-header {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 40%, #991b1b 70%, #7f1d1d 100%);
+        color: white;
+        text-align: center;
+        padding: 3rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .request-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        animation: patientRequestPulse 12s ease-in-out infinite;
+    }
+    
+    @keyframes patientRequestPulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.2) rotate(270deg); }
+    }
+    
+    .request-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        animation: requestPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes requestPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+    }
+    
+    .request-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .request-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .request-body {
+        padding: 3rem;
+        background: var(--bg-tertiary, linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%));
+        transition: background-color 0.3s ease;
+    }
+    
+    .form-group {
+        margin-bottom: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--text-primary, var(--dark-gray));
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.3s ease;
+    }
+    
+    .form-label i {
+        color: #dc2626;
+        font-size: 1.3rem;
+    }
+    
+    .form-select, .form-input {
+        width: 100%;
+        padding: 1.25rem 1.5rem;
+        border: 2px solid var(--border-color, #fecaca);
+        border-radius: 16px;
+        font-size: 1.1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: var(--card-bg, rgba(255, 255, 255, 0.9));
+        color: var(--text-primary, var(--dark-gray));
+        box-shadow: var(--shadow-dark, 0 3px 10px rgba(220, 38, 38, 0.05));
+    }
+    
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23dc2626' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 3rem;
+    }
+    
+    .form-select:focus, .form-input:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+        transform: translateY(-2px);
+        background: var(--card-bg, white);
+    }
+    
+    .form-input::placeholder {
+        color: #fca5a5;
+        font-weight: 400;
+    }
+    
+    .location-status {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        color: #166534;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .location-status.loading {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #1d4ed8;
+    }
+    
+    .location-status.error {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #dc2626;
+    }
+    
+    .location-status i {
+        font-size: 1.2rem;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 30%, #991b1b 70%, #7f1d1d 100%);
+        border: none;
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-top: 2rem;
+        cursor: pointer;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(220, 38, 38, 0.4);
+        color: white;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+    
+    .submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .info-card {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .info-card i {
+        color: #3b82f6;
+        font-size: 1.5rem;
+    }
+    
+    .info-card-content {
+        color: var(--text-secondary, #1d4ed8);
+        font-weight: 500;
+        line-height: 1.5;
+        transition: color 0.3s ease;
+    }
+    
+    .help-text {
+        font-size: 0.9rem;
+        color: var(--text-muted, #6b7280);
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .simplified-request-container {
+            padding: 0 1rem;
+        }
+        
+        .request-header {
+            padding: 2.5rem 1.5rem;
+        }
+        
+        .request-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .request-icon {
+            font-size: 3rem;
+        }
+        
+        .request-title {
+            font-size: 1.8rem;
+        }
+    }
+    </style>
+</head>
+
+<div class="simplified-request-wrapper">
+    <div class="simplified-request-container">
+        <div class="request-card">
+            <div class="request-header">
+                <i class="fas fa-tint request-icon"></i>
+                <h2 class="request-title">Quick Blood Request</h2>
+                <p class="request-subtitle">Get blood in minutes, not hours</p>
+            </div>
+            
+            <div class="request-body">
+                <div class="info-card">
+                    <i class="fas fa-lightbulb"></i>
+                    <div class="info-card-content">
+                        <strong>Simple & Fast:</strong> Just select your blood group and quantity. 
+                        We'll automatically find nearby hospitals and send you their contact details!
+                        <div class="help-text">1 bag = {{ blood_bag_ml_ratio|default:350 }}ml of blood</div>
+                    </div>
+                </div>
+                
+                <form method="POST" autocomplete="off" enctype="multipart/form-data" id="bloodRequestForm">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-tint"></i>
+                            Blood Group Needed
+                        </label>
+                        {{ request_form.bloodgroup }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-shopping-bag"></i>
+                            Number of Bags Required
+                        </label>
+                        {{ request_form.unit }}
+                        <div class="help-text">{{ request_form.unit.help_text }}</div>
+                    </div>
+                    
+                    <!-- Hidden location fields -->
+                    {{ request_form.latitude }}
+                    {{ request_form.longitude }}
+                    {{ request_form.location_address }}
+                    
+                    <div id="locationStatus" class="location-status loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span id="locationText">Getting your location...</span>
+                    </div>
+                    
+                    <button class="submit-btn" type="submit" id="submitBtn" disabled>
+                        <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+                        Find Blood & Submit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Theme initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved theme or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    
+    // Apply theme to body background
+    if (savedTheme === 'dark') {
+        document.body.style.backgroundColor = '#0f172a';
+        document.body.style.color = '#f8fafc';
+    } else {
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#1e293b';
+    }
+    
+    // Location handling
+    const locationStatus = document.getElementById('locationStatus');
+    const locationText = document.getElementById('locationText');
+    const submitBtn = document.getElementById('submitBtn');
+    const latField = document.getElementById('id_latitude');
+    const lonField = document.getElementById('id_longitude');
+    const addressField = document.getElementById('id_location_address');
+    
+    // Show location status
+    locationStatus.style.display = 'flex';
+    
+    // Try to get user's location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                // Success - got location
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                latField.value = lat;
+                lonField.value = lon;
+                
+                // Reverse geocoding to get address (optional)
+                reverseGeocode(lat, lon);
+                
+                // Update UI
+                locationStatus.classList.remove('loading');
+                locationStatus.classList.add('success');
+                locationText.innerHTML = '<i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>Location detected successfully';
+                submitBtn.disabled = false;
+            },
+            function(error) {
+                // Error getting location
+                console.error('Geolocation error:', error);
+                locationStatus.classList.remove('loading');
+                locationStatus.classList.add('error');
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        locationText.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 0.5rem;"></i>Location access denied. You can still submit the request, but we won\'t be able to find nearby hospitals.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        locationText.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 0.5rem;"></i>Location unavailable. You can still submit the request.';
+                        break;
+                    case error.TIMEOUT:
+                        locationText.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 0.5rem;"></i>Location request timed out. You can still submit the request.';
+                        break;
+                    default:
+                        locationText.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 0.5rem;"></i>Unable to get location. You can still submit the request.';
+                        break;
+                }
+                
+                // Enable submission without location
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>Submit Request (No Location)';
+            }
+        );
+    } else {
+        // Geolocation not supported
+        locationStatus.classList.remove('loading');
+        locationStatus.classList.add('error');
+        locationText.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 0.5rem;"></i>Geolocation not supported by this browser. You can still submit the request.';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>Submit Request (No Location)';
+    }
+    
+    function reverseGeocode(lat, lon) {
+        // Simple reverse geocoding using a public API (you can replace with your preferred service)
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+            .then(response => response.json())
+            .then(data => {
+                const address = data.locality + ', ' + data.city + ', ' + data.countryName;
+                addressField.value = address;
+            })
+            .catch(error => {
+                console.log('Reverse geocoding failed:', error);
+                addressField.value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+            });
+    }
+});
+</script>
+
+{% endblock content %}

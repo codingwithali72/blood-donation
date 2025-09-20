@@ -1,0 +1,479 @@
+{% extends 'blood/adminbase.html' %}
+{% block content %}
+{% load widget_tweaks %}
+{% load static %}
+
+<style>
+/* Theme Support */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --card-bg: #1e293b;
+    --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --card-bg: #ffffff;
+    --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Patient Management Styles */
+.patient-management-wrapper {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-secondary, linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #e2e8f0 70%, #f8fafc 100%));
+    min-height: 100vh;
+    padding: 2rem 0;
+    transition: background-color 0.3s ease;
+}
+
+.patient-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.patient-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary, var(--primary-700));
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-600) 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: color 0.3s ease;
+}
+
+.patient-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary, var(--medium-gray));
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+/* Table Container */
+.table-container {
+    background: var(--card-bg, white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-dark, 0 15px 50px rgba(0, 0, 0, 0.1));
+    border: 1px solid var(--border-color, #e2e8f0);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.table-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-500) 0%, #3b82f6 50%, var(--primary-600) 100%);
+}
+
+/* Modern Table Styles */
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background: transparent;
+}
+
+.modern-table thead {
+    background: linear-gradient(135deg, var(--primary-600) 0%, #3b82f6 100%);
+}
+
+.modern-table thead th {
+    padding: 1.25rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    color: white;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    border: none;
+    position: relative;
+}
+
+.modern-table thead th:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 25%;
+    height: 50%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modern-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+}
+
+.modern-table tbody tr:hover {
+    background: var(--bg-tertiary, #f8fafc);
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.modern-table tbody td {
+    padding: 1.25rem 1rem;
+    vertical-align: middle;
+    color: var(--text-secondary, #374151);
+    font-weight: 500;
+    border: none;
+    transition: color 0.3s ease;
+}
+
+/* Blood Group Badge */
+.blood-group-badge {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.blood-group-badge i {
+    font-size: 0.8rem;
+}
+
+/* Patient Info */
+.patient-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.patient-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 3px solid var(--border-color, #e2e8f0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.patient-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.patient-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.patient-name {
+    font-weight: 700;
+    color: var(--text-primary, var(--primary-600));
+    transition: color 0.3s ease;
+}
+
+.patient-mobile {
+    font-size: 0.85rem;
+    color: var(--text-muted, var(--medium-gray));
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.3s ease;
+}
+
+/* Disease Badge */
+.disease-badge {
+    background: var(--bg-tertiary, #f1f5f9);
+    color: var(--text-secondary, #374151);
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid var(--border-color, #e2e8f0);
+    transition: all 0.3s ease;
+}
+
+/* Age Badge */
+.age-badge {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Action Buttons */
+.action-group {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+.action-btn:hover::before {
+    left: 100%;
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.delete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+/* Status Indicators */
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+.status-active {
+    background: #10b981;
+}
+
+.status-inactive {
+    background: #6b7280;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .patient-title {
+        font-size: 2rem;
+    }
+    
+    .table-container {
+        margin: 0 -1rem;
+        border-radius: 0;
+    }
+    
+    .modern-table {
+        font-size: 0.85rem;
+    }
+    
+    .modern-table thead th,
+    .modern-table tbody td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .patient-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .action-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .action-btn {
+        justify-content: center;
+        font-size: 0.85rem;
+        padding: 0.6rem 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .modern-table thead th:nth-child(n+5),
+    .modern-table tbody td:nth-child(n+5) {
+        display: none;
+    }
+}
+</style>
+
+<div class="patient-management-wrapper">
+    <div class="container">
+        <div class="patient-header">
+            <h1 class="patient-title">
+                <i class="fas fa-user-injured" style="margin-right: 1rem; color: #3b82f6;"></i>
+                Patient Management
+            </h1>
+            <p class="patient-subtitle">Manage patient profiles, medical information, and records</p>
+        </div>
+        
+        <div class="table-container">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                            Patient Profile
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-tint" style="margin-right: 0.5rem;"></i>
+                            Blood Type
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-birthday-cake" style="margin-right: 0.5rem;"></i>
+                            Age
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-stethoscope" style="margin-right: 0.5rem;"></i>
+                            Medical Condition
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-phone" style="margin-right: 0.5rem;"></i>
+                            Contact
+                        </th>
+                        <th scope="col" style="text-align: right;">
+                            <i class="fas fa-cogs" style="margin-right: 0.5rem;"></i>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in patients %}
+                    <tr>
+                        <td>
+                            <div class="patient-info">
+                                <span class="status-indicator status-active"></span>
+                                <img src="{% static t.profile_pic.url %}" alt="Profile" class="patient-avatar" />
+                                <div class="patient-details">
+                                    <div class="patient-name">{{t.get_name}}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="blood-group-badge">
+                                <i class="fas fa-tint"></i>
+                                {{t.bloodgroup}}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="age-badge">
+                                <i class="fas fa-calendar-alt"></i>
+                                {{t.age}} years
+                            </span>
+                        </td>
+                        <td>
+                            <div class="disease-badge">{{t.disease}}</div>
+                        </td>
+                        <td>
+                            <div class="patient-mobile">
+                                <i class="fas fa-phone"></i>
+                                {{t.mobile}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-group">
+                                <a href="{% url 'update-patient' t.id %}" class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                </a>
+                                <a href="{% url 'delete-patient' t.id %}" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this patient?')">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Theme initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved theme or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    
+    // Apply theme to body background
+    if (savedTheme === 'dark') {
+        document.body.style.backgroundColor = '#0f172a';
+        document.body.style.color = '#f8fafc';
+    } else {
+        document.body.style.backgroundColor = '#f8fafc';
+        document.body.style.color = '#1e293b';
+    }
+});
+</script>
+
+{% endblock content %}

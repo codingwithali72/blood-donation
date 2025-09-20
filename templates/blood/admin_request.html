@@ -1,0 +1,492 @@
+{% extends 'blood/adminbase.html' %}
+{% block content %}
+{% load widget_tweaks %}
+{% load static %}
+
+<style>
+/* Theme Support */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --card-bg: #1e293b;
+    --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --card-bg: #ffffff;
+    --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Pending Requests Styles */
+.pending-requests-wrapper {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-secondary, linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #e2e8f0 70%, #f8fafc 100%));
+    min-height: 100vh;
+    padding: 2rem 0;
+    transition: background-color 0.3s ease;
+}
+
+.requests-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.requests-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary, var(--primary-700));
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-600) 0%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: color 0.3s ease;
+}
+
+.requests-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary, var(--medium-gray));
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+/* Message Alert */
+.alert-message {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 1px solid #fca5a5;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    color: #dc2626;
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.alert-message i {
+    font-size: 1.2rem;
+}
+
+/* Table Container */
+.table-container {
+    background: var(--card-bg, white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-dark, 0 15px 50px rgba(0, 0, 0, 0.1));
+    border: 1px solid var(--border-color, #e2e8f0);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.table-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-500) 0%, #f59e0b 50%, var(--primary-600) 100%);
+}
+
+/* Modern Table Styles */
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background: transparent;
+}
+
+.modern-table thead {
+    background: linear-gradient(135deg, var(--primary-600) 0%, #f59e0b 100%);
+}
+
+.modern-table thead th {
+    padding: 1.25rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    color: white;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    border: none;
+    position: relative;
+}
+
+.modern-table thead th:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 25%;
+    height: 50%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modern-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+}
+
+.modern-table tbody tr:hover {
+    background: var(--bg-tertiary, #f8fafc);
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.modern-table tbody td {
+    padding: 1.25rem 1rem;
+    vertical-align: middle;
+    color: var(--text-secondary, #374151);
+    font-weight: 500;
+    border: none;
+    transition: color 0.3s ease;
+}
+
+/* Status Badge */
+.status-badge {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+/* Blood Group Badge */
+.blood-group-badge {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.blood-group-badge i {
+    font-size: 0.8rem;
+}
+
+/* Patient Info */
+.patient-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.patient-name {
+    font-weight: 700;
+    color: var(--text-primary, var(--primary-600));
+    transition: color 0.3s ease;
+}
+
+.patient-age {
+    font-size: 0.85rem;
+    color: var(--text-muted, var(--medium-gray));
+    transition: color 0.3s ease;
+}
+
+/* Action Buttons */
+.action-group {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+.action-btn:hover::before {
+    left: 100%;
+}
+
+.approve-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.approve-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.reject-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.reject-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted, var(--medium-gray));
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: var(--text-muted, #cbd5e1);
+}
+
+.empty-state h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary, var(--medium-gray));
+}
+
+.empty-state p {
+    color: var(--text-muted, var(--medium-gray));
+    margin: 0;
+}
+
+/* Priority Indicator */
+.priority-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+    animation: priorityPulse 2s ease-in-out infinite;
+}
+
+.priority-high {
+    background: #ef4444;
+}
+
+.priority-normal {
+    background: #f59e0b;
+}
+
+@keyframes priorityPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .requests-title {
+        font-size: 2rem;
+    }
+    
+    .table-container {
+        margin: 0 -1rem;
+        border-radius: 0;
+    }
+    
+    .modern-table {
+        font-size: 0.85rem;
+    }
+    
+    .modern-table thead th,
+    .modern-table tbody td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .action-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .action-btn {
+        justify-content: center;
+        font-size: 0.85rem;
+        padding: 0.6rem 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .modern-table thead th:nth-child(n+5),
+    .modern-table tbody td:nth-child(n+5) {
+        display: none;
+    }
+}
+</style>
+
+<div class="pending-requests-wrapper">
+    <div class="container">
+        <div class="requests-header">
+            <h1 class="requests-title">
+                <i class="fas fa-clock" style="margin-right: 1rem; color: #f59e0b;"></i>
+                Pending Blood Requests
+            </h1>
+            <p class="requests-subtitle">Review and process blood requests from patients and donors</p>
+        </div>
+        
+        {% if message %}
+            <div class="alert-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{message}}
+            </div>
+        {% endif %}
+        
+        {% if requests %}
+            <div class="table-container">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">
+                                <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                                Patient Details
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-stethoscope" style="margin-right: 0.5rem;"></i>
+                                Medical Reason
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-tint" style="margin-right: 0.5rem;"></i>
+                                Blood Type
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-vial" style="margin-right: 0.5rem;"></i>
+                                Units (ml)
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-calendar" style="margin-right: 0.5rem;"></i>
+                                Request Date
+                            </th>
+                            <th scope="col">
+                                <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                                Status
+                            </th>
+                            <th scope="col" style="text-align: right;">
+                                <i class="fas fa-cogs" style="margin-right: 0.5rem;"></i>
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in requests %}
+                        <tr>
+                            <td>
+                                <div class="patient-info">
+                                    <span class="priority-indicator priority-high"></span>
+                                    <div class="patient-name">{{t.patient_name}}</div>
+                                    <div class="patient-age">Age: {{t.patient_age}} years</div>
+                                </div>
+                            </td>
+                            <td>{{t.reason}}</td>
+                            <td>
+                                <span class="blood-group-badge">
+                                    <i class="fas fa-tint"></i>
+                                    {{t.bloodgroup}}
+                                </span>
+                            </td>
+                            <td>
+                                <strong>{{t.unit}}</strong> ml
+                            </td>
+                            <td>{{t.date}}</td>
+                            <td>
+                                <span class="status-badge">
+                                    <i class="fas fa-clock"></i>
+                                    {{t.status}}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-group">
+                                    <a href="{% url 'update-approve-status' t.id %}" class="action-btn approve-btn">
+                                        <i class="fas fa-check"></i>
+                                        Approve
+                                    </a>
+                                    <a href="{% url 'update-reject-status' t.id %}" class="action-btn reject-btn">
+                                        <i class="fas fa-times"></i>
+                                        Reject
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="table-container">
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <h5>No Pending Blood Requests</h5>
+                    <p>All blood requests have been processed. New pending requests will appear here when submitted by patients or donors.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Theme initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved theme or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    
+    // Apply theme to body background
+    if (savedTheme === 'dark') {
+        document.body.style.backgroundColor = '#0f172a';
+        document.body.style.color = '#f8fafc';
+    } else {
+        document.body.style.backgroundColor = '#f8fafc';
+        document.body.style.color = '#1e293b';
+    }
+});
+</script>
+
+{% endblock content %}

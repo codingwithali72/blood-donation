@@ -1,0 +1,1208 @@
+{% extends 'blood/navbar.html' %}
+{% load static %}
+
+{% block content %}
+    <style>
+        body {
+            margin-top: 80px;
+            background: var(--bg-primary, #f8fafc);
+            transition: background-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hospital-card {
+            border: none;
+            border-radius: 20px;
+            background: var(--card-bg, #ffffff);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            height: 100%;
+            position: relative;
+        }
+
+        .hospital-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .hospital-header {
+            background: linear-gradient(135deg, var(--blue-500, #3b82f6), var(--blue-600, #2563eb));
+            color: white;
+            padding: 2.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hospital-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .hospital-card:hover .hospital-header::before {
+            left: 100%;
+        }
+
+        .hospital-name {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            line-height: 1.2;
+        }
+
+        .hospital-location {
+            opacity: 0.9;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .hospital-details {
+            padding: 2.5rem 2rem;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary, #64748b);
+            padding: 1rem;
+            background: var(--bg-secondary, #f8fafc);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-info:hover {
+            background: var(--blue-50, #eff6ff);
+            transform: translateX(5px);
+        }
+
+        .contact-info i {
+            width: 28px;
+            margin-right: 1rem;
+            color: var(--blue-500, #3b82f6);
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .contact-info div {
+            flex: 1;
+        }
+
+        .contact-info strong {
+            display: block;
+            color: var(--text-primary, #1e293b);
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-info a {
+            color: var(--blue-600, #2563eb);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact-info a:hover {
+            color: var(--blue-700, #1d4ed8);
+            text-decoration: underline;
+        }
+
+        .emergency-contact {
+            background: linear-gradient(135deg, var(--red-50, #fef2f2), var(--red-100, #fee2e2));
+            border: 2px solid var(--red-200, #fecaca);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .emergency-contact::before {
+            content: '🚨';
+            position: absolute;
+            top: -10px;
+            right: 1rem;
+            background: var(--red-500, #ef4444);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .emergency-contact .contact-info {
+            background: transparent;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
+        .emergency-contact .contact-info i {
+            color: var(--red-600, #dc2626);
+        }
+
+        .emergency-contact strong {
+            color: var(--red-800, #991b1b) !important;
+        }
+
+        .emergency-contact a {
+            color: var(--red-700, #b91c1c) !important;
+            font-weight: 800 !important;
+            font-size: 1.1rem;
+        }
+
+        .feature-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--success-500, #10b981);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-right: 0.75rem;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .feature-badge.partner {
+            background: var(--blue-500, #3b82f6);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .local-hospital {
+            border: 2px solid var(--success-500, #10b981);
+            position: relative;
+        }
+
+        .local-hospital::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--success-400, #34d399), var(--success-600, #059669));
+        }
+
+        .local-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: linear-gradient(135deg, var(--success-500, #10b981), var(--success-600, #059669));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            z-index: 10;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--blue-600, #2563eb) 0%, var(--blue-700, #1d4ed8) 50%, var(--blue-800, #1e40af) 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="%23ffffff" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+            background-size: cover;
+        }
+
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .page-header .lead {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .section-divider {
+            margin: 4rem 0;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--blue-500, #3b82f6), var(--blue-600, #2563eb));
+            border-radius: 2px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary, #64748b);
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--text-muted, #94a3b8);
+        }
+
+        .empty-state i {
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 1rem;
+        }
+
+        .location-info {
+            background: linear-gradient(135deg, var(--blue-50, #eff6ff), var(--blue-100, #dbeafe));
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border-left: 5px solid var(--blue-500, #3b82f6);
+            border: 1px solid var(--blue-200, #bfdbfe);
+        }
+
+        .location-info h5 {
+            color: var(--blue-800, #1e40af);
+            font-weight: 700;
+        }
+
+        .location-info p {
+            color: var(--blue-700, #1d4ed8);
+            margin-bottom: 0;
+        }
+
+        .emergency-header {
+            background: linear-gradient(135deg, var(--red-100, #fee2e2), var(--red-200, #fecaca));
+            border: 2px solid var(--red-300, #fca5a5);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .emergency-header h5 {
+            color: var(--red-800, #991b1b);
+            margin-bottom: 0.75rem;
+            font-weight: 800;
+        }
+
+        .emergency-header p {
+            color: var(--red-700, #b91c1c);
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+        .stats-row {
+            background: var(--card-bg, #ffffff);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--blue-500, #3b82f6);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary, #64748b);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .partnership-cta {
+            background: linear-gradient(135deg, var(--blue-50, #eff6ff), var(--blue-100, #dbeafe));
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+            border: 1px solid var(--blue-200, #bfdbfe);
+        }
+
+        .partnership-cta h4 {
+            color: var(--blue-700, #1d4ed8);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .partnership-cta p {
+            color: var(--blue-600, #2563eb);
+            margin-bottom: 2rem;
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--blue-500, #3b82f6), var(--blue-600, #2563eb));
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-cta:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Dark theme support */
+        [data-theme="dark"] .hospital-card {
+            background: var(--bg-secondary, #1e293b);
+            border: 1px solid var(--border-color, #334155);
+        }
+
+        [data-theme="dark"] .contact-info {
+            background: var(--bg-tertiary, #334155);
+        }
+
+        [data-theme="dark"] .contact-info:hover {
+            background: var(--border-color, #475569);
+        }
+
+        [data-theme="dark"] .emergency-contact {
+            background: var(--bg-secondary, #1e293b);
+            border-color: var(--red-600, #dc2626);
+        }
+
+        [data-theme="dark"] .location-info {
+            background: var(--bg-secondary, #1e293b);
+            border-color: var(--blue-600, #2563eb);
+        }
+
+        [data-theme="dark"] .emergency-header {
+            background: var(--bg-secondary, #1e293b);
+            border-color: var(--red-600, #dc2626);
+        }
+
+        [data-theme="dark"] .stats-row {
+            background: var(--bg-secondary, #1e293b);
+        }
+
+        [data-theme="dark"] .partnership-cta {
+            background: var(--bg-secondary, #1e293b);
+            border-color: var(--border-color, #334155);
+        }
+
+        /* Mapbox Styles */
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .map-container {
+            background: var(--card-bg, #ffffff);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+        
+        .map-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .map-btn {
+            background: var(--blue-500, #3b82f6);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .map-btn:hover {
+            background: var(--blue-600, #2563eb);
+            transform: translateY(-2px);
+        }
+        
+        .map-btn.active {
+            background: var(--success-500, #10b981);
+        }
+        
+        .distance-info {
+            background: var(--blue-50, #eff6ff);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--blue-500, #3b82f6);
+            display: none;
+        }
+        
+        /* Mapbox Popup Styles */
+        .mapboxgl-popup-content {
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .hospital-popup {
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .hospital-popup h5 {
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 0.5rem;
+        }
+        
+        .hospital-popup .btn {
+            margin: 0.25rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        
+        /* Geocoder Styles */
+        .mapboxgl-ctrl-geocoder {
+            min-width: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .hospital-details {
+                padding: 2rem 1.5rem;
+            }
+            
+            .hospital-header {
+                padding: 2rem 1.5rem;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+
+<!-- Mapbox GL JS -->
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+<!-- Mapbox Geocoding API -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+<!-- Mapbox Directions -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.4/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.4/mapbox-gl-directions.css" type="text/css">
+
+<div class="hospital-page-content" style="margin-top: 80px;">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-hospital me-3"></i>Partner Hospitals</h1>
+            <p class="lead">Trusted healthcare facilities in our blood donation network</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics Row -->
+        <div class="stats-row">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ all_hospitals.count }}</span>
+                        <span class="stat-label">Total Hospitals</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ local_hospitals|length }}</span>
+                        <span class="stat-label">Local Partners</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number"><i class="fas fa-tint"></i></span>
+                        <span class="stat-label">Blood Banks</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number"><i class="fas fa-clock"></i></span>
+                        <span class="stat-label">24/7 Emergency</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Notice -->
+        <div class="emergency-header">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Emergency Blood Requirements</h5>
+            <p>For urgent blood needs, contact the emergency numbers listed for each hospital directly. Our partner hospitals are equipped with modern blood banks and emergency services.</p>
+        </div>
+
+        <!-- Location Info -->
+        <div class="location-info">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Your Location</h5>
+                    <p class="mb-0" id="location-text">Click "Get My Location" to find nearby hospitals</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-primary" onclick="getCurrentLocationWithMapbox()">
+                        <i class="fas fa-crosshairs me-2"></i>Get My Location
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mapbox Integration -->
+        <div class="map-container">
+            <h4><i class="fas fa-map me-2"></i>Hospital Locations Map</h4>
+            <p class="text-muted mb-3">Interactive map showing partner hospitals and your location powered by Mapbox</p>
+            
+            <div class="map-controls">
+                <button class="map-btn" onclick="showAllHospitals()">Show All Hospitals</button>
+                <button class="map-btn" onclick="showNearbyHospitals()">Show Nearby Only</button>
+                <button class="map-btn" onclick="toggleDirections()">Toggle Directions</button>
+                <button class="map-btn" onclick="changeMapStyle()">Change Style</button>
+                <button class="map-btn" onclick="flyToIndia()">Fit to India</button>
+            </div>
+            
+            <div id="map"></div>
+            
+            <div class="distance-info" id="distance-info">
+                <h6><i class="fas fa-route me-2"></i>Distance Information</h6>
+                <p id="distance-text">Click on a hospital marker to see distance and get directions</p>
+            </div>
+        </div>
+
+        {% if user_city %}
+        <div class="location-info" style="background: #d4edda; border-left-color: #28a745;">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>Hospitals in Your Area: {{user_city}}</h5>
+                    <p class="mb-0">We've highlighted hospitals and medical facilities in your location for easy access.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <i class="fas fa-location-arrow fa-3x text-primary"></i>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Local Hospitals Section -->
+        {% if local_hospitals %}
+        <div class="section-divider">
+            <h2 class="section-title">🏥 Hospitals in {{user_city}}</h2>
+            <p class="section-subtitle">Medical facilities in your area with blood bank services</p>
+        </div>
+        
+        <div class="row">
+            {% for hospital in local_hospitals %}
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="hospital-card local-hospital">
+                    <div class="local-badge">
+                        <i class="fas fa-map-marker-alt me-1"></i>Local
+                    </div>
+                    
+                    <div class="hospital-header">
+                        <h3 class="hospital-name">{{hospital.name}}</h3>
+                        <p class="hospital-location mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{hospital.city}}, {{hospital.state}}
+                        </p>
+                    </div>
+                    
+                    <div class="hospital-details">
+                        <div class="contact-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <strong>Address</strong><br>
+                                <span>{{hospital.address}}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>Contact Number</strong><br>
+                                <a href="tel:{{hospital.contact_phone}}" class="text-primary">{{hospital.contact_phone}}</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <strong>Email</strong><br>
+                                <a href="mailto:{{hospital.contact_email}}" class="text-primary">{{hospital.contact_email}}</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Emergency Contact -->
+                        <div class="emergency-contact">
+                            <div class="contact-info">
+                                <i class="fas fa-ambulance"></i>
+                                <div>
+                                    <strong>Emergency Blood Line</strong><br>
+                                    <a href="tel:{{hospital.emergency_contact}}" class="text-danger font-weight-bold">{{hospital.emergency_contact}}</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div class="mt-3">
+                            {% if hospital.blood_bank_available %}
+                                <span class="feature-badge">
+                                    <i class="fas fa-tint"></i>Blood Bank Available
+                                </span>
+                            {% endif %}
+                            
+                            {% if hospital.is_partner %}
+                                <span class="feature-badge partner">
+                                    <i class="fas fa-handshake"></i>Trusted Partner
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Other Hospitals Section -->
+        {% if other_hospitals %}
+        <div class="section-divider">
+            <h2 class="section-title">🌟 All Partner Hospitals</h2>
+            <p class="section-subtitle">Medical facilities nationwide in our network</p>
+        </div>
+        
+        <div class="row">
+            {% for hospital in other_hospitals %}
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="hospital-card">
+                    <div class="hospital-header">
+                        <h3 class="hospital-name">{{hospital.name}}</h3>
+                        <p class="hospital-location mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{hospital.city}}, {{hospital.state}}
+                        </p>
+                    </div>
+                    
+                    <div class="hospital-details">
+                        <div class="contact-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <strong>Address</strong><br>
+                                <span>{{hospital.address}}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>Contact Number</strong><br>
+                                <a href="tel:{{hospital.contact_phone}}" class="text-primary">{{hospital.contact_phone}}</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <strong>Email</strong><br>
+                                <a href="mailto:{{hospital.contact_email}}" class="text-primary">{{hospital.contact_email}}</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Emergency Contact -->
+                        <div class="emergency-contact">
+                            <div class="contact-info">
+                                <i class="fas fa-ambulance"></i>
+                                <div>
+                                    <strong>Emergency Blood Line</strong><br>
+                                    <a href="tel:{{hospital.emergency_contact}}" class="text-danger font-weight-bold">{{hospital.emergency_contact}}</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div class="mt-3">
+                            {% if hospital.blood_bank_available %}
+                                <span class="feature-badge">
+                                    <i class="fas fa-tint"></i>Blood Bank Available
+                                </span>
+                            {% endif %}
+                            
+                            {% if hospital.is_partner %}
+                                <span class="feature-badge partner">
+                                    <i class="fas fa-handshake"></i>Trusted Partner
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Empty State -->
+        {% if not local_hospitals and not other_hospitals %}
+        <div class="empty-state">
+            <i class="fas fa-hospital fa-5x mb-4" style="color: #dee2e6;"></i>
+            <h3>No Partner Hospitals Listed</h3>
+            <p>We're currently building our network of healthcare partners.</p>
+            <p class="text-muted">Check back soon for updates!</p>
+        </div>
+        {% endif %}
+        
+        <!-- Partnership CTA -->
+        <div class="partnership-cta">
+            <h4><i class="fas fa-hospital me-2"></i>Hospital Partnership Program</h4>
+            <p class="mb-3">
+                Healthcare facilities interested in joining our blood donation network can connect with us. Partner with us to expand emergency blood services in your community.
+            </p>
+            <a href="/adminlogin" class="btn-cta">
+                <i class="fas fa-stethoscope"></i>
+                <span>Join Partnership</span>
+            </a>
+        </div>
+    </div>
+    
+    {% include "blood/footer.html" %}
+    
+    <!-- Mapbox Integration JavaScript -->
+    <script>
+        // Utility function for user-friendly notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'danger' : (type === 'warning' ? 'warning' : 'info')} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 350px;';
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : (type === 'warning' ? 'exclamation-triangle' : 'info-circle')}"></i>
+                ${message.replace(/\n/g, '<br>')}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Your Mapbox API Key
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic21kZ2FtZXJ6IiwiYSI6ImNtZXJ6cmI5ZzAzcWsybXNkc2RkaHU3a3IifQ.SSLiXdTxpyjHRtjsVdbDzg';
+        
+        let map;
+        let userMarker;
+        let hospitalMarkers = [];
+        let userLatitude = null;
+        let userLongitude = null;
+        let directions;
+        let selectedHospital = null;
+        let currentMapStyle = 0;
+        
+        // Map style options
+        const mapStyles = [
+            'mapbox://styles/mapbox/streets-v11',
+            'mapbox://styles/mapbox/satellite-v9',
+            'mapbox://styles/mapbox/outdoors-v11'
+        ];
+        
+        // Hospital locations with real coordinates
+        const hospitalLocations = [
+            { name: 'Apollo Hospital', lng: 80.2707, lat: 13.0827, city: 'Chennai', emergency: '+91-44-28293333' },
+            { name: 'Fortis Hospital', lng: 77.0266, lat: 28.4595, city: 'Gurgaon', emergency: '+91-124-4962200' },
+            { name: 'AIIMS', lng: 77.2100, lat: 28.5672, city: 'New Delhi', emergency: '+91-112-26588500' },
+            { name: 'KEM Hospital', lng: 72.8562, lat: 19.0176, city: 'Mumbai', emergency: '+91-22-24129884' },
+            { name: 'SGPGI', lng: 80.9462, lat: 26.8467, city: 'Lucknow', emergency: '+91-522-2494333' },
+            { name: 'Manipal Hospital', lng: 74.7949, lat: 13.3525, city: 'Manipal', emergency: '+91-820-2570170' },
+            { name: 'Christian Medical College', lng: 79.1353, lat: 12.9249, city: 'Vellore', emergency: '+91-416-2284267' },
+            { name: 'Ruby Hall Clinic', lng: 73.8567, lat: 18.5204, city: 'Pune', emergency: '+91-20-26127900' }
+        ];
+        
+        function initMap() {
+            // Initialize map centered on India
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 6,
+                center: { lat: 20.5937, lng: 78.9629 }, // Center of India
+                mapTypeControl: true,
+                streetViewControl: true,
+                fullscreenControl: true,
+                zoomControl: true
+            });
+            
+            // Initialize directions service and renderer
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                draggable: true,
+                suppressMarkers: false
+            });
+            directionsRenderer.setMap(map);
+            
+            // Initialize traffic layer
+            trafficLayer = new google.maps.TrafficLayer();
+            
+            // Add hospital markers
+            addHospitalMarkers();
+            
+            // Try to get user location automatically
+            getCurrentLocationWithMaps();
+        }
+        
+        function addHospitalMarkers() {
+            hospitalLocations.forEach((hospital, index) => {
+                const marker = new google.maps.Marker({
+                    position: { lat: hospital.lat, lng: hospital.lng },
+                    map: map,
+                    title: hospital.name,
+                    icon: {
+                        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        scaledSize: new google.maps.Size(40, 40)
+                    }
+                });
+                
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="padding: 10px;">
+                            <h5>${hospital.name}</h5>
+                            <p><strong>City:</strong> ${hospital.city}</p>
+                            <button onclick="selectHospital(${index})" class="btn btn-primary btn-sm">
+                                <i class="fas fa-route"></i> Get Directions
+                            </button>
+                            <button onclick="showHospitalDetails(${index})" class="btn btn-info btn-sm ml-2">
+                                <i class="fas fa-info"></i> Details
+                            </button>
+                        </div>
+                    `
+                });
+                
+                marker.addListener('click', () => {
+                    // Close other info windows
+                    hospitalMarkers.forEach(m => m.infoWindow.close());
+                    infoWindow.open(map, marker);
+                });
+                
+                hospitalMarkers.push({ marker, infoWindow, data: hospital });
+            });
+        }
+        
+        function getCurrentLocationWithMaps() {
+            const locationText = document.getElementById('location-text');
+            const button = event ? event.target : document.querySelector('button[onclick="getCurrentLocationWithMaps()"]');
+            
+            if (!navigator.geolocation) {
+                showNotification('Geolocation is not supported by this browser.', 'warning');
+                return;
+            }
+            
+            if (button) {
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Getting Location...';
+                button.disabled = true;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    userLatitude = position.coords.latitude;
+                    userLongitude = position.coords.longitude;
+                    
+                    // Add user marker to map
+                    if (userMarker) {
+                        userMarker.setMap(null);
+                    }
+                    
+                    userMarker = new google.maps.Marker({
+                        position: { lat: userLatitude, lng: userLongitude },
+                        map: map,
+                        title: 'Your Location',
+                        icon: {
+                            url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                            scaledSize: new google.maps.Size(40, 40)
+                        }
+                    });
+                    
+                    // Center map on user location
+                    map.setCenter({ lat: userLatitude, lng: userLongitude });
+                    map.setZoom(12);
+                    
+                    // Update location text
+                    reverseGeocode(userLatitude, userLongitude);
+                    
+                    // Calculate distances to hospitals
+                    calculateDistances();
+                    
+                    if (button) {
+                        button.innerHTML = '<i class="fas fa-check me-2"></i>Location Found';
+                        button.disabled = false;
+                        button.classList.remove('btn-primary');
+                        button.classList.add('btn-success');
+                    }
+                },
+                function(error) {
+                    let errorMessage = 'Unable to get your location.';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Location access denied by user.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Location information is unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Location request timed out.';
+                            break;
+                    }
+                    
+                    locationText.innerHTML = '<span class="text-danger">' + errorMessage + '</span>';
+                    if (button) {
+                        button.innerHTML = '<i class="fas fa-crosshairs me-2"></i>Try Again';
+                        button.disabled = false;
+                    }
+                }
+            );
+        }
+        
+        function reverseGeocode(lat, lng) {
+            const geocoder = new google.maps.Geocoder();
+            const latlng = { lat: lat, lng: lng };
+            
+            geocoder.geocode({ location: latlng }, (results, status) => {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        const address = results[0].formatted_address;
+                        document.getElementById('location-text').innerHTML = 
+                            `<strong>Current Location:</strong><br><small class="text-muted">${address}</small>`;
+                    }
+                } else {
+                    document.getElementById('location-text').innerHTML = 
+                        `<strong>Location:</strong> Latitude ${lat.toFixed(4)}, Longitude ${lng.toFixed(4)}`;
+                }
+            });
+        }
+        
+        function calculateDistances() {
+            if (!userLatitude || !userLongitude) return;
+            
+            const userLocation = new google.maps.LatLng(userLatitude, userLongitude);
+            
+            hospitalMarkers.forEach((hospitalMarker, index) => {
+                const hospitalLocation = new google.maps.LatLng(
+                    hospitalMarker.data.lat, 
+                    hospitalMarker.data.lng
+                );
+                
+                const distance = google.maps.geometry.spherical.computeDistanceBetween(
+                    userLocation, 
+                    hospitalLocation
+                ) / 1000; // Convert to kilometers
+                
+                hospitalMarker.distance = distance;
+                
+                // Update hospital card with distance
+                updateHospitalCardDistance(hospitalMarker.data.name, distance);
+            });
+            
+            // Sort hospitals by distance
+            hospitalMarkers.sort((a, b) => a.distance - b.distance);
+        }
+        
+        function updateHospitalCardDistance(hospitalName, distance) {
+            const hospitalCards = document.querySelectorAll('.hospital-card');
+            hospitalCards.forEach(card => {
+                const nameElement = card.querySelector('.hospital-name');
+                if (nameElement && nameElement.textContent.includes(hospitalName)) {
+                    const distanceBadge = document.createElement('div');
+                    distanceBadge.className = 'badge bg-info position-absolute';
+                    distanceBadge.style.cssText = 'top: 1rem; left: 1rem; font-size: 0.8rem; z-index: 10;';
+                    distanceBadge.innerHTML = `<i class="fas fa-map-marker-alt me-1"></i>${distance.toFixed(1)} km`;
+                    
+                    const header = card.querySelector('.hospital-header');
+                    if (header) {
+                        header.style.position = 'relative';
+                        // Remove existing distance badge if any
+                        const existingBadge = header.querySelector('.badge.bg-info');
+                        if (existingBadge) existingBadge.remove();
+                        header.appendChild(distanceBadge);
+                    }
+                }
+            });
+        }
+        
+        function showAllHospitals() {
+            hospitalMarkers.forEach(hospitalMarker => {
+                hospitalMarker.marker.setVisible(true);
+            });
+            
+            // Fit map to show all markers
+            const bounds = new google.maps.LatLngBounds();
+            hospitalMarkers.forEach(hospitalMarker => {
+                bounds.extend(hospitalMarker.marker.getPosition());
+            });
+            if (userMarker) bounds.extend(userMarker.getPosition());
+            map.fitBounds(bounds);
+            
+            document.querySelector('button[onclick="showAllHospitals()"]').classList.add('active');
+            document.querySelector('button[onclick="showNearbyHospitals()"]').classList.remove('active');
+        }
+        
+        function showNearbyHospitals() {
+            if (!userLatitude || !userLongitude) {
+                showNotification('Please enable location access first.', 'warning');
+                return;
+            }
+            
+            const maxDistance = 50; // 50 km radius
+            
+            hospitalMarkers.forEach(hospitalMarker => {
+                if (hospitalMarker.distance && hospitalMarker.distance <= maxDistance) {
+                    hospitalMarker.marker.setVisible(true);
+                } else {
+                    hospitalMarker.marker.setVisible(false);
+                }
+            });
+            
+            document.querySelector('button[onclick="showNearbyHospitals()"]').classList.add('active');
+            document.querySelector('button[onclick="showAllHospitals()"]').classList.remove('active');
+        }
+        
+        function selectHospital(index) {
+            selectedHospital = hospitalMarkers[index];
+            if (userLatitude && userLongitude) {
+                calculateRoute(index);
+            } else {
+                showNotification('Please enable location access to get directions to the hospital.', 'warning');
+            }
+        }
+        
+        function calculateRoute(hospitalIndex) {
+            if (!userLatitude || !userLongitude) return;
+            
+            const hospital = hospitalMarkers[hospitalIndex];
+            
+            const request = {
+                origin: new google.maps.LatLng(userLatitude, userLongitude),
+                destination: new google.maps.LatLng(hospital.data.lat, hospital.data.lng),
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+            
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    
+                    // Show distance information
+                    const route = result.routes[0];
+                    const leg = route.legs[0];
+                    
+                    document.getElementById('distance-info').style.display = 'block';
+                    document.getElementById('distance-text').innerHTML = `
+                        <strong>To ${hospital.data.name}:</strong><br>
+                        Distance: ${leg.distance.text}<br>
+                        Duration: ${leg.duration.text}<br>
+                        <small class="text-muted">Route shown on map above</small>
+                    `;
+                } else {
+                    showNotification('Could not calculate route: ' + status, 'error');
+                }
+            });
+        }
+        
+        function findDirections() {
+            if (!selectedHospital) {
+                showNotification('Please select a hospital from the map first.', 'info');
+                return;
+            }
+            
+            if (!userLatitude || !userLongitude) {
+                showNotification('Please enable location access first.', 'warning');
+                return;
+            }
+            
+            // Open Google Maps with directions
+            const url = `https://www.google.com/maps/dir/${userLatitude},${userLongitude}/${selectedHospital.data.lat},${selectedHospital.data.lng}`;
+            window.open(url, '_blank');
+        }
+        
+        function toggleTrafficLayer() {
+            if (trafficLayer.getMap()) {
+                trafficLayer.setMap(null);
+                document.querySelector('button[onclick="toggleTrafficLayer()"]').classList.remove('active');
+            } else {
+                trafficLayer.setMap(map);
+                document.querySelector('button[onclick="toggleTrafficLayer()"]').classList.add('active');
+            }
+        }
+        
+        function showHospitalDetails(index) {
+            const hospital = hospitalMarkers[index];
+            showNotification(`${hospital.data.name}\nCity: ${hospital.data.city}\nClick on map markers for more options.`, 'info');
+        }
+        
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+        });
+    </script>
+    
+    <!-- Load Mapbox Hospital Integration -->
+    <script src="{% static 'js/mapbox-hospitals.js' %}"></script>
+    
+{% endblock content %}

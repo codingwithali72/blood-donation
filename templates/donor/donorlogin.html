@@ -1,0 +1,350 @@
+{%load static%}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Login - Blood Bank Management</title>
+      
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Modern CSS -->
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Donor Login Page Styles */
+    .donor-login-body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #fef2f2 0%, #f1f5f9 50%, #e2e8f0 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .donor-login-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        margin-top: 80px;
+    }
+    
+    .donor-login-container {
+        width: 100%;
+        max-width: 450px;
+    }
+    
+    .donor-login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(220, 38, 38, 0.1);
+        border: 1px solid rgba(254, 242, 242, 0.8);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .donor-login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-red) 0%, #ff6b6b 50%, var(--secondary-red) 100%);
+    }
+    
+    .donor-login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(220, 38, 38, 0.15);
+    }
+    
+    .donor-header {
+        background: linear-gradient(135deg, #ff6b6b 0%, var(--primary-red) 50%, var(--secondary-red) 100%);
+        color: white;
+        text-align: center;
+        padding: 2.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .donor-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        animation: donorPulse 6s ease-in-out infinite;
+    }
+    
+    @keyframes donorPulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+    
+    .donor-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        animation: heartBeat 2s ease-in-out infinite;
+    }
+    
+    @keyframes heartBeat {
+        0%, 100% { transform: scale(1); }
+        25% { transform: scale(1.1); }
+        50% { transform: scale(1.2); }
+        75% { transform: scale(1.1); }
+    }
+    
+    .donor-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .donor-subtitle {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .donor-body {
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #fef2f2 0%, #f8fafc 100%);
+    }
+    
+    .donor-form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .donor-label {
+        font-weight: 600;
+        color: var(--dark-gray);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .donor-label i {
+        color: #ff6b6b;
+        font-size: 1rem;
+    }
+    
+    .donor-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #fecaca;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.05);
+    }
+    
+    .donor-input:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        transform: translateY(-1px);
+        background: white;
+    }
+    
+    .donor-input::placeholder {
+        color: #f87171;
+        font-weight: 400;
+    }
+    
+    .donor-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #ff6b6b 0%, var(--primary-red) 50%, var(--secondary-red) 100%);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .donor-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .donor-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        color: white;
+    }
+    
+    .donor-btn:hover::before {
+        left: 100%;
+    }
+    
+    .donor-register-link {
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 107, 107, 0.2);
+    }
+    
+    .donor-register-link p {
+        margin: 0;
+        color: var(--medium-gray);
+        font-size: 0.95rem;
+    }
+    
+    .donor-register-link a {
+        color: #ff6b6b;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .donor-register-link a:hover {
+        color: var(--primary-red);
+        text-decoration: underline;
+    }
+    
+    /* Donor Inspiration Badge */
+    .donor-inspiration {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 8px;
+        color: #dc2626;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .donor-inspiration i {
+        font-size: 1rem;
+        animation: sparkle 2s ease-in-out infinite;
+    }
+    
+    @keyframes sparkle {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.2) rotate(180deg); }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .donor-login-content {
+            padding: 1rem;
+            margin-top: 70px;
+        }
+        
+        .donor-login-container {
+            max-width: 100%;
+        }
+        
+        .donor-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .donor-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .donor-icon {
+            font-size: 2.5rem;
+        }
+        
+        .donor-title {
+            font-size: 1.5rem;
+        }
+    }
+    </style>
+  </head>
+  <body class="donor-login-body">
+    {% include "blood/navbar.html" %}
+    
+    <div class="donor-login-content">
+        <div class="donor-login-container">
+            <div class="donor-login-card">
+                <div class="donor-header">
+                    <i class="fas fa-hand-holding-heart donor-icon"></i>
+                    <h2 class="donor-title">Donor Login</h2>
+                    <p class="donor-subtitle">Welcome back, life saver!</p>
+                </div>
+                
+                <div class="donor-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="donor-form-group">
+                            <label class="donor-label">
+                                <i class="fas fa-user"></i>
+                                Username
+                            </label>
+                            {% render_field form.username class="donor-input" placeholder="Enter your username" %}
+                        </div>
+                        
+                        <div class="donor-form-group">
+                            <label class="donor-label">
+                                <i class="fas fa-lock"></i>
+                                Password
+                            </label>
+                            {% render_field form.password class="donor-input" placeholder="Enter your password" %}
+                        </div>
+                        
+                        <button class="donor-btn" type="submit">
+                            <i class="fas fa-heart" style="margin-right: 0.5rem;"></i>
+                            Login to Donate
+                        </button>
+                        
+                        <div class="donor-inspiration">
+                            <i class="fas fa-star"></i>
+                            Your generosity saves lives every day
+                        </div>
+                    </form>
+                    
+                    <div class="donor-register-link">
+                        <p>Don't have an account? <a href="/donor/donorsignup">Join as a donor today</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include "blood/footer.html" %}
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>

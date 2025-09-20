@@ -1,0 +1,1287 @@
+{% extends 'blood/navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+/* Multi-Step Form Wizard Styles */
+.form-select option {
+  background-color: #1a202c; 
+  color: #fff;    
+  padding: 10px;
+}
+
+.auth-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0f1c 0%, #1a202c 15%, #2d3748 30%, #4a5568 50%, #c53030 80%, #9b2c2c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.2) 0%, transparent 50%);
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  33% { transform: translateX(30px) translateY(-30px); }
+  66% { transform: translateX(-20px) translateY(20px); }
+}
+
+.wizard-container {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 28px;
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  position: relative;
+  z-index: 2;
+}
+
+/* Progress Steps */
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3.5rem;
+  position: relative;
+}
+
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  z-index: 1;
+}
+
+.progress-line {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #e11d48, #be185d, #7c3aed);
+  width: 0%;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.5);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 3;
+}
+
+.step-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: bold;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.step.active .step-circle {
+  background: linear-gradient(135deg, #e11d48, #be185d);
+  color: white;
+  border-color: #e11d48;
+  transform: scale(1.15);
+  box-shadow: 
+    0 8px 25px rgba(225, 29, 72, 0.4),
+    0 0 0 4px rgba(225, 29, 72, 0.2);
+}
+
+.step.completed .step-circle {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-color: #10b981;
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.step-label {
+  margin-top: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-label {
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Form Steps */
+.form-step {
+  display: none;
+  animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-step.active {
+  display: block;
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0; 
+    transform: translateX(30px) translateY(10px); 
+    filter: blur(5px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0) translateY(0); 
+    filter: blur(0);
+  }
+}
+
+.step-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  background: linear-gradient(135deg, #ffffff, #f1f5f9, #e11d48);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.step-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  font-weight: 400;
+}
+
+/* Action and Role Cards */
+.selection-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.selection-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  backdrop-filter: blur(15px);
+  position: relative;
+  overflow: hidden;
+}
+
+.selection-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.selection-card:hover {
+  border-color: #e11d48;
+  background: rgba(225, 29, 72, 0.15);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(225, 29, 72, 0.2),
+    0 0 0 1px rgba(225, 29, 72, 0.3) inset;
+}
+
+.selection-card:hover::before {
+  opacity: 1;
+}
+
+.selection-card.selected {
+  border-color: #e11d48;
+  background: rgba(225, 29, 72, 0.2);
+  box-shadow: 
+    0 25px 50px rgba(225, 29, 72, 0.4),
+    0 0 0 1px rgba(225, 29, 72, 0.4) inset,
+    0 0 20px rgba(225, 29, 72, 0.3);
+  transform: translateY(-5px) scale(1.05);
+}
+
+.card-icon {
+  font-size: 3rem;
+  color: #e11d48;
+  margin-bottom: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.selection-card:hover .card-icon,
+.selection-card.selected .card-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 8px rgba(225, 29, 72, 0.3));
+}
+
+.card-title {
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.card-desc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Form Fields */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.form-group {
+  margin-bottom: 1.75rem;
+}
+
+.form-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-label i {
+  color: #e11d48;
+  font-size: 1.1rem;
+  filter: drop-shadow(0 2px 4px rgba(225, 29, 72, 0.3));
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 1.1rem 1.4rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  color: white;
+  font-size: 0.95rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', sans-serif;
+  backdrop-filter: blur(10px);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #e11d48;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 0 0 4px rgba(225, 29, 72, 0.25),
+    0 8px 25px rgba(225, 29, 72, 0.15);
+  transform: translateY(-2px);
+}
+
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  background-size: 1.2em 1.2em;
+  padding-right: 3rem;
+}
+
+/* Role-specific field styling */
+.donor-field {
+  border-left: 3px solid #ff6b6b;
+}
+
+.patient-field {
+  border-left: 3px solid #3b82f6;
+}
+
+/* File input styling */
+input[type="file"].form-input {
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+input[type="file"].form-input:hover {
+  border-color: #e11d48;
+  background: rgba(225, 29, 72, 0.1);
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.nav-btn {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-prev {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.btn-next {
+  background: linear-gradient(135deg, #e11d48, #be185d);
+  color: white;
+  margin-left: auto;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  width: 100%;
+}
+
+.nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Success/Error Messages */
+.success-message {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #34d399;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wizard-container {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+  }
+  
+  .selection-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-buttons {
+    flex-direction: column;
+  }
+  
+  .btn-next {
+    margin-left: 0;
+  }
+}
+</style>
+
+<div class="auth-page">
+  <div class="wizard-container">
+    <!-- CSRF Token for all forms -->
+    {% csrf_token %}
+    
+    <!-- Progress Steps -->
+    <div class="progress-steps">
+      <div class="progress-line" id="progressLine"></div>
+      <div class="step active" data-step="1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Action</div>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Role</div>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Basic Info</div>
+      </div>
+      <div class="step" data-step="4">
+        <div class="step-circle">4</div>
+        <div class="step-label">Details</div>
+      </div>
+      <div class="step" data-step="6">
+        <div class="step-circle">6</div>
+        <div class="step-label">Complete</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Choose Action -->
+    <div class="form-step active" id="step1">
+      <h2 class="step-title">Welcome!</h2>
+      <p class="step-subtitle">What would you like to do today?</p>
+      
+      <div class="selection-grid">
+        <div class="selection-card" data-action="login">
+          <i class="fas fa-sign-in-alt card-icon"></i>
+          <div class="card-title">Login</div>
+          <div class="card-desc">Access your existing account</div>
+        </div>
+        <div class="selection-card" data-action="register">
+          <i class="fas fa-user-plus card-icon"></i>
+          <div class="card-title">Register</div>
+          <div class="card-desc">Create a new account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Select Role -->
+    <div class="form-step" id="step2">
+      <h2 class="step-title">Select Your Role</h2>
+      <p class="step-subtitle">Choose how you'd like to participate</p>
+      
+      <div class="selection-grid">
+        <div class="selection-card" data-role="donor">
+          <i class="fas fa-hand-holding-heart card-icon" style="color: #ff6b6b;"></i>
+          <div class="card-title">Donor</div>
+          <div class="card-desc">Save lives by donating blood</div>
+        </div>
+        <div class="selection-card" data-role="patient">
+          <i class="fas fa-user-injured card-icon" style="color: #3b82f6;"></i>
+          <div class="card-title">Patient</div>
+          <div class="card-desc">Request blood assistance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Basic Information -->
+    <div class="form-step" id="step3">
+      <h2 class="step-title" id="step3Title">Basic Information</h2>
+      <p class="step-subtitle" id="step3Subtitle">Enter your basic details</p>
+      
+      <!-- Login Form -->
+      <div id="loginForm" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-user"></i>Username
+          </label>
+          <input type="text" class="form-input" id="loginUsername" placeholder="Enter your username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-lock"></i>Password
+          </label>
+          <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+        </div>
+        
+        <div class="success-message" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4);">
+          <i class="fas fa-info-circle"></i>
+          <span id="loginWelcomeMsg">Welcome back! Ready to make a difference?</span>
+        </div>
+      </div>
+      
+      <!-- Registration Basic Info -->
+      <div id="registerForm" style="display: none;">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i>First Name
+            </label>
+            <input type="text" class="form-input" id="firstName" placeholder="Enter first name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i>Last Name
+            </label>
+            <input type="text" class="form-input" id="lastName" placeholder="Enter last name" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-at"></i>Username
+            </label>
+            <input type="text" class="form-input" id="regUsername" placeholder="Choose unique username" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-envelope"></i>Email
+            </label>
+            <input type="email" class="form-input" id="email" placeholder="Enter email address" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-lock"></i>Password
+          </label>
+          <input type="password" class="form-input" id="regPassword" placeholder="Create strong password" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Contact & Blood Details -->
+    <div class="form-step" id="step4">
+      <h2 class="step-title">Contact & Medical Info</h2>
+      <p class="step-subtitle">Your contact and blood type information</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-phone"></i>Mobile Number
+          </label>
+          <input type="tel" class="form-input" id="mobile" placeholder="Enter mobile number" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-tint"></i>Blood Group
+          </label>
+          <select class="form-select" id="bloodgroup" required>
+            <option value="">Select your blood group</option>
+            <option value="A+">A+ (A Positive)</option>
+            <option value="A-">A- (A Negative)</option>
+            <option value="B+">B+ (B Positive)</option>
+            <option value="B-">B- (B Negative)</option>
+            <option value="AB+">AB+ (AB Positive)</option>
+            <option value="AB-">AB- (AB Negative)</option>
+            <option value="O+">O+ (O Positive)</option>
+            <option value="O-">O- (O Negative)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-map-marker-alt"></i>Full Address
+        </label>
+        <textarea class="form-textarea" id="address" placeholder="Enter your complete address" required></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-id-card"></i>Aadhaar Number (Optional)
+        </label>
+        <input type="text" class="form-input" id="aadhaar" placeholder="12-digit Aadhaar number" maxlength="12">
+        <small style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-top: 0.5rem; display: block;">
+          <i class="fas fa-shield-alt"></i> Your Aadhaar is secure and used only for verification
+        </small>
+      </div>
+    </div>
+
+    <!-- Step 5: Role-Specific Details -->
+    <div class="form-step" id="step5">
+      <h2 class="step-title" id="step5Title">Additional Information</h2>
+      <p class="step-subtitle" id="step5Subtitle">Complete your profile details</p>
+      
+      <!-- Patient-specific fields -->
+      <div id="patientSpecificFields" style="display: none;">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-birthday-cake"></i>Age
+            </label>
+            <input type="number" class="form-input patient-field" id="patientAge" placeholder="Enter your age" min="1" max="120" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user-md"></i>Attending Doctor
+            </label>
+            <input type="text" class="form-input patient-field" id="doctorName" placeholder="Primary doctor's name" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-stethoscope"></i>Medical Condition/Disease
+          </label>
+          <textarea class="form-textarea patient-field" id="disease" placeholder="Describe your medical condition or reason for blood requirement" required></textarea>
+        </div>
+        
+        <div class="success-message" style="background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.4);">
+          <i class="fas fa-shield-heart"></i>
+          Your medical information is confidential and used only for blood assistance
+        </div>
+      </div>
+      
+      <!-- Donor-specific inspirational content -->
+      <div id="donorSpecificFields" style="display: none;">
+        <div class="success-message" style="background: rgba(255, 107, 107, 0.15); border-color: rgba(255, 107, 107, 0.4);">
+          <i class="fas fa-heart"></i>
+          <h4 style="margin: 0 0 1rem 0; color: #ff6b6b;">Thank you for choosing to save lives!</h4>
+          <p style="margin: 0; color: rgba(255,255,255,0.9); line-height: 1.5;">
+            • One donation can save up to 3 lives<br>
+            • You can donate every 3 months<br>
+            • Free health check-up with every donation<br>
+            • Digital certificates and appreciation<br>
+            • 24/7 emergency priority support
+          </p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-heartbeat"></i>Health Status (Optional)
+          </label>
+          <textarea class="form-textarea donor-field" id="healthNotes" placeholder="Any health conditions or medications we should know about? (Optional)"></textarea>
+          <small style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-top: 0.5rem; display: block;">
+            <i class="fas fa-info-circle"></i> This helps us ensure safe donation. Medical screening will be done before donation.
+          </small>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-clock"></i>Preferred Contact Time
+          </label>
+          <select class="form-select donor-field" id="contactTime">
+            <option value="">Select preferred time</option>
+            <option value="morning">Morning (9 AM - 12 PM)</option>
+            <option value="afternoon">Afternoon (12 PM - 4 PM)</option>
+            <option value="evening">Evening (4 PM - 8 PM)</option>
+            <option value="anytime">Anytime</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Profile Picture for all -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-camera"></i>Profile Picture
+        </label>
+        <input type="file" class="form-input" id="profilePic" accept="image/*" required>
+        <small style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-top: 0.5rem; display: block;">
+          <i class="fas fa-upload"></i> Supported formats: JPG, PNG, GIF (Max 5MB)
+        </small>
+      </div>
+    </div>
+
+    <!-- Step 6: Review & Complete -->
+    <div class="form-step" id="step6">
+      <h2 class="step-title">Review & Submit</h2>
+      <p class="step-subtitle">Please verify your information before submitting</p>
+      
+      <div id="reviewInfo" class="success-message" style="text-align: left; padding: 2rem;">
+        <!-- Review information populated by JavaScript -->
+      </div>
+      
+      <div class="success-message" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); margin-top: 1.5rem;">
+        <i class="fas fa-check-circle"></i>
+        <span id="finalMessage">Ready to complete your registration!</span>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <button class="nav-btn btn-prev" id="prevBtn" onclick="changeStep(-1)" style="display: none;">
+        <i class="fas fa-arrow-left"></i>Previous
+      </button>
+      <button class="nav-btn btn-next" id="nextBtn" onclick="changeStep(1)" disabled>
+        Next<i class="fas fa-arrow-right"></i>
+      </button>
+      <button class="nav-btn btn-submit" id="submitBtn" onclick="submitForm()" style="display: none;">
+        <i class="fas fa-check"></i><span id="submitText">Complete Registration</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentStep = 1;
+let totalSteps = 6;
+let selectedAction = '';
+let selectedRole = '';
+
+// Function to get CSRF token
+function getCSRFToken() {
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+  return csrfToken ? csrfToken.value : null;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateProgressBar();
+  
+  // Action selection
+  document.querySelectorAll('[data-action]').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('[data-action]').forEach(c => c.classList.remove('selected'));
+      this.classList.add('selected');
+      selectedAction = this.dataset.action;
+      document.getElementById('nextBtn').disabled = false;
+    });
+  });
+  
+  // Role selection  
+  document.querySelectorAll('[data-role]').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('[data-role]').forEach(c => c.classList.remove('selected'));
+      this.classList.add('selected');
+      selectedRole = this.dataset.role;
+      document.getElementById('nextBtn').disabled = false;
+      
+      // Update role-specific styling
+      updateRoleTheming();
+    });
+  });
+  
+  // Form validation on input
+  const inputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
+  inputs.forEach(input => {
+    input.addEventListener('input', updateButtons);
+    input.addEventListener('change', updateButtons);
+  });
+});
+
+function updateRoleTheming() {
+  if (selectedRole === 'donor') {
+    document.getElementById('loginWelcomeMsg').textContent = 'Welcome back, life saver! Ready to donate again?';
+  } else if (selectedRole === 'patient') {
+    document.getElementById('loginWelcomeMsg').textContent = 'Welcome back! We\'re here to help with your medical needs.';
+  }
+}
+
+function changeStep(direction) {
+  if (!validateCurrentStep()) return;
+  
+  // Skip steps 4 & 5 for login action - go directly from step 3 to step 6
+  if (selectedAction === 'login') {
+    if (currentStep === 3 && direction === 1) {
+      currentStep = 6; // Skip steps 4 & 5, go directly to review
+    } else if (currentStep === 6 && direction === -1) {
+      currentStep = 3; // Go back to step 3 from review
+    } else {
+      currentStep += direction;
+    }
+  } else {
+    // Normal flow for registration
+    currentStep += direction;
+  }
+  
+  if (currentStep < 1) currentStep = 1;
+  if (currentStep > totalSteps) currentStep = totalSteps;
+  
+  updateStepDisplay();
+  updateProgressBar();
+  updateButtons();
+  updateStepContent();
+}
+
+function validateCurrentStep() {
+  switch(currentStep) {
+    case 1:
+      if (!selectedAction) {
+        showValidationMessage('Please select an action (Login or Register)');
+        return false;
+      }
+      return true;
+      
+    case 2:
+      if (!selectedRole) {
+        showValidationMessage('Please select your role (Donor or Patient)');
+        return false;
+      }
+      return true;
+      
+    case 3:
+      if (selectedAction === 'login') {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        if (!username || !password) {
+          showValidationMessage('Please enter both username and password');
+          return false;
+        }
+        return true;
+      } else {
+        const required = ['firstName', 'lastName', 'regUsername', 'email', 'regPassword'];
+        for (let field of required) {
+          const value = document.getElementById(field).value.trim();
+          if (!value) {
+            showValidationMessage(`Please fill in all required fields`);
+            return false;
+          }
+        }
+        
+        // Email validation
+        const email = document.getElementById('email').value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          showValidationMessage('Please enter a valid email address');
+          return false;
+        }
+        return true;
+      }
+      
+    case 4:
+      if (selectedAction === 'register') {
+        const required = ['mobile', 'bloodgroup', 'address'];
+        for (let field of required) {
+          const value = document.getElementById(field).value.trim();
+          if (!value) {
+            showValidationMessage('Please fill in all contact and medical information');
+            return false;
+          }
+        }
+        
+        // Mobile validation
+        const mobile = document.getElementById('mobile').value;
+        if (mobile.length < 10) {
+          showValidationMessage('Please enter a valid mobile number');
+          return false;
+        }
+        return true;
+      }
+      return true;
+      
+    case 5:
+      if (selectedAction === 'register') {
+        if (selectedRole === 'patient') {
+          const required = ['patientAge', 'doctorName', 'disease'];
+          for (let field of required) {
+            const value = document.getElementById(field).value.trim();
+            if (!value) {
+              showValidationMessage('Please complete all patient-specific information');
+              return false;
+            }
+          }
+        }
+        
+        // Profile picture validation
+        const profilePic = document.getElementById('profilePic').files[0];
+        if (!profilePic) {
+          showValidationMessage('Please upload a profile picture');
+          return false;
+        }
+        
+        // File size check (5MB)
+        if (profilePic.size > 5 * 1024 * 1024) {
+          showValidationMessage('Profile picture must be smaller than 5MB');
+          return false;
+        }
+        return true;
+      }
+      return true;
+      
+    default:
+      return true;
+  }
+}
+
+function showValidationMessage(message) {
+  // Create or update validation message
+  let msgDiv = document.getElementById('validationMessage');
+  if (!msgDiv) {
+    msgDiv = document.createElement('div');
+    msgDiv.id = 'validationMessage';
+    msgDiv.className = 'error-message';
+    msgDiv.style.marginTop = '1rem';
+    document.querySelector('.nav-buttons').parentNode.insertBefore(msgDiv, document.querySelector('.nav-buttons'));
+  }
+  msgDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+  
+  // Remove message after 4 seconds
+  setTimeout(() => {
+    if (msgDiv) msgDiv.remove();
+  }, 4000);
+}
+
+function updateStepDisplay() {
+  document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+  document.getElementById(`step${currentStep}`).classList.add('active');
+}
+
+function updateProgressBar() {
+  let progress;
+  
+  if (selectedAction === 'login') {
+    // For login: only 4 effective steps (1,2,3,6) so calculate progress differently
+    const loginSteps = [1, 2, 3, 6];
+    const currentLoginStepIndex = loginSteps.indexOf(currentStep);
+    if (currentLoginStepIndex !== -1) {
+      progress = (currentLoginStepIndex / (loginSteps.length - 1)) * 100;
+    } else {
+      progress = 0;
+    }
+  } else {
+    // For registration: normal 6-step progress
+    progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+  }
+  
+  document.getElementById('progressLine').style.width = progress + '%';
+  
+  document.querySelectorAll('.step').forEach((step, index) => {
+    step.classList.remove('active', 'completed');
+    
+    if (selectedAction === 'login') {
+      // For login flow, only show progress for relevant steps
+      if (index + 1 === 4 || index + 1 === 5) {
+        // Hide steps 4 & 5 for login by making them appear inactive
+        step.style.opacity = '0.3';
+      } else {
+        step.style.opacity = '1';
+        if (index + 1 < currentStep) step.classList.add('completed');
+        if (index + 1 === currentStep) step.classList.add('active');
+      }
+    } else {
+      // Normal flow for registration
+      step.style.opacity = '1';
+      if (index + 1 < currentStep) step.classList.add('completed');
+      if (index + 1 === currentStep) step.classList.add('active');
+    }
+  });
+}
+
+function updateButtons() {
+  // Remove any existing validation messages when input changes
+  const msgDiv = document.getElementById('validationMessage');
+  if (msgDiv) msgDiv.remove();
+  
+  document.getElementById('prevBtn').style.display = currentStep > 1 ? 'flex' : 'none';
+  document.getElementById('nextBtn').style.display = currentStep < totalSteps ? 'flex' : 'none';
+  document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'block' : 'none';
+  
+  // Enable/disable next button based on validation
+  document.getElementById('nextBtn').disabled = !canProceedToNextStep();
+}
+
+function canProceedToNextStep() {
+  switch(currentStep) {
+    case 1: return !!selectedAction;
+    case 2: return !!selectedRole;
+    case 3:
+      if (selectedAction === 'login') {
+        return document.getElementById('loginUsername').value.trim() && 
+               document.getElementById('loginPassword').value;
+      } else {
+        const fields = ['firstName', 'lastName', 'regUsername', 'email', 'regPassword'];
+        return fields.every(id => document.getElementById(id).value.trim());
+      }
+    case 4:
+      if (selectedAction === 'register') {
+        const fields = ['mobile', 'bloodgroup', 'address'];
+        return fields.every(id => document.getElementById(id).value.trim());
+      }
+      return true;
+    case 5:
+      if (selectedAction === 'register') {
+        if (selectedRole === 'patient') {
+          const fields = ['patientAge', 'doctorName', 'disease'];
+          return fields.every(id => document.getElementById(id) && document.getElementById(id).value.trim());
+        }
+        return document.getElementById('profilePic').files.length > 0;
+      }
+      return true;
+    default:
+      return true;
+  }
+}
+
+function updateStepContent() {
+  if (currentStep === 3) {
+    if (selectedAction === 'login') {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('step3Title').textContent = 'Login Credentials';
+      document.getElementById('step3Subtitle').textContent = 'Enter your username and password to continue';
+    } else {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('step3Title').textContent = 'Basic Information';
+      document.getElementById('step3Subtitle').textContent = 'Tell us about yourself';
+    }
+  }
+  
+  if (currentStep === 5) {
+    if (selectedRole === 'patient') {
+      document.getElementById('patientSpecificFields').style.display = 'block';
+      document.getElementById('donorSpecificFields').style.display = 'none';
+      document.getElementById('step5Title').textContent = 'Medical Information';
+      document.getElementById('step5Subtitle').textContent = 'Help us understand your medical needs';
+    } else if (selectedRole === 'donor') {
+      document.getElementById('patientSpecificFields').style.display = 'none';
+      document.getElementById('donorSpecificFields').style.display = 'block';
+      document.getElementById('step5Title').textContent = 'Donation Preferences';
+      document.getElementById('step5Subtitle').textContent = 'Complete your donor profile';
+    }
+  }
+  
+  if (currentStep === 6) {
+    populateReview();
+    
+    // Update the final step title based on action
+    if (selectedAction === 'login') {
+      document.querySelector('#step6 .step-title').textContent = 'Ready to Login';
+      document.querySelector('#step6 .step-subtitle').textContent = 'Click below to proceed to your dashboard';
+    } else {
+      document.querySelector('#step6 .step-title').textContent = 'Review & Submit';
+      document.querySelector('#step6 .step-subtitle').textContent = 'Please verify your information before submitting';
+    }
+  }
+}
+
+function populateReview() {
+  let html;
+  
+  if (selectedAction === 'login') {
+    html = `
+      <div style="text-align: center; padding: 2rem;">
+        <div style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 style="color: white; margin-bottom: 1rem;">All Set!</h3>
+        <div style="background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <i class="fas fa-user" style="color: #e11d48;"></i>
+            <strong style="color: #e11d48;">Role:</strong> 
+            <span style="color: white; text-transform: capitalize;">${selectedRole}</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <i class="fas fa-id-badge" style="color: #e11d48;"></i>
+            <strong style="color: #e11d48;">Username:</strong> 
+            <span style="color: white;">${document.getElementById('loginUsername').value}</span>
+          </div>
+        </div>
+        <p style="color: rgba(255,255,255,0.8); margin-bottom: 0;">
+          Click the button below to proceed to your ${selectedRole} dashboard
+        </p>
+      </div>
+    `;
+    document.getElementById('finalMessage').innerHTML = `
+      <i class="fas fa-rocket"></i>
+      Ready to access your ${selectedRole} portal!
+    `;
+  } else {
+    html = `<h4 style="color: white; margin-bottom: 1.5rem;">📋 Please review your information:</h4>`;
+    
+    html += `
+      <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        <strong style="color: #e11d48;">Action:</strong> <span style="color: white;">Register as ${selectedRole}</span><br>
+        <strong style="color: #e11d48;">Name:</strong> <span style="color: white;">${document.getElementById('firstName').value} ${document.getElementById('lastName').value}</span><br>
+        <strong style="color: #e11d48;">Username:</strong> <span style="color: white;">${document.getElementById('regUsername').value}</span><br>
+        <strong style="color: #e11d48;">Email:</strong> <span style="color: white;">${document.getElementById('email').value}</span><br>
+        <strong style="color: #e11d48;">Mobile:</strong> <span style="color: white;">${document.getElementById('mobile').value}</span><br>
+        <strong style="color: #e11d48;">Blood Group:</strong> <span style="color: white;">${document.getElementById('bloodgroup').value}</span><br>
+        <strong style="color: #e11d48;">Address:</strong> <span style="color: white;">${document.getElementById('address').value}</span>
+    `;
+    
+    if (selectedRole === 'patient') {
+      html += `<br>
+        <strong style="color: #3b82f6;">Age:</strong> <span style="color: white;">${document.getElementById('patientAge').value}</span><br>
+        <strong style="color: #3b82f6;">Doctor:</strong> <span style="color: white;">${document.getElementById('doctorName').value}</span><br>
+        <strong style="color: #3b82f6;">Condition:</strong> <span style="color: white;">${document.getElementById('disease').value}</span>
+      `;
+    }
+    
+    html += `</div>`;
+    document.getElementById('finalMessage').innerHTML = `
+      <i class="fas fa-user-plus"></i>
+      Ready to complete your ${selectedRole} registration!
+    `;
+  }
+  
+  document.getElementById('reviewInfo').innerHTML = html;
+  document.getElementById('submitText').textContent = selectedAction === 'login' ? `Login as ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}` : 'Complete Registration';
+}
+
+function submitForm() {
+  if (selectedAction === 'login') {
+    // For login: submit credentials directly to the appropriate login endpoint
+    const loginUrl = selectedRole === 'donor' ? '/donor/donorlogin' : '/patient/patientlogin';
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    // Show loading state
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+    submitBtn.disabled = true;
+    
+    // Create form and submit with credentials
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = loginUrl;
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) {
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'csrfmiddlewaretoken';
+      csrfInput.value = csrfToken.value;
+      form.appendChild(csrfInput);
+    } else {
+      // Show user-friendly error message
+      showValidationMessage('Security token missing. Please refresh the page and try again.');
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+      return;
+    }
+    
+    // Add username
+    const usernameInput = document.createElement('input');
+    usernameInput.type = 'hidden';
+    usernameInput.name = 'username';
+    usernameInput.value = username;
+    form.appendChild(usernameInput);
+    
+    // Add password
+    const passwordInput = document.createElement('input');
+    passwordInput.type = 'hidden';
+    passwordInput.name = 'password';
+    passwordInput.value = password;
+    form.appendChild(passwordInput);
+    
+    // Submit form
+    document.body.appendChild(form);
+    form.submit();
+    
+  } else {
+    // For registration: redirect to appropriate signup page with form data
+    const signupUrl = selectedRole === 'donor' ? '/donor/donorsignup' : '/patient/patientsignup';
+    
+    // Create form with all data
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = signupUrl;
+    form.enctype = 'multipart/form-data';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) {
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'csrfmiddlewaretoken';
+      csrfInput.value = csrfToken.value;
+      form.appendChild(csrfInput);
+    } else {
+      // Show user-friendly error message
+      showValidationMessage('Security token missing. Please refresh the page and try again.');
+      return;
+    }
+    
+    // Add all form fields
+    const fieldMappings = {
+      'first_name': 'firstName',
+      'last_name': 'lastName', 
+      'username': 'regUsername',
+      'email': 'email',
+      'password': 'regPassword',
+      'mobile': 'mobile',
+      'bloodgroup': 'bloodgroup',
+      'address': 'address',
+      'aadhaar_number': 'aadhaar'
+    };
+    
+    if (selectedRole === 'patient') {
+      fieldMappings['age'] = 'patientAge';
+      fieldMappings['doctorname'] = 'doctorName';
+      fieldMappings['disease'] = 'disease';
+    }
+    
+    for (const [djangoField, jsField] of Object.entries(fieldMappings)) {
+      const element = document.getElementById(jsField);
+      if (element && element.value) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = djangoField;
+        input.value = element.value;
+        form.appendChild(input);
+      }
+    }
+    
+    // Add profile picture
+    const profilePic = document.getElementById('profilePic');
+    if (profilePic.files[0]) {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.name = 'profile_pic';
+      fileInput.files = profilePic.files;
+      fileInput.style.display = 'none';
+      form.appendChild(fileInput);
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+</script>
+
+{% endblock content %}

@@ -1,0 +1,461 @@
+{% extends 'donor/donorbase.html' %}
+{% block content %}
+{% load static %}
+
+<!-- TEST INDICATOR: If you see this, certificates template is loading
+<div style="position: fixed; top: 10px; right: 10px; background: #00ff00; color: #000; padding: 10px; border-radius: 5px; z-index: 9999; font-weight: bold; animation: blink 1s infinite;">CERTIFICATES UPDATED ✓</div> -->
+
+<style>
+.certificate-card {
+    border: none;
+    border-radius: 20px;
+    background: var(--card-bg, #ffffff);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.certificate-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-400, #f87171), var(--primary-500, #ef4444), var(--primary-600, #dc2626));
+}
+
+.certificate-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+}
+
+.certificate-header {
+    background: linear-gradient(135deg, var(--primary-500, #ef4444) 0%, var(--primary-600, #dc2626) 50%, var(--primary-700, #b91c1c) 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.certificate-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23ffffff" opacity="0.1"><circle cx="50" cy="50" r="20"/><circle cx="20" cy="20" r="10"/><circle cx="80" cy="80" r="15"/></svg>');
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.certificate-header h2 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-header p {
+    font-size: 1.2rem;
+    opacity: 0.95;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.certificate-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+    display: block;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.badge-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.badge-first { 
+    background: linear-gradient(135deg, #fbbf24, #f59e0b); 
+    color: #92400e; 
+    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3);
+}
+
+.badge-regular { 
+    background: linear-gradient(135deg, #60a5fa, #3b82f6); 
+    color: white; 
+    box-shadow: 0 8px 25px rgba(96, 165, 250, 0.3);
+}
+
+.badge-hero { 
+    background: linear-gradient(135deg, #f472b6, #ec4899); 
+    color: white; 
+    box-shadow: 0 8px 25px rgba(244, 114, 182, 0.3);
+}
+
+.badge-lifesaver { 
+    background: linear-gradient(135deg, #34d399, #10b981); 
+    color: white; 
+    box-shadow: 0 8px 25px rgba(52, 211, 153, 0.3);
+}
+
+.badge-champion { 
+    background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706); 
+    color: white; 
+    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+    position: relative;
+}
+
+.badge-champion::before {
+    content: '👑';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 1.5rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.download-btn {
+    background: linear-gradient(135deg, var(--success-500, #10b981), var(--success-600, #059669));
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 1.5rem;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.download-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.stats-card {
+    background: linear-gradient(135deg, var(--primary-500, #ef4444), var(--primary-600, #dc2626), var(--orange-500, #f97316));
+    color: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23ffffff" opacity="0.1"><path d="M50 10 L60 35 L85 35 L66 52 L74 77 L50 62 L26 77 L34 52 L15 35 L40 35 Z"/></svg>');
+    background-size: 50px 50px;
+    animation: float 8s ease-in-out infinite;
+}
+
+.stats-card h3 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.stats-card p {
+    font-size: 1.2rem;
+    opacity: 0.95;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 5rem 3rem;
+    color: var(--text-muted, #94a3b8);
+}
+
+.empty-state i {
+    margin-bottom: 2rem;
+    opacity: 0.6;
+    color: var(--primary-300, #fca5a5);
+}
+
+.empty-state h4 {
+    color: var(--text-primary, #1e293b);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.progress-bar-custom {
+    height: 12px;
+    border-radius: 6px;
+    background: var(--bg-tertiary, #e2e8f0);
+    overflow: hidden;
+    margin: 1.5rem 0;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-400, #f87171), var(--primary-500, #ef4444), var(--orange-500, #f97316));
+    border-radius: 6px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.next-milestone {
+    background: var(--card-bg, #ffffff);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-top: 3rem;
+    border-left: 5px solid var(--primary-500, #ef4444);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.next-milestone h5 {
+    color: var(--text-primary, #1e293b);
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.motivational-message {
+    background: linear-gradient(135deg, var(--bg-secondary, #f8fafc), var(--blue-50, #eff6ff));
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-top: 4rem;
+    border: 1px solid var(--blue-200, #bfdbfe);
+}
+
+.motivational-message h5 {
+    color: var(--blue-700, #1d4ed8);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.motivational-message p {
+    color: var(--blue-600, #2563eb);
+    font-size: 1.1rem;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+/* Dark theme support */
+[data-theme="dark"] .certificate-card {
+    background: var(--bg-secondary, #1e293b);
+    border: 1px solid var(--border-color, #334155);
+}
+
+[data-theme="dark"] .next-milestone {
+    background: var(--bg-secondary, #1e293b);
+}
+
+[data-theme="dark"] .motivational-message {
+    background: var(--bg-secondary, #1e293b);
+    border-color: var(--border-color, #334155);
+}
+
+@media (max-width: 768px) {
+    .certificate-header {
+        padding: 2rem 1.5rem;
+    }
+    
+    .certificate-header h2 {
+        font-size: 2.5rem;
+    }
+    
+    .stats-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .stats-card h3 {
+        font-size: 2.5rem;
+    }
+    
+    .empty-state {
+        padding: 4rem 2rem;
+    }
+}
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="certificate-header" style="border-radius: 15px; margin-bottom: 2rem;">
+                <i class="fas fa-award certificate-icon"></i>
+                <h2>🏆 My Certificates & Achievements</h2>
+                <p class="mb-0">Recognition for your life-saving contributions</p>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-card">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <h3><i class="fas fa-tint me-2"></i>{{donation_count}}</h3>
+                        <p>Total Donations</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h3><i class="fas fa-award me-2"></i>{{certificates.count}}</h3>
+                        <p>Certificates Earned</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h3><i class="fas fa-heart me-2"></i>{{lives_saved}}</h3>
+                        <p>Lives Potentially Saved</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress to Next Achievement -->
+            {% if donation_count < 50 and next_milestone_info %}
+            <div class="next-milestone">
+                <h5><i class="fas fa-target me-2"></i>Next Milestone</h5>
+                <p><strong>{{next_milestone_info}}</strong></p>
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: {{progress_percentage}}%"></div>
+                </div>
+                <small class="text-muted">{{progress_percentage|floatformat:1}}% progress to next level</small>
+            </div>
+            {% endif %}
+
+            <!-- Certificates List -->
+            {% if certificates %}
+                <div class="row">
+                    {% for certificate in certificates %}
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="certificate-card">
+                            <div class="card-body text-center">
+                                <!-- Certificate Icon -->
+                                {% if certificate.certificate_type == 'FIRST_DONATION' %}
+                                    <i class="fas fa-star certificate-icon" style="color: #ffeaa7;"></i>
+                                    <span class="badge-level badge-first">First Time Donor</span>
+                                {% elif certificate.certificate_type == 'REGULAR_DONOR' %}
+                                    <i class="fas fa-medal certificate-icon" style="color: #74b9ff;"></i>
+                                    <span class="badge-level badge-regular">Regular Donor</span>
+                                {% elif certificate.certificate_type == 'HERO_DONOR' %}
+                                    <i class="fas fa-trophy certificate-icon" style="color: #fd79a8;"></i>
+                                    <span class="badge-level badge-hero">Hero Donor</span>
+                                {% elif certificate.certificate_type == 'LIFE_SAVER' %}
+                                    <i class="fas fa-heart certificate-icon" style="color: #00b894;"></i>
+                                    <span class="badge-level badge-lifesaver">Life Saver</span>
+                                {% elif certificate.certificate_type == 'BLOOD_CHAMPION' %}
+                                    <i class="fas fa-crown certificate-icon" style="color: #e17055;"></i>
+                                    <span class="badge-level badge-champion">Blood Champion</span>
+                                {% endif %}
+
+                                <h5 class="card-title">{{certificate.get_certificate_type_display}}</h5>
+                                <p class="text-muted">
+                                    <i class="fas fa-calendar me-2"></i>Earned on {{certificate.issued_date}}
+                                </p>
+                                <p class="text-muted">
+                                    <i class="fas fa-hashtag me-2"></i>{{certificate.donation_count}} donations completed
+                                </p>
+                                <p class="small text-muted">Certificate ID: {{certificate.certificate_id}}</p>
+                                
+                                <a href="{% url 'download-certificate' certificate.certificate_id %}" class="download-btn">
+                                    <i class="fas fa-download me-2"></i>Download Certificate
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-award fa-5x mb-3" style="color: #dee2e6;"></i>
+                    <h4>No Certificates Yet</h4>
+                    <p>Start donating blood to earn your first certificate!</p>
+                    {% if potential_certificates %}
+                        <div class="alert alert-info mt-3">
+                            <h6><i class="fas fa-info-circle me-2"></i>Available Certificates:</h6>
+                            <p class="mb-0">You can earn: {{potential_certificates|join:", "}}</p>
+                        </div>
+                    {% endif %}
+                    <a href="{% url 'donate-blood' %}" class="btn btn-danger btn-lg">
+                        <i class="fas fa-hand-holding-medical me-2"></i>Donate Blood Now
+                    </a>
+                </div>
+            {% endif %}
+
+            <!-- Motivational Message -->
+            <div class="motivational-message">
+                <h5>🌟 Keep Making a Difference!</h5>
+                <p>
+                    Every donation you make is a gift of life. Thank you for being a hero in someone's story and contributing to our life-saving mission.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

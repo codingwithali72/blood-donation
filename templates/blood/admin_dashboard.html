@@ -1,0 +1,300 @@
+{% extends 'blood/adminbase.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+:root {
+    --primary-red: #FF002B;
+    --primary-600: #C9002D;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modern-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.modern-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+.stat-card.info { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+.stat-card.warning { background: linear-gradient(135deg, #fdcb6e, #e17055); }
+.stat-card.success { background: linear-gradient(135deg, #00b894, #00a085); }
+.stat-card.danger { background: linear-gradient(135deg, var(--primary-red), var(--primary-600)); }
+
+.blood-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.blood-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.action-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-red));
+    color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.section-title {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+.pulse-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.enhanced-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.enhanced-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.enhanced-card:hover::before {
+    left: 100%;
+}
+
+@media (max-width: 768px) {
+    .stat-card, .blood-card {
+        margin-bottom: 1rem;
+    }
+    
+    .dashboard-header h2 {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header enhanced-card">
+        <h2><i class="fas fa-tachometer-alt me-2 pulse-icon"></i>Admin Dashboard</h2>
+        <p class="mb-0">Monitor and manage blood bank operations with precision and care</p>
+    </div>
+
+    <!-- Blood Inventory Section -->
+    <div class="modern-card mb-4">
+        <div class="card-header bg-white">
+            <h4 class="section-title"><i class="fas fa-flask me-2"></i>Blood Inventory</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-card">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h5>A+</h5>
+                        <h4>{{A1.unit}}</h4>
+                        <small>Units Available</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-card">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h5>A-</h5>
+                        <h4>{{A2.unit}}</h4>
+                        <small>Units Available</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-card">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h5>B+</h5>
+                        <h4>{{B1.unit}}</h4>
+                        <small>Units Available</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-card">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h5>B-</h5>
+                        <h4>{{B2.unit}}</h4>
+                        <small>Units Available</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-card">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h5>AB+</h5>
+                        <h4>{{AB1.unit}}</h4>
+                        <small>Units Available</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-card">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h5>AB-</h5>
+                        <h4>{{AB2.unit}}</h4>
+                        <small>Units Available</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-card">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h5>O+</h5>
+                        <h4>{{O1.unit}}</h4>
+                        <small>Units Available</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="blood-card">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h5>O-</h5>
+                        <h4>{{O2.unit}}</h4>
+                        <small>Units Available</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="modern-card mb-4">
+        <div class="card-header bg-white">
+            <h4 class="section-title"><i class="fas fa-chart-bar me-2"></i>System Statistics</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card info">
+                        <i class="fas fa-users fa-2x mb-2"></i>
+                        <h4>{{totaldonors}}</h4>
+                        <span>Total Donors</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card warning">
+                        <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                        <h4>{{totalrequest}}</h4>
+                        <span>Total Requests</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card success">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <h4>{{totalapprovedrequest}}</h4>
+                        <span>Approved Requests</span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card danger">
+                        <i class="fas fa-tint fa-2x mb-2"></i>
+                        <h4>{{totalbloodunit}}</h4>
+                        <span>Blood Units (ml)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="modern-card">
+        <div class="card-header bg-white">
+            <h4 class="section-title"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-lg-3 col-md-6">
+                    <a href="/admin-blood" class="action-card">
+                        <div class="card bg-primary text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-flask fa-2x mb-2"></i>
+                                <h6>Manage Blood Stock</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="/admin-request" class="action-card">
+                        <div class="card bg-warning text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                                <h6>Blood Requests</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="/admin-donor" class="action-card">
+                        <div class="card bg-success text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-users fa-2x mb-2"></i>
+                                <h6>Manage Donors</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <a href="/admin-patient" class="action-card">
+                        <div class="card bg-info text-white h-100">
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <i class="fas fa-user-injured fa-2x mb-2"></i>
+                                <h6>Manage Patients</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

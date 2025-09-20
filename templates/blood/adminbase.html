@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank Admin Dashboard</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+
+    <style>
+/* Modern Admin Dashboard Styles */
+.admin-body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Admin Navbar */
+.admin-navbar {
+    background: linear-gradient(135deg, var(--primary-red) 0%, var(--secondary-red) 100%) !important;
+    box-shadow: 0 2px 20px rgba(220, 38, 38, 0.1);
+    border: none;
+}
+
+.admin-navbar .navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white !important;
+}
+
+.admin-navbar .nav-link {
+    color: white !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.admin-navbar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Modern Sidebar */
+.modern-sidebar {
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(180deg, var(--primary-800) 0%, var(--primary-900) 50%, #1a1a1a 100%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    padding-top: 80px;
+    box-shadow: 8px 0 30px rgba(255, 0, 43, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 0, 43, 0.1);
+}
+
+.modern-sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 49%, rgba(255, 0, 43, 0.05) 50%, transparent 51%);
+    background-size: 20px 20px;
+    opacity: 0.3;
+}
+
+.sidebar-header {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.sidebar-header h4 {
+    color: white;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, white 0%, var(--primary-200) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sidebar-logo {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-400) 0%, var(--primary-500) 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 8px 25px rgba(255, 0, 43, 0.3);
+    transition: all 0.3s ease;
+}
+
+.sidebar-logo:hover {
+    transform: scale(1.05) rotate(5deg);
+}
+
+.sidebar-logo i {
+    font-size: 1.8rem;
+    color: white;
+    animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.sidebar-menu li {
+    margin: 0.4rem 1.5rem;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    font-size: 0.95rem;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-400) 0%, var(--primary-500) 100%);
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.sidebar-menu li a i {
+    width: 24px;
+    margin-right: 14px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.sidebar-menu li a span {
+    position: relative;
+    z-index: 2;
+}
+
+.sidebar-menu li a:hover,
+.sidebar-menu li a.active {
+    color: white;
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(255, 0, 43, 0.4);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-menu li a:hover::before,
+.sidebar-menu li a.active::before {
+    left: 0;
+}
+
+.sidebar-menu li a:hover i,
+.sidebar-menu li a.active i {
+    transform: scale(1.2) rotate(10deg);
+    color: white;
+}
+
+/* Admin Main Content */
+.admin-main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    padding: 100px 2rem 2rem 2rem;
+    background: linear-gradient(135deg, var(--primary-100) 0%, #f8fafc 50%, #e2e8f0 100%);
+    transition: margin-left 0.3s ease;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-red) 0%, var(--secondary-red) 100%);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.blood-type-card {
+    text-align: center;
+}
+
+.blood-type-icon {
+    font-size: 2.5rem;
+    color: var(--primary-red);
+    margin-bottom: 1rem;
+}
+
+.blood-type-label {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.blood-type-count {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-red);
+}
+
+.blood-type-unit {
+    font-size: 0.875rem;
+    color: var(--medium-gray);
+    margin-top: 0.25rem;
+}
+
+/* Stats Cards */
+.stats-card {
+    text-align: center;
+}
+
+.stats-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.stats-icon.donors { color: #3b82f6; }
+.stats-icon.requests { color: #f59e0b; }
+.stats-icon.approved { color: #10b981; }
+.stats-icon.blood-units { color: var(--primary-red); }
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.stats-label {
+    font-size: 1rem;
+    color: var(--medium-gray);
+    font-weight: 500;
+}
+
+/* Section Headers */
+.section-header {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+    color: var(--medium-gray);
+    font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modern-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .admin-main-content {
+        margin-left: 0;
+        padding: 100px 1rem 1rem 1rem;
+    }
+}
+
+/* Blood Type Grid */
+.blood-grid {
+    margin-bottom: 3rem;
+}
+
+.stats-grid {
+    margin-top: 2rem;
+}
+
+/* Custom spacing */
+.dashboard-spacing {
+    margin-bottom: 2rem;
+}
+    </style>
+</head>
+<body class="admin-body">
+    <!-- Modern Admin Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top admin-navbar">
+        <a class="navbar-brand" href="/admin-dashboard">
+            <i class="fas fa-heartbeat"></i>
+            Blood Bank Admin
+        </a>
+        
+        <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Modern Sidebar -->
+    <div class="modern-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-heartbeat"></i>
+            </div>
+            <h4>Admin Panel</h4>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li>
+                <a href="/admin-dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-donor">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <span>Manage Donors</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-patient">
+                    <i class="fas fa-user-injured"></i>
+                    <span>Manage Patients</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-donation">
+                    <i class="fas fa-hand-holding-medical"></i>
+                    <span>Blood Donations</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-request">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Blood Requests</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-request-history">
+                    <i class="fas fa-history"></i>
+                    <span>Request History</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-blood">
+                    <i class="fas fa-tint"></i>
+                    <span>Blood Inventory</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-blood-camps">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Blood Camps</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-sponsors">
+                    <i class="fas fa-handshake"></i>
+                    <span>Sponsors</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin-hospitals">
+                    <i class="fas fa-hospital"></i>
+                    <span>Hospitals</span>
+                </a>
+            </li>
+            <li>
+                <a href="/chatbot/">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Assistant</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="admin-main-content">
+        {% block content %}
+        {% endblock content %}
+    </div>
+    
+    <!-- Include Chatbot Widget -->
+    {% include 'chatbot/chatbot_widget_simple.html' %}
+<!--
+developed By : sumit kumar
+facebook : fb.com/sumit.luv
+youtube : youtube.com/lazycoders
+-->
+<!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

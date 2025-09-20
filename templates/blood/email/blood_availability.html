@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Available - Emergency Notification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        .blood-group {
+            display: inline-block;
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .hospital-card {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .hospital-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .hospital-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #4b5563;
+        }
+        .emergency-contact {
+            background: #fef2f2;
+            border: 2px solid #f87171;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .emergency-contact .phone {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc2626;
+        }
+        .other-hospitals {
+            margin-top: 30px;
+        }
+        .hospital-list {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .hospital-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .hospital-item:last-child {
+            border-bottom: none;
+        }
+        .urgent-notice {
+            background: linear-gradient(135deg, #fef3c7, #fcd34d);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 25px 0;
+        }
+        .urgent-notice h3 {
+            margin: 0 0 10px 0;
+            color: #92400e;
+            font-size: 20px;
+        }
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="icon">🩸</div>
+            <h1>Blood Available!</h1>
+            <p>Emergency Blood Availability Alert</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Dear <strong>{{ user.get_full_name|default:user.username }}</strong>,
+            </div>
+            
+            <p>
+                Great news! We found <span class="blood-group">{{ blood_group }}</span> blood available at nearby hospitals.
+            </p>
+            
+            <div class="hospital-card">
+                <div class="hospital-name">
+                    🏥 {{ hospital.name }}
+                </div>
+                
+                <div class="hospital-info">
+                    <div class="info-item">
+                        <span class="info-label">📍 Distance:</span>
+                        <span>{{ distance }} km away</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">🩸 Available:</span>
+                        <span>{{ units }} bags</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">📧 Email:</span>
+                        <span>{{ hospital.contact_email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">🏢 Location:</span>
+                        <span>{{ hospital.city }}</span>
+                    </div>
+                </div>
+                
+                <div class="emergency-contact">
+                    <p><strong>Emergency Contact</strong></p>
+                    <div class="phone">📞 {{ hospital.emergency_contact }}</div>
+                </div>
+                
+                <p><strong>Address:</strong> {{ hospital.address }}, {{ hospital.city }}, {{ hospital.state }}</p>
+            </div>
+            
+            <div class="urgent-notice">
+                <h3>⚡ Urgent Action Required</h3>
+                <p>Please contact the hospital immediately to confirm availability and coordinate the blood transfer for emergency requirements.</p>
+            </div>
+            
+            {% if all_hospitals|length > 1 %}
+            <div class="other-hospitals">
+                <h3>Other Nearby Hospitals with {{ blood_group }} Blood:</h3>
+                <div class="hospital-list">
+                    {% for hospital_data in all_hospitals|slice:"1:" %}
+                    <div class="hospital-item">
+                        <div>
+                            <strong>{{ hospital_data.hospital.name }}</strong><br>
+                            <small>{{ hospital_data.hospital.city }} - {{ hospital_data.distance }} km</small>
+                        </div>
+                        <div>
+                            <strong>{{ hospital_data.units_available }} bags</strong><br>
+                            <small>{{ hospital_data.hospital.emergency_contact }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <p style="margin-top: 30px; color: #6b7280;">
+                This is an automated notification from our Blood Bank Management System. 
+                Please verify availability directly with the hospital before proceeding.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>
+                <strong>Blood Bank Management System</strong><br>
+                Saving Lives Through Technology<br>
+                <a href="mailto:{{ settings.EMAIL_HOST_USER }}">Support</a> | 
+                <a href="#">Emergency Helpline</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

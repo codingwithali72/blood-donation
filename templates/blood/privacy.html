@@ -1,0 +1,461 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Blood Bank Management</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/modern.css' %}">
+    
+    <style>
+    /* Theme Support */
+    body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+        margin-top: 80px;
+    }
+    
+    [data-theme="dark"] {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --card-bg: #1e293b;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    [data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --card-bg: #ffffff;
+        --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Privacy Page Styles */
+    .privacy-wrapper {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary, linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #e2e8f0 70%, #f8fafc 100%));
+        min-height: 100vh;
+        padding: 2rem 0;
+        transition: background-color 0.3s ease;
+    }
+    
+    .privacy-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .privacy-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    .privacy-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--text-primary, var(--primary-700));
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary-600) 0%, #10b981 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: color 0.3s ease;
+    }
+    
+    .privacy-subtitle {
+        font-size: 1.2rem;
+        color: var(--text-secondary, var(--medium-gray));
+        margin: 0;
+        transition: color 0.3s ease;
+    }
+    
+    .privacy-card {
+        background: var(--card-bg, white);
+        border-radius: 24px;
+        box-shadow: var(--shadow-dark, 0 15px 50px rgba(0, 0, 0, 0.1));
+        border: 1px solid var(--border-color, #e2e8f0);
+        overflow: hidden;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .privacy-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-500) 0%, #10b981 50%, var(--primary-600) 100%);
+    }
+    
+    .privacy-content {
+        padding: 3rem;
+        line-height: 1.8;
+    }
+    
+    .privacy-section {
+        margin-bottom: 3rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary, var(--primary-600));
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: color 0.3s ease;
+    }
+    
+    .section-title i {
+        color: var(--primary-500);
+        font-size: 1.2rem;
+    }
+    
+    .section-content {
+        color: var(--text-secondary, var(--medium-gray));
+        margin-bottom: 1.5rem;
+        transition: color 0.3s ease;
+    }
+    
+    .privacy-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .privacy-list li {
+        padding: 0.75rem 0;
+        color: var(--text-secondary, var(--medium-gray));
+        position: relative;
+        padding-left: 2rem;
+        transition: color 0.3s ease;
+    }
+    
+    .privacy-list li::before {
+        content: '\f058';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 0;
+        color: #10b981;
+        font-size: 0.9rem;
+        top: 0.8rem;
+    }
+    
+    .highlight-box {
+        background: var(--bg-tertiary, rgba(16, 185, 129, 0.1));
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        transition: all 0.3s ease;
+    }
+    
+    .highlight-box h4 {
+        color: var(--text-primary, #059669);
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .highlight-box p {
+        margin: 0;
+        color: var(--text-secondary, var(--medium-gray));
+        transition: color 0.3s ease;
+    }
+    
+    .security-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0.5rem 0.5rem 0.5rem 0;
+    }
+    
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+    }
+    
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 0, 43, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .privacy-title {
+            font-size: 2.2rem;
+        }
+        
+        .privacy-content {
+            padding: 2rem 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+        }
+        
+        .security-badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+    }
+    </style>
+</head>
+
+<body>
+    {% include "blood/navbar.html" %}
+    
+    <div class="privacy-wrapper">
+        <div class="privacy-container">
+            <div class="privacy-header">
+                <h1 class="privacy-title">
+                    <i class="fas fa-shield-alt" style="margin-right: 1rem;"></i>
+                    Privacy Policy
+                </h1>
+                <p class="privacy-subtitle">
+                    Your privacy and data security are our highest priorities in the Blood Bank Management System
+                </p>
+            </div>
+            
+            <div class="privacy-card">
+                <div class="privacy-content">
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Introduction
+                        </h2>
+                        <div class="section-content">
+                            This Privacy Policy explains how we collect, use, protect, and handle your personal information when you use our Blood Bank Management System. We are committed to maintaining the highest standards of privacy and data protection.
+                        </div>
+                        
+                        <div class="highlight-box">
+                            <h4><i class="fas fa-lock"></i> Privacy Commitment</h4>
+                            <p>We never sell, rent, or share your personal information with third parties without your explicit consent, except as required by law or medical emergency protocols.</p>
+                        </div>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-database"></i>
+                            Information We Collect
+                        </h2>
+                        <div class="section-content">
+                            We collect information necessary to provide safe and effective blood bank services:
+                        </div>
+                        <ul class="privacy-list">
+                            <li><strong>Personal Information:</strong> Name, contact details, age, and identification</li>
+                            <li><strong>Medical Information:</strong> Blood type, medical history, and health screening results</li>
+                            <li><strong>Donation Records:</strong> Donation history, dates, and locations</li>
+                            <li><strong>Account Information:</strong> Login credentials and account preferences</li>
+                            <li><strong>Usage Data:</strong> System interactions and access logs for security</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-user-shield"></i>
+                            How We Use Your Information
+                        </h2>
+                        <div class="section-content">
+                            Your information is used exclusively for legitimate blood bank operations:
+                        </div>
+                        <ul class="privacy-list">
+                            <li>Processing and managing blood donations and requests</li>
+                            <li>Ensuring medical safety and compatibility</li>
+                            <li>Maintaining donation records and medical histories</li>
+                            <li>Communicating important health and safety information</li>
+                            <li>Improving our services and system security</li>
+                            <li>Complying with medical and legal requirements</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-shield-virus"></i>
+                            Data Security Measures
+                        </h2>
+                        <div class="section-content">
+                            We implement industry-leading security measures to protect your sensitive information:
+                        </div>
+                        
+                        <div style="margin: 1rem 0;">
+                            <span class="security-badge">
+                                <i class="fas fa-key"></i>
+                                SSL Encryption
+                            </span>
+                            <span class="security-badge">
+                                <i class="fas fa-server"></i>
+                                Secure Servers
+                            </span>
+                            <span class="security-badge">
+                                <i class="fas fa-user-lock"></i>
+                                Access Controls
+                            </span>
+                            <span class="security-badge">
+                                <i class="fas fa-eye"></i>
+                                Audit Trails
+                            </span>
+                        </div>
+                        
+                        <ul class="privacy-list">
+                            <li>End-to-end encryption for all data transmission</li>
+                            <li>Regular security audits and vulnerability assessments</li>
+                            <li>Role-based access controls for staff and administrators</li>
+                            <li>Automatic logout and session management</li>
+                            <li>Secure data backup and disaster recovery protocols</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-share-alt"></i>
+                            Information Sharing
+                        </h2>
+                        <div class="section-content">
+                            We only share your information in specific, limited circumstances:
+                        </div>
+                        <ul class="privacy-list">
+                            <li><strong>Medical Emergencies:</strong> Critical information shared with healthcare providers</li>
+                            <li><strong>Legal Requirements:</strong> When required by law or court orders</li>
+                            <li><strong>Safety Concerns:</strong> To prevent harm to individuals or public health</li>
+                            <li><strong>Your Consent:</strong> When you explicitly authorize information sharing</li>
+                        </ul>
+                        
+                        <div class="highlight-box">
+                            <h4><i class="fas fa-hand-paper"></i> No Commercial Use</h4>
+                            <p>We never use your personal information for marketing, advertising, or any commercial purposes unrelated to blood bank operations.</p>
+                        </div>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-user-cog"></i>
+                            Your Privacy Rights
+                        </h2>
+                        <div class="section-content">
+                            You have comprehensive rights regarding your personal information:
+                        </div>
+                        <ul class="privacy-list">
+                            <li><strong>Access:</strong> Request copies of your personal information</li>
+                            <li><strong>Correction:</strong> Update or correct inaccurate information</li>
+                            <li><strong>Deletion:</strong> Request deletion of your data (subject to medical/legal requirements)</li>
+                            <li><strong>Portability:</strong> Export your data in a common format</li>
+                            <li><strong>Restriction:</strong> Limit how we process your information</li>
+                            <li><strong>Objection:</strong> Object to certain types of data processing</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-cookie-bite"></i>
+                            Cookies & Tracking
+                        </h2>
+                        <div class="section-content">
+                            We use essential cookies to improve your experience and ensure system functionality:
+                        </div>
+                        <ul class="privacy-list">
+                            <li><strong>Essential Cookies:</strong> Required for login and basic functionality</li>
+                            <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
+                            <li><strong>Security Cookies:</strong> Protect against fraud and unauthorized access</li>
+                            <li><strong>No Tracking:</strong> We do not use advertising or tracking cookies</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-hourglass-half"></i>
+                            Data Retention
+                        </h2>
+                        <div class="section-content">
+                            We retain your information only as long as necessary for medical, legal, and operational purposes:
+                        </div>
+                        <ul class="privacy-list">
+                            <li>Active account data: While your account remains active</li>
+                            <li>Medical records: As required by healthcare regulations</li>
+                            <li>Donation history: Permanently for safety and traceability</li>
+                            <li>Inactive accounts: Archived after 2 years of inactivity</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-phone"></i>
+                            Contact & Complaints
+                        </h2>
+                        <div class="section-content">
+                            For privacy concerns, questions, or to exercise your rights, please contact us:
+                        </div>
+                        <div class="highlight-box">
+                            <h4><i class="fas fa-envelope"></i> Privacy Officer</h4>
+                            <p>Email: privacy@bloodbank.com | Phone: +1 (555) 123-4567 | Address: 123 Healthcare Blvd, Medical City, MC 12345</p>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color, #e2e8f0);">
+                        <p style="color: var(--text-muted, var(--medium-gray)); font-size: 0.9rem; margin-bottom: 1rem;">
+                            Last updated: August 26, 2025 | Effective Date: August 26, 2025
+                        </p>
+                        <a href="/" class="back-button">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Theme initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load saved theme or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        
+        // Apply theme to body background
+        if (savedTheme === 'dark') {
+            document.body.style.backgroundColor = '#0f172a';
+            document.body.style.color = '#f8fafc';
+        } else {
+            document.body.style.backgroundColor = '#ffffff';
+            document.body.style.color = '#1e293b';
+        }
+    });
+    </script>
+</body>
+</html>
