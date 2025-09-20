@@ -42,7 +42,17 @@ SECRET_KEY = os.environ.get('SECRET_KEY', '+zy!9k=9pql5gz9bkqjore)k6r!%w0atk(@(!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False  # Production mode - Debug disabled
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '*']  # Allow specific hosts for production
+# Production allowed hosts
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1', 
+    '0.0.0.0',
+    '.vercel.app',
+    '.railway.app', 
+    '.render.com',
+    '.herokuapp.com',
+    '*'  # Allow all hosts for demo - restrict in production
+]
 
 
 # Application definition

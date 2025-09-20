@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: bloodbank
+      POSTGRES_USER: bloodbank
+      POSTGRES_PASSWORD: secure_password_123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bloodbank"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        until pg_isready -h db -p 5432 -U bloodbank; do
+          sleep 2
+        done &&
+        echo 'Database available!' &&
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        python manage.py shell -c \"
+        from django.contrib.auth.models import User, Group;
+        from blood.models import Stock;
+        from emergency.models import EmergencyHospital, EmergencyBloodStock;
+        
+        # Create groups
+        Group.objects.get_or_create(name='DONOR')
+        Group.objects.get_or_create(name='PATIENT')
+        
+        # Create admin if doesn't exist
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@bloodbank.com', 'admin123')
+            print('Admin created: admin/admin123')
+        
+        # Initialize blood stock
+        if not Stock.objects.exists():
+            for bg in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']:
+                Stock.objects.create(bloodgroup=bg, unit=15)
+            print('Blood stock initialized')
+        
+        # Load sample hospitals
+        if not EmergencyHospital.objects.exists():
+            hospitals = [
+                {'name': 'King Edward Memorial Hospital', 'address': 'Parel, Mumbai', 'phone': '+912224136051', 'emergency_phone': '+912224136000', 'email': 'kem@hospital.gov.in', 'latitude': 19.0330, 'longitude': 72.8427},
+                {'name': 'Tata Memorial Hospital', 'address': 'Parel, Mumbai', 'phone': '+912224177000', 'emergency_phone': '+912224177111', 'email': 'tmc@tmc.gov.in', 'latitude': 19.0176, 'longitude': 72.8562},
+                {'name': 'Sion Hospital', 'address': 'Sion, Mumbai', 'phone': '+912224076051', 'emergency_phone': '+912224076000', 'email': 'sion@hospital.gov.in', 'latitude': 19.0433, 'longitude': 72.8639},
+                {'name': 'JJ Hospital', 'address': 'Byculla, Mumbai', 'phone': '+912223735555', 'emergency_phone': '+912223735000', 'email': 'jj@hospital.gov.in', 'latitude': 18.9736, 'longitude': 72.8323},
+                {'name': 'Nair Hospital', 'address': 'Mumbai Central', 'phone': '+912223027643', 'emergency_phone': '+912223027600', 'email': 'nair@hospital.gov.in', 'latitude': 18.9694, 'longitude': 72.8186},
+            ]
+            for h_data in hospitals:
+                hospital = EmergencyHospital.objects.create(**h_data)
+                for bg in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']:
+                    EmergencyBloodStock.objects.create(hospital=hospital, blood_group=bg, units_available=10)
+            print('Sample hospitals loaded')
+        \" &&
+        gunicorn --bind 0.0.0.0:8000 --workers 3 bloodbankmanagement.wsgi:application
+      "
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DB_NAME=bloodbank
+      - DB_USER=bloodbank
+      - DB_PASSWORD=secure_password_123
+      - DB_HOST=db
+      - DB_PORT=5432
+      - SECRET_KEY=your_super_secret_key_here_change_in_production
+      - DEBUG=False
+      - SIMULATE_SMS=True
+    volumes:
+      - static_volume:/app/staticfiles_build/static
+      - media_volume:/app/staticfiles_build/media
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_volume:/app/staticfiles_build/static
+      - media_volume:/app/staticfiles_build/media
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

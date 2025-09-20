@@ -6,3 +6,13 @@ whitenoise==6.6.0
 gunicorn==21.2.0
 google-generativeai==0.3.2
 requests==2.31.0
+psycopg2-binary==2.9.9
+twilio==8.12.0
+httpx==0.25.2
+channels==4.0.0
+django-cors-headers==4.9.0
+djangorestframework==3.16.1
+redis==5.0.1
+python-dotenv==1.0.0
+django-environ==0.11.2
+celery==5.3.4
