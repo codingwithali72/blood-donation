@@ -40,7 +40,8 @@ MEDIA_ROOT = BASE_DIR / 'static'
 SECRET_KEY = os.environ.get('SECRET_KEY', '+zy!9k=9pql5gz9bkqjore)k6r!%w0atk(@(!(!zvp5e(t2i8n')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False  # Production mode - Debug disabled
+# Temporarily enable DEBUG to see error details
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 # Production allowed hosts
 ALLOWED_HOSTS = [
@@ -112,8 +113,14 @@ ASGI_APPLICATION = 'bloodbankmanagement.asgi.application'  # Added for WebSocket
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# Use SQLite for development and testing
-if os.environ.get('ENVIRONMENT') == 'production':
+# Database configuration
+if os.environ.get('DATABASE_URL'):
+    # Railway provides DATABASE_URL automatically
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    }
+elif os.environ.get('ENVIRONMENT') == 'production':
     # PostgreSQL for production
     DATABASES = {
         'default': {
