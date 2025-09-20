@@ -1,5 +1,6 @@
 [phases.setup]
 nixPkgs = ['python39', 'postgresql']
+aptPkgs = ['postgresql-client']
 
 [phases.install]
 cmds = [
@@ -9,8 +10,9 @@ cmds = [
 [phases.build]
 cmds = [
     'python manage.py migrate --noinput',
+    'python manage.py setup_initial_data',
     'python manage.py collectstatic --noinput',
 ]
 
 [start]
-cmd = 'python manage.py runserver 0.0.0.0:$PORT'
+cmd = 'gunicorn bloodbankmanagement.wsgi:application --bind 0.0.0.0:$PORT --workers 3'

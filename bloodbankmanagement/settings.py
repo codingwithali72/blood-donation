@@ -113,15 +113,41 @@ ASGI_APPLICATION = 'bloodbankmanagement.asgi.application'  # Added for WebSocket
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# Database configuration
-if os.environ.get('DATABASE_URL'):
+# Database configuration - Railway/Production
+if os.environ.get('DATABASE_URL') or os.environ.get('PGHOST'):
     # Railway provides DATABASE_URL automatically
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
-    }
+    try:
+        import dj_database_url
+        if os.environ.get('DATABASE_URL'):
+            DATABASES = {
+                'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+            }
+        else:
+            # Railway PostgreSQL connection
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.postgresql',
+                    'NAME': os.environ.get('PGDATABASE', 'railway'),
+                    'USER': os.environ.get('PGUSER', 'postgres'),
+                    'PASSWORD': os.environ.get('PGPASSWORD', ''),
+                    'HOST': os.environ.get('PGHOST', 'localhost'),
+                    'PORT': os.environ.get('PGPORT', '5432'),
+                }
+            }
+    except ImportError:
+        # Fallback PostgreSQL configuration
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('PGDATABASE', 'railway'),
+                'USER': os.environ.get('PGUSER', 'postgres'), 
+                'PASSWORD': os.environ.get('PGPASSWORD', ''),
+                'HOST': os.environ.get('PGHOST', 'localhost'),
+                'PORT': os.environ.get('PGPORT', '5432'),
+            }
+        }
 elif os.environ.get('ENVIRONMENT') == 'production':
-    # PostgreSQL for production
+    # Other production PostgreSQL
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -133,7 +159,7 @@ elif os.environ.get('ENVIRONMENT') == 'production':
         }
     }
 else:
-    # SQLite for development
+    # SQLite for local development only
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
